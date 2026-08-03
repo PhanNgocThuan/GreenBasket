@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>GreenBasket - Checkout & Delivery Slot Selection</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Checkout produce, delivery time slot, fresh vegetable delivery address" name="keywords">
+    <meta content="Select delivery slot, fill recipient address, choose payment method and confirm fresh produce order." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                </div>
+                <div class="top-link pe-2 d-flex align-items-center">
+                    <span class="text-white me-2"><small>Role:</small></span>
+                    <span class="gb-role-badge me-3">Customer</span>
+                    <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                </div>
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1></a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
+                        <a href="cart.html" class="nav-item nav-link">Cart</a>
+                        <a href="chackout.html" class="nav-item nav-link active">Checkout</a>
+                        <a href="orders.html" class="nav-item nav-link">Track Orders</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i class="fas fa-cog me-1"></i>Operations</a>
+                    </div>
+                    <div class="d-flex m-3 me-0 align-items-center">
+                        <button type="button" class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i class="fas fa-search text-primary"></i></button>
+                        <a href="cart.html" class="position-relative me-4 my-auto">
+                            <i class="fa fa-shopping-bag fa-2x text-primary"></i>
+                            <span class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                        </a>
+                        <a href="orders.html" class="my-auto">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Checkout & Delivery</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+            <li class="breadcrumb-item"><a href="cart.html" class="text-white">Cart</a></li>
+            <li class="breadcrumb-item active text-white">Checkout</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Checkout Page Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <h1 class="mb-4 text-primary fw-bold">Order Checkout</h1>
+
+            <form id="gb-checkout-form">
+                <div class="row g-5">
+                    <!-- Left Column: Delivery Address & Time Slot -->
+                    <div class="col-md-12 col-lg-7">
+                        
+                        <!-- FR-3.2 Delivery Slot Selection Card -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h5 class="card-title mb-0 text-white"><i class="far fa-clock me-2"></i>1. Preferred Delivery Date & Time Window</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-3">Select when you would like your cold-chain fresh produce package delivered to your doorstep.</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-dark">Delivery Window</label>
+                                        <select class="form-select p-3" id="deliverySlot" required>
+                                            <option value="Today (Aug 03): 14:00 - 16:00" selected>Today (Aug 03): 14:00 - 16:00 (Afternoon)</option>
+                                            <option value="Today (Aug 03): 16:00 - 18:00">Today (Aug 03): 16:00 - 18:00 (Evening)</option>
+                                            <option value="Tomorrow (Aug 04): 08:00 - 10:00">Tomorrow (Aug 04): 08:00 - 10:00 (Morning)</option>
+                                            <option value="Tomorrow (Aug 04): 10:00 - 12:00">Tomorrow (Aug 04): 10:00 - 12:00 (Late Morning)</option>
+                                            <option value="Tomorrow (Aug 04): 14:00 - 16:00">Tomorrow (Aug 04): 14:00 - 16:00 (Afternoon)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bg-light p-3 rounded border text-muted small h-100 d-flex align-items-center">
+                                            <div>
+                                                <i class="fas fa-snowflake text-info me-2"></i>
+                                                <strong>Fresh Guarantee:</strong> Packaged in insulated thermal boxes with ice packs.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FR-1.2 Delivery Address Details Card -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2. Recipient & Delivery Address</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold text-dark">Full Recipient Name<sup>*</sup></label>
+                                        <input type="text" class="form-control p-3" id="fullName" value="Alex Johnson" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-dark">Phone Number<sup>*</sup></label>
+                                        <input type="tel" class="form-control p-3" id="phone" value="+84 901 234 567" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-dark">Email Address<sup>*</sup></label>
+                                        <input type="email" class="form-control p-3" id="email" value="alex@example.com" required>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold text-dark">Street Address & Apartment<sup>*</sup></label>
+                                        <input type="text" class="form-control p-3" id="address" value="123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City" required>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold text-dark">Delivery Notes / Gate Code (Optional)</label>
+                                        <textarea id="deliveryNotes" class="form-control p-3" rows="2" placeholder="e.g. Please leave package with building reception if not home."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Order Items Summary & Payment -->
+                    <div class="col-md-12 col-lg-5">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-dark text-white py-3">
+                                <h5 class="card-title mb-0 text-white"><i class="fas fa-receipt me-2"></i>3. Order Summary & Payment</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <!-- Itemized List -->
+                                <div id="gb-checkout-items" class="mb-3 max-height-300 overflow-auto">
+                                    <!-- Populated dynamically -->
+                                </div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between mb-2 fs-6">
+                                    <span class="text-muted">Subtotal:</span>
+                                    <span class="fw-bold" id="coSubtotal">$0.00</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2 fs-6">
+                                    <span class="text-muted">Delivery Fee:</span>
+                                    <span class="fw-bold text-success" id="coDeliveryFee">$2.00</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-3 fs-4 border-top pt-2">
+                                    <span class="fw-bold text-dark">Total Amount:</span>
+                                    <span class="fw-bold text-primary" id="coTotal">$0.00</span>
+                                </div>
+
+                                <!-- Payment Methods (FR-4.1) -->
+                                <h6 class="fw-bold text-dark mt-4 mb-3">Select Payment Method:</h6>
+                                
+                                <div class="form-check p-3 rounded border mb-2 bg-light">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payCOD" value="Cash on Delivery (COD)" checked>
+                                    <label class="form-check-label fw-bold text-dark" for="payCOD">
+                                        <i class="fas fa-money-bill-wave text-success me-2"></i>Cash on Delivery (COD)
+                                    </label>
+                                    <small class="text-muted d-block mt-1">Pay with cash or card upon drop-off delivery.</small>
+                                </div>
+
+                                <div class="form-check p-3 rounded border mb-2 bg-light">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payMoMo" value="MoMo E-Wallet">
+                                    <label class="form-check-label fw-bold text-dark" for="payMoMo">
+                                        <i class="fas fa-wallet text-danger me-2"></i>MoMo E-Wallet / QR Scan
+                                    </label>
+                                </div>
+
+                                <div class="form-check p-3 rounded border mb-4 bg-light">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payBank" value="Direct Bank Transfer">
+                                    <label class="form-check-label fw-bold text-dark" for="payBank">
+                                        <i class="fas fa-university text-primary me-2"></i>Direct Bank Transfer (VietQR)
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 text-white text-uppercase fw-bold shadow fs-5">
+                                    <i class="fas fa-check-circle me-2"></i>Confirm Order & Place
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Checkout Page End -->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">GreenBasket</h4>
+                        <p class="mb-4">Guaranteed farm-fresh produce with doorstep delivery tracking.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">Links</h4>
+                        <a class="btn-link" href="shop.html">Shop Catalog</a><br>
+                        <a class="btn-link" href="cart.html">Cart</a><br>
+                        <a class="btn-link" href="orders.html">Orders</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">Support</h4>
+                        <p>Email: support@greenbasket.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- App State Engine & Script -->
+    <script src="js/app-state.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            function renderCheckoutSummary() {
+                const cart = window.AppState.getCart();
+                const $container = $('#gb-checkout-items');
+                $container.empty();
+
+                if (cart.length === 0) {
+                    window.location.href = 'cart.html';
+                    return;
+                }
+
+                cart.forEach(item => {
+                    const itemTotal = (item.price * item.qty).toFixed(2);
+                    $container.append(`
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <img src="${item.image}" class="img-fluid rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="${item.name}">
+                                <div>
+                                    <h6 class="mb-0 text-dark font-bold">${item.name}</h6>
+                                    <small class="text-muted">${item.qty} ${item.unit} x $${item.price.toFixed(2)}</small>
+                                </div>
+                            </div>
+                            <span class="fw-bold text-dark">$${itemTotal}</span>
+                        </div>
+                    `);
+                });
+
+                const subtotal = window.AppState.getCartSubtotal();
+                const deliveryFee = subtotal >= 30 ? 0.00 : 2.00;
+                const total = subtotal + deliveryFee;
+
+                $('#coSubtotal').text('$' + subtotal.toFixed(2));
+                $('#coDeliveryFee').html(deliveryFee === 0 ? '<span class="badge bg-success">FREE Shipping</span>' : '$' + deliveryFee.toFixed(2));
+                $('#coTotal').text('$' + total.toFixed(2));
+            }
+
+            // Checkout Form Submission Handler
+            $('#gb-checkout-form').on('submit', function(e) {
+                e.preventDefault();
+
+                const checkoutDetails = {
+                    fullName: $('#fullName').val().trim(),
+                    phone: $('#phone').val().trim(),
+                    email: $('#email').val().trim(),
+                    address: $('#address').val().trim(),
+                    deliverySlot: $('#deliverySlot').val(),
+                    paymentMethod: $('input[name="paymentMethod"]:checked').val()
+                };
+
+                const newOrder = window.AppState.placeOrder(checkoutDetails);
+                if (newOrder) {
+                    window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully!`, 'success');
+                    setTimeout(() => {
+                        window.location.href = 'orders.html?highlight=' + newOrder.id;
+                    }, 1200);
+                } else {
+                    window.GB.showToast('Failed to place order. Cart might be empty.', 'danger');
+                }
+            });
+
+            renderCheckoutSummary();
+        });
+    </script>
+</body>
+
+</html>

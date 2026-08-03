@@ -1,0 +1,723 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --mm-cream: #F9EDDE;
+    --mm-yellow: #FBFA86;
+    --mm-forest: #1C3F2B;
+    --mm-purple: #B287FE;
+    --mm-mint: #91EFD2;
+    --mm-coral: #E05A36;
+    --mm-dark: #2B2118;
+    --mm-pink: #FFA4EB;
+
+    --bs-primary: #1C3F2B !important;
+    --bs-secondary: #FBFA86 !important;
+    --bs-light: #F9EDDE !important;
+    --bs-dark: #2B2118 !important;
+    --bs-success: #1C3F2B !important;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background-color: var(--mm-cream) !important;
+    color: var(--mm-dark) !important;
+}
+
+/* Fix Typography Contrast Issues */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--mm-forest) !important;
+    font-weight: 800 !important;
+}
+
+.text-primary {
+    color: var(--mm-forest) !important;
+}
+
+.text-secondary {
+    color: #4A3F35 !important;
+}
+
+.text-muted {
+    color: #5A4D41 !important;
+}
+
+p {
+    color: #2B2118;
+}
+
+/*** Spinner Start ***/
+#spinner {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .8s ease-out, visibility 0s linear .5s;
+    z-index: 99999;
+}
+
+#spinner.show {
+    transition: opacity .8s ease-out, visibility 0s linear .0s;
+    visibility: visible;
+    opacity: 1;
+}
+
+.back-to-top {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    display: flex;
+    width: 45px;
+    height: 45px;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+    z-index: 99;
+    background-color: var(--mm-forest) !important;
+    border: 2px solid var(--mm-dark) !important;
+    box-shadow: 3px 3px 0px var(--mm-dark);
+}
+
+/*** Topbar & Navbar Background Sync (FIXED NAVBAR COLOR MATCH) ***/
+.fixed-top,
+.fixed-top .bg-white,
+.navbar,
+.navbar-collapse,
+.navbar-light,
+.navbar-nav {
+    background-color: #F9EDDE !important;
+    transition: 0.3s;
+}
+
+.fixed-top {
+    border-bottom: 2.5px solid #2B2118 !important;
+}
+
+.topbar {
+    padding: 8px 20px !important;
+    border-radius: 0 0 15px 15px;
+    background-color: #1C3F2B !important;
+    line-height: normal !important;
+}
+
+.topbar .top-info, .topbar .top-link {
+    font-size: 14px;
+    line-height: normal !important;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.gb-role-badge {
+    display: inline-block !important;
+    background: #FBFA86 !important;
+    color: #2B2118 !important;
+    border: 1.5px solid #2B2118 !important;
+    font-size: 0.75rem !important;
+    padding: 2px 10px !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    vertical-align: middle !important;
+    box-shadow: 1px 1px 0px #2B2118 !important;
+}
+
+/*** Navbar Navigation Links ***/
+.navbar .navbar-nav .nav-link {
+    padding: 10px 18px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #2B2118 !important;
+    transition: .3s;
+}
+
+.navbar {
+    height: 85px;
+}
+
+.navbar .navbar-nav .nav-link:hover,
+.navbar .navbar-nav .nav-link.active {
+    color: #1C3F2B !important;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 3px;
+}
+
+#searchModal .modal-content {
+    background: rgba(249, 237, 222, 0.98);
+}
+
+/*** Hero Header & Page Headers ***/
+.hero-header {
+    background: #A0BD73 !important;
+    border-bottom: none !important;
+}
+
+.page-header {
+    position: relative;
+    background: linear-gradient(135deg, #1C3F2B 0%, #2A583E 100%) !important;
+    border-bottom: 3px solid #2B2118;
+}
+
+.page-header h1, .page-header li, .page-header a {
+    color: #ffffff !important;
+}
+
+@media (min-width: 992px) {
+    .hero-header,
+    .page-header {
+        margin-top: 130px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-header,
+    .page-header {
+        margin-top: 85px !important;
+    }
+}
+
+/*** Features Section Circle Icons ***/
+.featurs .featurs-item .featurs-icon {
+    position: relative;
+    width: 110px !important;
+    height: 110px !important;
+    border-radius: 50% !important;
+    background-color: var(--mm-yellow) !important;
+    border: 2.5px solid var(--mm-dark) !important;
+    box-shadow: 3px 3px 0px var(--mm-dark) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.featurs .featurs-item .featurs-icon i {
+    color: var(--mm-dark) !important;
+    font-size: 2.5rem !important;
+}
+
+.featurs .featurs-item .featurs-icon::after {
+    display: none !important;
+}
+
+/*** Custom Misfits Badges ***/
+.badge-farm-origin {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    background-color: var(--mm-purple) !important;
+    color: var(--mm-dark) !important;
+    border: 2px solid var(--mm-dark) !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    letter-spacing: 0.3px;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+    z-index: 5 !important;
+    line-height: 1.2 !important;
+    max-width: calc(100% - 20px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-stock-in {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: static !important;
+    background-color: var(--mm-mint) !important;
+    color: var(--mm-dark) !important;
+    border: 1.5px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    padding: 4px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    box-shadow: 1px 1px 0px var(--mm-dark) !important;
+    margin: 2px 4px 4px 0 !important;
+}
+
+.badge-stock-low {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: static !important;
+    background-color: var(--mm-yellow) !important;
+    color: var(--mm-dark) !important;
+    border: 1.5px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    padding: 4px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    box-shadow: 1px 1px 0px var(--mm-dark) !important;
+    margin: 2px 4px 4px 0 !important;
+}
+
+.badge-stock-out {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: static !important;
+    background-color: #FFC4C4 !important;
+    color: var(--mm-dark) !important;
+    border: 1.5px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    padding: 4px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    box-shadow: 1px 1px 0px var(--mm-dark) !important;
+    margin: 2px 4px 4px 0 !important;
+}
+
+.badge-organic {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: static !important;
+    background-color: var(--mm-pink) !important;
+    color: var(--mm-dark) !important;
+    border: 1.5px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    padding: 4px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    box-shadow: 1px 1px 0px var(--mm-dark) !important;
+    margin: 2px 4px 4px 0 !important;
+}
+
+/* Product Cards & Containers Misfits Style */
+.fruite-item, .card, .stat-card {
+    background: #ffffff !important;
+    border: 2.5px solid var(--mm-dark) !important;
+    border-radius: 20px !important;
+    box-shadow: 4px 4px 0px var(--mm-dark) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    overflow: hidden !important;
+}
+
+.fruite-item .fruite-img {
+    position: relative !important;
+    overflow: hidden !important;
+    border-top-left-radius: 17px !important;
+    border-top-right-radius: 17px !important;
+    background-color: #f8f6f0 !important;
+    border-bottom: 2.5px solid var(--mm-dark) !important;
+    height: 210px !important;
+}
+
+.fruite-item .fruite-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    transition: transform 0.3s ease !important;
+}
+
+.fruite-item:hover .fruite-img img {
+    transform: scale(1.04) !important;
+}
+
+.fruite-item:hover {
+    transform: translate(-3px, -3px) !important;
+    box-shadow: 8px 8px 0px var(--mm-dark) !important;
+}
+
+.fruite-item .p-4 {
+    padding: 1.25rem !important;
+}
+
+.fruite-item h4 {
+    color: var(--mm-dark) !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+}
+
+.fruite-item p {
+    color: #4A3F35 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+}
+
+/* Buttons Styling */
+.btn-primary {
+    background-color: var(--mm-forest) !important;
+    border: 2px solid var(--mm-dark) !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    border-radius: 30px;
+    box-shadow: 3px 3px 0px var(--mm-dark);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #28553A !important;
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px var(--mm-dark);
+}
+
+.btn-secondary, .btn-outline-secondary {
+    background-color: var(--mm-yellow) !important;
+    border: 2px solid var(--mm-dark) !important;
+    color: var(--mm-dark) !important;
+    font-weight: 800;
+    border-radius: 30px;
+    box-shadow: 3px 3px 0px var(--mm-dark);
+}
+
+.btn-add-cart {
+    background-color: var(--mm-yellow) !important;
+    color: var(--mm-dark) !important;
+    border: 2px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    box-shadow: 2px 2px 0px var(--mm-dark);
+    border-radius: 30px !important;
+}
+
+.btn-add-cart:hover {
+    background-color: var(--mm-mint) !important;
+    color: var(--mm-dark) !important;
+}
+
+/* Category Tab Pills Misfits Style */
+.fruite .tab-class .nav-item a {
+    border: 2px solid var(--mm-dark) !important;
+    background: #ffffff !important;
+    border-radius: 30px !important;
+    box-shadow: 2px 2px 0px var(--mm-dark);
+    transition: all 0.2s ease;
+}
+
+.fruite .tab-class .nav-item a.active {
+    background: var(--mm-forest) !important;
+    color: #ffffff !important;
+    box-shadow: 4px 4px 0px var(--mm-dark) !important;
+}
+
+.fruite .tab-class .nav-item a.active span {
+    color: #ffffff !important;
+}
+
+/* Tracking Stepper Misfits Theme (FIXED HORIZONTAL PROGRESS STEPPER) */
+.tracking-stepper {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    position: relative !important;
+    margin: 30px 0 !important;
+    padding: 0 10px !important;
+    width: 100% !important;
+}
+
+.tracking-stepper::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 25px !important;
+    left: 10% !important;
+    right: 10% !important;
+    height: 4px !important;
+    background: #2B2118 !important;
+    z-index: 1 !important;
+}
+
+.step-item {
+    position: relative !important;
+    z-index: 2 !important;
+    text-align: center !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    transform: none !important;
+}
+
+.step-icon {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 50% !important;
+    border: 2.5px solid #2B2118 !important;
+    background: #ffffff !important;
+    color: #2B2118 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.2rem !important;
+    margin: 0 auto 8px auto !important;
+    box-shadow: 2px 2px 0px #2B2118 !important;
+}
+
+.step-item.completed .step-icon {
+    background: var(--mm-mint) !important;
+    color: #2B2118 !important;
+}
+
+.step-item.active .step-icon {
+    background: var(--mm-yellow) !important;
+    color: #2B2118 !important;
+    box-shadow: 3px 3px 0px #2B2118 !important;
+}
+
+.step-title {
+    font-weight: 700 !important;
+    color: #2B2118 !important;
+    font-size: 0.85rem !important;
+}
+
+/* Staff Dashboard Stat Cards Fix */
+.stat-card {
+    background: #ffffff !important;
+    border: 2.5px solid var(--mm-dark) !important;
+    border-radius: 18px !important;
+    box-shadow: 4px 4px 0px var(--mm-dark) !important;
+    padding: 20px 24px !important;
+    min-height: 110px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.stat-card .btn-square {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    border: 2px solid var(--mm-dark) !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+    margin-left: 12px !important;
+}
+
+.stat-card small {
+    color: #5A4D41 !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    display: block !important;
+    margin-bottom: 6px !important;
+    line-height: 1.2 !important;
+}
+
+.stat-card h3 {
+    font-size: 1.75rem !important;
+    font-weight: 800 !important;
+    color: #2B2118 !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Card Header Fix in Admin */
+.card-header.bg-primary {
+    background-color: var(--mm-forest) !important;
+    border-bottom: 2.5px solid var(--mm-dark) !important;
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+}
+
+/* Tab Navigation Buttons in Admin */
+#adminTabs .nav-link {
+    border: 2.5px solid var(--mm-dark) !important;
+    background: #ffffff !important;
+    color: var(--mm-dark) !important;
+    border-radius: 14px 14px 0 0 !important;
+    margin-right: 8px !important;
+    font-weight: 800 !important;
+    padding: 12px 24px !important;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+}
+
+#adminTabs .nav-link.active {
+    background: var(--mm-forest) !important;
+    color: #ffffff !important;
+    box-shadow: 4px 4px 0px var(--mm-dark) !important;
+}
+
+#adminTabs .nav-link.active i {
+    color: #FBFA86 !important;
+}
+
+/* =========================================================
+   Misfits Market Video Landing & Marquee Ticker Styles
+   ========================================================= */
+
+/* Hero Video Container */
+.hero-video-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 85px);
+    min-height: 550px;
+    overflow: hidden;
+    background-color: #1C3F2B;
+}
+
+.hero-video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    z-index: 1;
+    filter: brightness(0.65) contrast(1.1);
+}
+
+.hero-youtube-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.hero-youtube-wrapper iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    height: 56.25vw;
+    min-height: 100vh;
+    min-width: 177.77vh;
+    transform: translate(-50%, -50%) scale(1.25);
+    filter: brightness(0.65) contrast(1.1);
+}
+
+/* =========================================================
+   Misfits Market Footer & High-Contrast Typography System
+   ========================================================= */
+.footer {
+    background-color: var(--mm-forest) !important;
+    border-top: 3.5px solid var(--mm-dark) !important;
+    color: #F9EDDE !important;
+}
+
+.footer .text-white-50 {
+    color: #F9EDDE !important;
+}
+
+.footer h1, .footer h2, .footer h3, .footer h4, .footer h5 {
+    color: #FBFA86 !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.footer p, .footer span, .footer li, .footer small {
+    color: #F9EDDE !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+.footer .footer-item a, .footer a.btn-link {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    transition: color 0.2s ease, text-decoration 0.2s ease !important;
+    text-decoration: none !important;
+}
+
+.footer .footer-item a:hover, .footer a.btn-link:hover {
+    color: #FBFA86 !important;
+    text-decoration: underline !important;
+}
+
+.footer input.form-control {
+    background-color: #ffffff !important;
+    border: 2.5px solid var(--mm-dark) !important;
+    color: #2B2118 !important;
+    font-weight: 600 !important;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+}
+
+.footer input.form-control::placeholder {
+    color: #6C757D !important;
+    font-weight: 500 !important;
+}
+
+.footer button[type="submit"], .footer .btn-subscribe {
+    background-color: var(--mm-yellow) !important;
+    color: var(--mm-dark) !important;
+    border: 2.5px solid var(--mm-dark) !important;
+    font-weight: 800 !important;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+    border-radius: 30px !important;
+}
+
+.footer button[type="submit"]:hover, .footer .btn-subscribe:hover {
+    background-color: var(--mm-mint) !important;
+    color: var(--mm-dark) !important;
+}
+
+.footer .btn-outline-secondary {
+    background-color: var(--mm-yellow) !important;
+    border: 2px solid var(--mm-dark) !important;
+    color: var(--mm-dark) !important;
+    box-shadow: 2px 2px 0px var(--mm-dark) !important;
+    transition: transform 0.2s ease !important;
+}
+
+.footer .btn-outline-secondary:hover {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 4px 4px 0px var(--mm-dark) !important;
+    background-color: var(--mm-mint) !important;
+}
+
+.hero-video-overlay {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+/* Continuous Marquee Ticker Bar */
+.marquee-ticker-bar {
+    background-color: var(--mm-yellow);
+    border-top: 2.5px solid var(--mm-dark);
+    border-bottom: 2.5px solid var(--mm-dark);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 12px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.marquee-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marqueeScroll 28s linear infinite;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--mm-dark);
+    letter-spacing: 0.5px;
+}
+
+.marquee-ticker-bar:hover .marquee-content {
+    animation-play-state: paused;
+}
+
+@keyframes marqueeScroll {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+

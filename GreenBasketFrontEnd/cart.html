@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>GreenBasket - Shopping Cart</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Shopping cart, produce weight checkout, organic food delivery" name="keywords">
+    <meta content="Review your fresh produce cart items, adjust weight quantities, and proceed to checkout." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                </div>
+                <div class="top-link pe-2 d-flex align-items-center">
+                    <span class="text-white me-2"><small>Role:</small></span>
+                    <span class="gb-role-badge me-3">Customer</span>
+                    <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                </div>
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1></a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
+                        <a href="cart.html" class="nav-item nav-link active">Cart</a>
+                        <a href="chackout.html" class="nav-item nav-link">Checkout</a>
+                        <a href="orders.html" class="nav-item nav-link">Track Orders</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i class="fas fa-cog me-1"></i>Operations</a>
+                    </div>
+                    <div class="d-flex m-3 me-0 align-items-center">
+                        <button type="button" class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i class="fas fa-search text-primary"></i></button>
+                        <a href="cart.html" class="position-relative me-4 my-auto">
+                            <i class="fa fa-shopping-bag fa-2x text-primary"></i>
+                            <span class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                        </a>
+                        <a href="orders.html" class="my-auto">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Shopping Cart</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+            <li class="breadcrumb-item active text-white">Cart</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Cart Page Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <!-- Free Shipping Progress -->
+            <div class="mb-4 bg-light p-4 rounded border" id="gb-freeship-banner">
+                <!-- Dynamically rendered progress -->
+            </div>
+
+            <div class="table-responsive shadow-sm rounded border">
+                <table class="table align-middle mb-0 bg-white">
+                    <thead class="table-primary text-primary">
+                        <tr>
+                            <th scope="col" style="min-width: 100px;">Produce</th>
+                            <th scope="col">Name & Farm Origin</th>
+                            <th scope="col">Price / Unit</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total</th>
+                            <th scope="col" class="text-center">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gb-cart-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row g-4 justify-content-between mt-4">
+                <div class="col-lg-5">
+                    <div class="bg-light p-4 rounded border">
+                        <h4 class="fw-bold text-primary mb-3"><i class="fas fa-tag me-2"></i>Apply Coupon Code</h4>
+                        <div class="input-group">
+                            <input type="text" id="couponCode" class="form-control p-3" placeholder="Enter coupon (e.g. GREEN2026)">
+                            <button id="btnApplyCoupon" class="btn btn-primary px-4 text-white" type="button">Apply</button>
+                        </div>
+                        <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle me-1"></i>Try code <strong>GREEN10</strong> for $1.00 off!</small>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="shop.html" class="btn btn-outline-primary rounded-pill px-4 py-3 fw-bold">
+                            <i class="fas fa-arrow-left me-2"></i>Continue Shopping Produce
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-5">
+                    <div class="bg-light p-4 rounded border shadow-sm">
+                        <h3 class="fw-bold text-primary mb-4 pb-2 border-bottom">Cart Summary</h3>
+                        
+                        <div class="d-flex justify-content-between mb-3 fs-5">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="fw-bold text-dark" id="cartSubtotal">$0.00</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3 fs-5">
+                            <span class="text-muted">Delivery Fee:</span>
+                            <span class="fw-bold text-success" id="cartDeliveryFee">$2.00</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3 fs-5 text-danger d-none" id="couponDiscountRow">
+                            <span class="text-muted">Discount Coupon:</span>
+                            <span class="fw-bold" id="cartDiscount">-$0.00</span>
+                        </div>
+
+                        <div class="py-3 border-top border-bottom d-flex justify-content-between mb-4 fs-4">
+                            <span class="fw-bold text-dark">Order Total:</span>
+                            <span class="fw-bold text-primary" id="cartTotal">$0.00</span>
+                        </div>
+
+                        <a href="chackout.html" id="btnProceedCheckout" class="btn btn-primary w-100 rounded-pill py-3 text-white text-uppercase fw-bold shadow">
+                            Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Cart Page End -->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid footer pt-5 mt-5">
+        <div class="container py-5">
+            <div class="pb-4 mb-4" style="border-bottom: 2px solid #FBFA86;">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-3">
+                        <a href="index.html">
+                            <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
+                            <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
+                        </a>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="position-relative mx-auto">
+                            <input class="form-control py-3 px-4 rounded-pill" type="email" placeholder="Your Email for Fresh Deals">
+                            <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill" style="top: 0; right: 0;">Subscribe</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="d-flex justify-content-end">
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Why People Trust Us?</h4>
+                        <p class="mb-4">GreenBasket connects urban households directly with certified organic and VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
+                        <a href="shop.html" class="btn btn-subscribe py-2 px-4 rounded-pill">Shop Now</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Quick Navigation</h4>
+                        <a class="btn-link d-block mb-2" href="shop.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
+                        <a class="btn-link d-block mb-2" href="cart.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
+                        <a class="btn-link d-block mb-2" href="chackout.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
+                        <a class="btn-link d-block mb-2" href="orders.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File Complaint</a>
+                        <a class="btn-link d-block mb-2" href="admin.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Staff Fulfillment Portal</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Contact Support</h4>
+                        <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic Agriculture Hub & HCMC Distribution Center</p>
+                        <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
+                        <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
+                        <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM - 20:00 PM (Daily)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- App State Engine & Script -->
+    <script src="js/app-state.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            let discountAmount = 0.00;
+
+            function renderCartPage() {
+                const cart = window.AppState.getCart();
+                const $tbody = $('#gb-cart-table-body');
+                $tbody.empty();
+
+                if (cart.length === 0) {
+                    $tbody.html(`
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">Your basket is currently empty!</h4>
+                                <p class="text-muted">Explore our fresh farm produce catalog to add items.</p>
+                                <a href="shop.html" class="btn btn-primary rounded-pill px-4 py-2 text-white mt-2">
+                                    <i class="fas fa-store me-2"></i>Browse Produce Catalog
+                                </a>
+                            </td>
+                        </tr>
+                    `);
+                    $('#btnProceedCheckout').addClass('disabled').attr('href', '#');
+                } else {
+                    $('#btnProceedCheckout').removeClass('disabled').attr('href', 'chackout.html');
+
+                    cart.forEach(item => {
+                        const itemTotal = (item.price * item.qty).toFixed(2);
+                        const rowHtml = `
+                            <tr>
+                                <th scope="row">
+                                    <img src="${item.image}" class="img-fluid rounded border" style="width: 70px; height: 70px; object-fit: cover;" alt="${item.name}">
+                                </th>
+                                <td>
+                                    <h5 class="mb-1 text-dark fw-bold">${item.name}</h5>
+                                    <small class="text-success"><i class="fas fa-map-marker-alt me-1"></i>${item.farmOrigin || 'Certified Farm'}</small>
+                                </td>
+                                <td>
+                                    <p class="mb-0 fw-bold">$${item.price.toFixed(2)} <span class="fs-6 text-muted">/ ${item.unit}</span></p>
+                                </td>
+                                <td>
+                                    <div class="input-group quantity" style="width: 120px;">
+                                        <button class="btn btn-sm btn-minus bg-light border btn-change-qty" data-id="${item.productId}" data-delta="-1">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <input type="text" class="form-control form-control-sm text-center border bg-white fw-bold" value="${item.qty}" readonly>
+                                        <button class="btn btn-sm btn-plus bg-light border btn-change-qty" data-id="${item.productId}" data-delta="1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="mb-0 fw-bold text-primary fs-5">$${itemTotal}</p>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-danger rounded-circle btn-remove-item" data-id="${item.productId}">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        $tbody.append(rowHtml);
+                    });
+                }
+
+                // Update Totals
+                const subtotal = window.AppState.getCartSubtotal();
+                const deliveryFee = subtotal >= 30 || subtotal === 0 ? 0.00 : 2.00;
+                const total = Math.max(0, subtotal + deliveryFee - discountAmount);
+
+                $('#cartSubtotal').text('$' + subtotal.toFixed(2));
+                $('#cartDeliveryFee').html(deliveryFee === 0 ? '<span class="badge bg-success">FREE Shipping</span>' : '$' + deliveryFee.toFixed(2));
+                $('#cartTotal').text('$' + total.toFixed(2));
+
+                // Free shipping progress bar
+                const $freeshipBanner = $('#gb-freeship-banner');
+                if (subtotal >= 30) {
+                    $freeshipBanner.html(`
+                        <div class="d-flex align-items-center text-success fw-bold fs-6">
+                            <i class="fas fa-truck fa-lg me-3"></i>
+                            <span>Congratulations! Your order qualifies for <strong>FREE Doorstep Delivery</strong>!</span>
+                        </div>
+                    `);
+                } else {
+                    const remaining = (30 - subtotal).toFixed(2);
+                    const pct = Math.min(100, (subtotal / 30) * 100);
+                    $freeshipBanner.html(`
+                        <div class="d-flex justify-content-between align-items-center mb-2 fw-bold text-dark">
+                            <span><i class="fas fa-truck text-primary me-2"></i>Add <strong>$${remaining}</strong> more to get FREE Delivery!</span>
+                            <span>$${subtotal.toFixed(2)} / $30.00</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: ${pct}%;"></div>
+                        </div>
+                    `);
+                }
+            }
+
+            // Event Handlers for Quantity Change and Remove
+            $(document).on('click', '.btn-change-qty', function() {
+                const id = $(this).data('id');
+                const delta = parseInt($(this).data('delta'), 10);
+                const cart = window.AppState.getCart();
+                const item = cart.find(i => i.productId === id);
+                if (item) {
+                    const newQty = item.qty + delta;
+                    if (newQty > 0) {
+                        window.AppState.updateCartQty(id, newQty);
+                    } else {
+                        window.AppState.removeFromCart(id);
+                    }
+                    renderCartPage();
+                }
+            });
+
+            $(document).on('click', '.btn-remove-item', function() {
+                const id = $(this).data('id');
+                window.AppState.removeFromCart(id);
+                window.GB.showToast('Item removed from cart', 'info');
+                renderCartPage();
+            });
+
+            // Coupon Code Handler
+            $('#btnApplyCoupon').on('click', function() {
+                const code = $('#couponCode').val().trim().toUpperCase();
+                if (code === 'GREEN10') {
+                    discountAmount = 1.00;
+                    $('#couponDiscountRow').removeClass('d-none');
+                    $('#cartDiscount').text('-$1.00');
+                    window.GB.showToast('Coupon GREEN10 applied! $1.00 discount added.', 'success');
+                } else if (code === 'GREEN2026') {
+                    discountAmount = 2.00;
+                    $('#couponDiscountRow').removeClass('d-none');
+                    $('#cartDiscount').text('-$2.00');
+                    window.GB.showToast('Coupon GREEN2026 applied! $2.00 discount added.', 'success');
+                } else {
+                    window.GB.showToast('Invalid coupon code!', 'danger');
+                }
+                renderCartPage();
+            });
+
+            // Initial render
+            renderCartPage();
+        });
+    </script>
+</body>
+
+</html>
