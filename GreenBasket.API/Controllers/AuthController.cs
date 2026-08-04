@@ -1,4 +1,4 @@
-﻿using GreenBasket.Application.DTOs.Auth;
+using GreenBasket.Application.DTOs.Auth;
 using GreenBasket.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -28,7 +28,7 @@ namespace GreenBasket.API.Controllers
                     return BadRequest(ModelState);
 
                 var result = await _authService.RegisterAsync(model);
-                return Ok(new { IsSuccess = true, Message = "Đăng ký thành công!", Data = result });
+                return Ok(new { IsSuccess = true, Message = "Registration successful!", Data = result });
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ namespace GreenBasket.API.Controllers
                     return BadRequest(ModelState);
 
                 var result = await _authService.LoginAsync(model);
-                return Ok(new { IsSuccess = true, Message = "Đăng nhập thành công!", Data = result });
+                return Ok(new { IsSuccess = true, Message = "Login successful!", Data = result });
             }
             catch (Exception ex)
             {

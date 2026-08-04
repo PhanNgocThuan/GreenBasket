@@ -140,31 +140,75 @@
             $cartBadges.text(count);
         }
 
-        // Update Role Indicator
         const role = window.AppState.getUserRole();
-        const $roleIndicator = $('.gb-role-badge');
-        if ($roleIndicator.length) {
-            $roleIndicator.text(role);
+        const user = window.AppState.getAuthUser();
+        const isStaffOrAdmin = role === 'Staff / Admin';
+
+        // 1. Show/Hide Staff Portal links based on actual role
+        const $staffLinks = $('.gb-staff-link, a[href="admin.html"]');
+        if ($staffLinks.length) {
+            if (isStaffOrAdmin) {
+                $staffLinks.show();
+            } else {
+                $staffLinks.hide();
+            }
         }
 
-        // Update Auth User Header Snippet
-        const user = window.AppState.getAuthUser();
+        // 2. Hide Role Badge container if present
+        $('.gb-role-badge').hide();
+
+        // 3. Update dedicated auth container if present
         const $authContainer = $('#gb-header-auth-user');
-        if ($authContainer.length && user) {
-            $authContainer.html(`
-                <span class="text-dark me-2 small fw-bold"><i class="fas fa-user-circle me-1 text-success"></i>${user.name}</span>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 btn-signout" title="Sign Out">Sign Out</button>
+        if ($authContainer.length) {
+            if (user) {
+                $authContainer.html(`
+                    <span class="text-dark me-2 small fw-bold"><i class="fas fa-user-circle me-1 text-success"></i>${user.name}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 btn-signout fw-bold"><i class="fas fa-sign-out-alt me-1"></i>Sign Out</button>
+                `);
+            } else {
+                $authContainer.empty();
+            }
+        }
+
+        // 4. Automatically inject Sign Out into Topbar (.top-link) across index.html, shop.html, etc.
+        const $topLink = $('.top-link');
+        if ($topLink.length && user) {
+            if ($('#topbar-signout-btn').length === 0) {
+                $topLink.append(`
+                    <span class="text-white ms-3 me-2 small fw-bold"><i class="fas fa-user-circle me-1 text-warning"></i>${user.name}</span>
+                    <button type="button" id="topbar-signout-btn" class="btn btn-sm btn-light rounded-pill px-3 py-0 text-dark fw-bold btn-signout ms-1" style="font-size: 0.8rem; border: 1.5px solid #2B2118;" title="Sign Out"><i class="fas fa-sign-out-alt me-1 text-danger"></i>Sign Out</button>
+                `);
+            }
+        }
+
+        // 5. Landing page Header Buttons auto-switch when logged in
+        const $landingAuthContainer = $('#landing-auth-btns');
+        if ($landingAuthContainer.length && user) {
+            $landingAuthContainer.html(`
+                <span class="fw-bold me-2 text-dark"><i class="fas fa-user-circle me-1 text-success fs-5"></i>Hi, <strong>${user.name}</strong></span>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold btn-signout" title="Sign Out"><i class="fas fa-sign-out-alt me-1"></i>Sign Out</button>
             `);
         }
     }
 
-    // Auth Guard Route Check for Unauthenticated Visitors
+    // Auth Guard Route Check for Unauthenticated & Non-Staff Visitors
     function checkAuthGuard() {
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
         const publicPages = ['landing.html'];
+
         if (!publicPages.includes(currentPage) && window.AppState && !window.AppState.isLoggedIn()) {
             console.warn('Unauthenticated access attempt to ' + currentPage + '. Redirecting to landing.html...');
             window.location.href = 'landing.html';
+            return;
+        }
+
+        // Staff / Admin Only Route Protection for admin.html
+        if (currentPage === 'admin.html' && window.AppState) {
+            const role = window.AppState.getUserRole();
+            if (role !== 'Staff / Admin') {
+                console.warn('Access denied to admin.html for non-staff user');
+                window.location.href = 'index.html';
+            }
         }
     }
 
@@ -359,7 +403,7 @@
             }
             if ($card.find('.gb-holo-security-seal').length === 0) {
                 $card.append(`
-                    <div class="gb-holo-security-seal" title="Tem Chống Hàng Giả - GreenBasket Certified Produce">
+                    <div class="gb-holo-security-seal" title="Anti-Counterfeit Seal - GreenBasket Certified Produce">
                         <div class="gb-seal-banner">
                             <i class="fas fa-shield-alt gb-seal-shield"></i>
                             <div class="gb-seal-text">

@@ -14,8 +14,11 @@
         ADDRESSES: 'gb_addresses_v1',
         REPORTS: 'gb_quality_reports_v1',
         USER_ROLE: 'gb_user_role_v1',
-        AUTH_USER: 'gb_auth_user_v1'
+        AUTH_USER: 'gb_auth_user_v1',
+        JWT_TOKEN: 'gb_jwt_token_v1'
     };
+
+    const API_BASE_URL = localStorage.getItem('gb_api_url') || 'http://localhost:5062/api';
 
     // Default Fresh Produce Seed Data (FR-2.1, FR-2.2, FR-2.4, FR-6.2)
     const DEFAULT_PRODUCTS = [
@@ -466,12 +469,127 @@
         },
 
         // --- Authentication Management ---
+        getApiUrl() {
+            return API_BASE_URL;
+        },
+        getJwtToken() {
+            return loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+        },
         getAuthUser() {
             return loadStorage(STORAGE_KEYS.AUTH_USER, null);
         },
         isLoggedIn() {
             return !!this.getAuthUser();
         },
+        parseJwt(token) {
+            try {
+                if (!token) return null;
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error('Error decoding JWT token:', e);
+                return null;
+            }
+        },
+        extractRoleFromToken(token) {
+            const payload = this.parseJwt(token);
+            if (!payload) return 'Customer';
+            const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload["role"];
+            if (role === 'Admin' || role === 'Staff' || (Array.isArray(role) && (role.includes('Admin') || role.includes('Staff')))) {
+                return 'Staff / Admin';
+            }
+            return 'Customer';
+        },
+
+        // Async Login API Integration
+        async loginUserAsync(email, password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/Auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const resData = await response.json().catch(() => null);
+
+                if (!response.ok || (resData && resData.isSuccess === false)) {
+                    let errMsg = (resData && resData.message) ? resData.message : 'Login failed. Please check your email and password!';
+                    if (resData && resData.errors) {
+                        const errList = Object.values(resData.errors).flat().join(', ');
+                        if (errList) errMsg = errList;
+                    }
+                    throw new Error(errMsg);
+                }
+
+                const data = resData && resData.data ? resData.data : resData;
+                const token = data.token || data.Token;
+                const role = this.extractRoleFromToken(token);
+
+                const user = {
+                    name: data.fullName || data.FullName || email.split('@')[0],
+                    email: data.email || data.Email || email,
+                    role: role,
+                    loginTime: new Date().toISOString()
+                };
+
+                saveStorage(STORAGE_KEYS.JWT_TOKEN, token);
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                return user;
+            } catch (err) {
+                console.error('API Login Error:', err);
+                throw err;
+            }
+        },
+
+        // Async Registration API Integration
+        async registerUserAsync(fullName, email, password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/Auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+
+                const resData = await response.json().catch(() => null);
+
+                if (!response.ok || (resData && resData.isSuccess === false)) {
+                    let errMsg = (resData && resData.message) ? resData.message : 'Registration failed.';
+                    if (resData && resData.errors) {
+                        const errList = Object.values(resData.errors).flat().join(', ');
+                        if (errList) errMsg = errList;
+                    }
+                    throw new Error(errMsg);
+                }
+
+                const data = resData && resData.data ? resData.data : resData;
+                const token = data.token || data.Token;
+                const role = token ? this.extractRoleFromToken(token) : 'Customer';
+
+                const user = {
+                    name: data.fullName || data.FullName || fullName,
+                    email: data.email || data.Email || email,
+                    role: role,
+                    loginTime: new Date().toISOString()
+                };
+
+                if (token) {
+                    saveStorage(STORAGE_KEYS.JWT_TOKEN, token);
+                }
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                return user;
+            } catch (err) {
+                console.error('API Register Error:', err);
+                throw err;
+            }
+        },
+
+        // Synchronous fallback methods
         loginUser(email, password) {
             const isStaff = email.includes('staff') || email.includes('admin');
             const user = {
@@ -496,6 +614,7 @@
             return user;
         },
         logoutUser() {
+            saveStorage(STORAGE_KEYS.JWT_TOKEN, null);
             saveStorage(STORAGE_KEYS.AUTH_USER, null);
         }
     };

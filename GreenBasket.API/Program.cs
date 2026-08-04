@@ -13,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    ));
 
 // 2. Đăng ký ASP.NET Core Identity với luật mật khẩu bảo mật cao
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -48,12 +51,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. Cấu hình CORS cho Front-End
+// 4. Cấu hình CORS cho Front-End (Cho phép file:// và mọi Origin local)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -107,6 +110,9 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.MigrateAsync();
+
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
 

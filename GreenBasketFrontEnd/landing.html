@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Auth Buttons -->
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3" id="landing-auth-btns">
                     <button id="btn-open-login" class="btn btn-link text-dark fw-bold text-decoration-none px-2"
                         data-bs-toggle="modal" data-bs-target="#authModal" style="font-size: 1rem;">
                         <i class="fas fa-user me-1"></i> Sign In
@@ -193,25 +193,6 @@
                                     Sign In & Start Shopping <i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </form>
-
-                            <!-- Quick 1-Click Demo Accounts -->
-                            <div class="border-top border-dark pt-3 mt-3 text-center">
-                                <small class="text-muted fw-bold d-block mb-2">QUICK 1-CLICK DEMO LOGIN</small>
-                                <div class="d-flex gap-2">
-                                    <button type="button"
-                                        class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login"
-                                        data-email="alex@greenbasket.com" data-role="Customer"
-                                        onclick="if(window.AppState){window.AppState.loginUser('alex@greenbasket.com','demo'); window.location.href='index.html';}">
-                                        <i class="fas fa-user me-1 text-success"></i> Customer Demo
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login"
-                                        data-email="staff@greenbasket.com" data-role="Staff / Admin"
-                                        onclick="if(window.AppState){window.AppState.loginUser('staff@greenbasket.com','demo'); window.location.href='admin.html';}">
-                                        <i class="fas fa-user-shield me-1 text-primary"></i> Staff Admin Demo
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
 
@@ -386,51 +367,66 @@
                     showAuthModal('register');
                 });
 
-                // Sign In Submit Form
-                $('#form-login').on('submit', function (e) {
+                // Sign In Submit Form (Async API Call)
+                $('#form-login').on('submit', async function (e) {
                     e.preventDefault();
                     const email = $('#login-email').val().trim();
                     const pwd = $('#login-password').val().trim();
+                    const $btn = $(this).find('button[type="submit"]');
+                    const origBtnText = $btn.html();
 
-                    if (email && window.AppState) {
-                        const user = window.AppState.loginUser(email, pwd);
+                    if (!email || !pwd) return;
+
+                    try {
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Signing in...');
+
+                        const user = await window.AppState.loginUserAsync(email, pwd);
+
                         if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(`Welcome back, <strong>${user.name}</strong>! Redirecting to storefront...`, 'success');
+                            window.GB.showToast(`Welcome back, <strong>${user.name}</strong>! Redirecting...`, 'success');
                         }
                         setTimeout(() => {
                             window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
-                        }, 400);
+                        }, 500);
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origBtnText);
+                        if (window.GB && window.GB.showToast) {
+                            window.GB.showToast(err.message || 'Login failed. Please try again!', 'danger');
+                        } else {
+                            alert(err.message || 'Login failed!');
+                        }
                     }
                 });
 
-                // Register Submit Form
-                $('#form-register').on('submit', function (e) {
+                // Register Submit Form (Async API Call)
+                $('#form-register').on('submit', async function (e) {
                     e.preventDefault();
                     const name = $('#reg-name').val().trim();
                     const email = $('#reg-email').val().trim();
                     const pwd = $('#reg-password').val().trim();
+                    const $btn = $(this).find('button[type="submit"]');
+                    const origBtnText = $btn.html();
 
-                    if (email && window.AppState) {
-                        const user = window.AppState.registerUser(name, email, pwd);
+                    if (!name || !email || !pwd) return;
+
+                    try {
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Creating account...');
+
+                        const user = await window.AppState.registerUserAsync(name, email, pwd);
+
                         if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(`Account created successfully! Welcome to GreenBasket, <strong>${user.name}</strong>!`, 'success');
+                            window.GB.showToast(`Account created successfully! Welcome <strong>${user.name}</strong> to GreenBasket!`, 'success');
                         }
                         setTimeout(() => {
                             window.location.href = 'index.html';
-                        }, 400);
-                    }
-                });
-
-                // Quick 1-Click Demo Login
-                $(document).on('click', '.btn-demo-login', function (e) {
-                    e.preventDefault();
-                    const email = $(this).data('email');
-                    if (email && window.AppState) {
-                        const user = window.AppState.loginUser(email, 'demo123');
-                        window.GB.showToast(`Logged in as <strong>${user.name}</strong> (${user.role})! Redirecting...`, 'success');
-                        setTimeout(() => {
-                            window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
-                        }, 800);
+                        }, 500);
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origBtnText);
+                        if (window.GB && window.GB.showToast) {
+                            window.GB.showToast(err.message || 'Registration failed. Please try again!', 'danger');
+                        } else {
+                            alert(err.message || 'Registration failed!');
+                        }
                     }
                 });
             });

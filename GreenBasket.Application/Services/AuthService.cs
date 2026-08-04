@@ -1,4 +1,4 @@
-﻿using GreenBasket.Application.DTOs.Auth;
+using GreenBasket.Application.DTOs.Auth;
 using GreenBasket.Application.Interfaces;
 using GreenBasket.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -16,13 +16,11 @@ namespace GreenBasket.Application.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IConfiguration configuration)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
         }
 
@@ -40,10 +38,10 @@ namespace GreenBasket.Application.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"Đăng ký thất bại: {errors}");
+                throw new Exception($"Registration failed: {errors}");
             }
 
-            // Gán mặc định quyền Customer cho tài khoản vừa đăng ký
+            // Assign default Customer role to newly registered account
             await _userManager.AddToRoleAsync(user, "Customer");
 
             var token = await GenerateJwtToken(user);
@@ -61,13 +59,13 @@ namespace GreenBasket.Application.Services
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                throw new Exception("Email không tồn tại trong hệ thống.");
+                throw new Exception("Email does not exist in the system.");
             }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded)
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!isPasswordValid)
             {
-                throw new Exception("Mật khẩu không chính xác.");
+                throw new Exception("Incorrect password.");
             }
 
             var token = await GenerateJwtToken(user);

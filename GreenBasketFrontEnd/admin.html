@@ -55,8 +55,6 @@
                             class="text-white fw-bold">GreenBasket Operations & Fulfillment Portal</a></small>
                 </div>
                 <div class="top-link pe-2 d-flex align-items-center">
-                    <span class="text-white me-2"><small>Active Portal Role:</small></span>
-                    <span class="gb-role-badge bg-success text-white me-3">Staff / Admin</span>
                     <a href="index.html" class="text-white"><small class="text-white"><i
                                 class="fas fa-store me-1"></i>Return to Storefront</small></a>
                 </div>
@@ -404,8 +402,20 @@
 
     <script>
         $(document).ready(function () {
-            // Set role to Staff / Admin
-            window.AppState.setUserRole('Staff / Admin');
+            // Access Guard: Only Staff / Admin role can view this page
+            if (window.AppState) {
+                const user = window.AppState.getAuthUser();
+                const role = window.AppState.getUserRole();
+                if (!user || role !== 'Staff / Admin') {
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Access denied! Staff/Admin privileges required.', 'danger');
+                    }
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
+                    return;
+                }
+            }
 
             function renderAdminDashboard() {
                 // 1. Render Analytics (FR-6.4)
