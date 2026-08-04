@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>GreenBasket Shop - Farm Produce & Traceable Catalog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Vegetable catalog, farm sourcing, organic produce, fresh fruits" name="keywords">
+    <meta content="Browse organic leafy greens, root veggies, and seasonal fruits directly sourced from local farms."
+        name="description">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/Dragon_fruit.png">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#"
+                            class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                            href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                </div>
+                <div class="top-link pe-2 d-flex align-items-center">
+                    <span class="text-white me-2"><small>Role:</small></span>
+                    <span class="gb-role-badge me-3">Customer</span>
+                    <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i
+                                class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                </div>
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link active">Shop Catalog</a>
+                        <a href="cart.html" class="nav-item nav-link">Cart</a>
+                        <a href="chackout.html" class="nav-item nav-link">Checkout</a>
+                        <a href="orders.html" class="nav-item nav-link">Track Orders</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i
+                                class="fas fa-cog me-1"></i>Operations</a>
+                    </div>
+                    <div class="d-flex m-3 me-0 align-items-center">
+                        <button type="button"
+                            class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i
+                                class="fas fa-search text-primary"></i></button>
+                        <a href="cart.html" class="position-relative me-4 my-auto">
+                            <i class="fa fa-shopping-bag fa-2x text-primary"></i>
+                            <span
+                                class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                                style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                        </a>
+                        <a href="orders.html" class="my-auto">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Fresh Produce Catalog</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+            <li class="breadcrumb-item active text-white">Shop Catalog</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Product Details Modal Start -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 rounded-3 overflow-hidden shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white fw-bold" id="pModalTitle">Produce Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="pModalBody">
+                    <!-- Dynamic modal content -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Product Details Modal End -->
+
+
+    <!-- Fruits Shop Start-->
+    <div class="container-fluid fruite py-5">
+        <div class="container py-5">
+            <h1 class="mb-4 text-primary fw-bold">Explore Our Farm Produce</h1>
+            <div class="row g-4">
+                <div class="col-lg-12">
+                    <div class="row g-4 mb-4 align-items-center">
+                        <div class="col-xl-4">
+                            <div class="input-group w-100 d-flex">
+                                <input type="text" id="gb-shop-search-input" class="form-control p-3"
+                                    placeholder="Search keywords (e.g. spinach, Dalat)...">
+                                <span class="input-group-text p-3 bg-primary text-white"><i
+                                        class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <span class="text-muted me-2 text-nowrap">Filter Status:</span>
+                                <span id="gb-active-filter-badge" class="badge bg-secondary text-dark p-2">Showing All
+                                    Produce</span>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6">
+                            <div class="bg-light ps-3 py-2 rounded d-flex justify-content-between align-items-center">
+                                <label for="sortSelect" class="text-nowrap mb-0 me-2 text-muted fw-bold">Sort
+                                    By:</label>
+                                <select id="sortSelect" class="border-0 form-select bg-light">
+                                    <option value="default">Default Order</option>
+                                    <option value="price-asc">Price: Low to High</option>
+                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="freshness">Freshness (Harvest Date)</option>
+                                    <option value="rating">Highest Rated</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Sidebar Filters -->
+                        <div class="col-lg-3">
+                            <div class="row g-4">
+                                <div class="col-lg-12">
+                                    <div class="mb-4 bg-light p-4 rounded border">
+                                        <h4 class="fw-bold mb-3 text-primary"><i
+                                                class="fas fa-th-list me-2"></i>Categories</h4>
+                                        <ul class="list-unstyled fruite-categorie">
+                                            <li class="py-1">
+                                                <a href="#" class="gb-shop-cat active fw-bold text-success"
+                                                    data-cat="all">
+                                                    <i class="fas fa-layer-group me-2"></i>All Produce
+                                                </a>
+                                            </li>
+                                            <li class="py-1">
+                                                <a href="#" class="gb-shop-cat text-dark" data-cat="leafy-greens">
+                                                    <i class="fas fa-leaf me-2 text-success"></i>Leafy Greens
+                                                </a>
+                                            </li>
+                                            <li class="py-1">
+                                                <a href="#" class="gb-shop-cat text-dark" data-cat="root-veggies">
+                                                    <i class="fas fa-carrot me-2 text-warning"></i>Root Vegetables
+                                                </a>
+                                            </li>
+                                            <li class="py-1">
+                                                <a href="#" class="gb-shop-cat text-dark" data-cat="tropical-fruit">
+                                                    <i class="fas fa-sun me-2 text-danger"></i>Tropical Fruit
+                                                </a>
+                                            </li>
+                                            <li class="py-1">
+                                                <a href="#" class="gb-shop-cat text-dark" data-cat="seasonal-fruit">
+                                                    <i class="fas fa-apple-alt me-2 text-primary"></i>Seasonal Fruit
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="mb-4 bg-light p-4 rounded border">
+                                        <h4 class="fw-bold mb-3 text-primary"><i class="fas fa-dollar-sign me-2"></i>Max
+                                            Price ($/kg)</h4>
+                                        <input type="range" class="form-range w-100" id="priceRange" min="1" max="15"
+                                            step="0.5" value="15">
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span class="text-muted">$1.00</span>
+                                            <span class="fw-bold text-success" id="priceRangeVal">$15.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="mb-4 bg-light p-4 rounded border">
+                                        <h4 class="fw-bold mb-3 text-primary"><i
+                                                class="fas fa-award me-2"></i>Certification & Stock</h4>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="filterOrganic">
+                                            <label class="form-check-label fw-bold text-dark" for="filterOrganic">
+                                                VietGAP Organic Only
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="filterInStock">
+                                            <label class="form-check-label text-dark" for="filterInStock">
+                                                In Stock Only
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="position-relative">
+                                        <img src="img/banner-fruits.jpg" class="img-fluid w-100 rounded shadow"
+                                            alt="Fresh Guarantee">
+                                        <div class="position-absolute bg-dark bg-opacity-75 p-3 rounded"
+                                            style="top: 50%; left: 10px; right: 10px; transform: translateY(-50%);">
+                                            <h5 class="text-white fw-bold mb-1">Cold-Chain Fresh</h5>
+                                            <small class="text-light">100% Quality & Origin Verified</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Grid Container -->
+                        <div class="col-lg-9">
+                            <div class="row g-4" id="gb-shop-grid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fruits Shop End-->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid footer pt-5 mt-5">
+        <div class="container py-5">
+            <div class="pb-4 mb-4" style="border-bottom: 2px solid #FBFA86;">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-3">
+                        <a href="index.html">
+                            <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i
+                                    class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
+                            <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
+                        </a>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="position-relative mx-auto">
+                            <input class="form-control py-3 px-4 rounded-pill" type="email"
+                                placeholder="Your Email for Fresh Deals">
+                            <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill"
+                                style="top: 0; right: 0;">Subscribe</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="d-flex justify-content-end">
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Why People Trust Us?</h4>
+                        <p class="mb-4">GreenBasket connects urban households directly with certified organic and
+                            VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
+                        <a href="shop.html" class="btn btn-subscribe py-2 px-4 rounded-pill">Shop Now</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Quick Navigation</h4>
+                        <a class="btn-link d-block mb-2" href="shop.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
+                        <a class="btn-link d-block mb-2" href="cart.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
+                        <a class="btn-link d-block mb-2" href="chackout.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
+                        <a class="btn-link d-block mb-2" href="orders.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File
+                            Complaint</a>
+                        <a class="btn-link d-block mb-2" href="admin.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Staff Fulfillment Portal</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="mb-3">Contact Support</h4>
+                        <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic Agriculture
+                            Hub & HCMC Distribution Center</p>
+                        <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
+                        <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
+                        <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM - 20:00
+                            PM (Daily)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
+            class="fa fa-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- App State Engine & Script -->
+    <script src="js/app-state.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            let activeCategory = 'all';
+
+            // Parse URL parameters (e.g., shop.html?cat=leafy-greens or shop.html?search=spinach)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('cat')) {
+                activeCategory = urlParams.get('cat');
+            }
+            if (urlParams.has('search')) {
+                $('#gb-shop-search-input').val(urlParams.get('search'));
+            }
+
+            function applyFiltersAndRender() {
+                let products = window.AppState.getProducts();
+                const searchQuery = $('#gb-shop-search-input').val().toLowerCase().trim();
+                const maxPrice = parseFloat($('#priceRange').val());
+                const organicOnly = $('#filterOrganic').is(':checked');
+                const inStockOnly = $('#filterInStock').is(':checked');
+                const sortBy = $('#sortSelect').val();
+
+                // 1. Category Filter
+                if (activeCategory !== 'all') {
+                    products = products.filter(p => p.category === activeCategory);
+                    $('.gb-shop-cat').removeClass('active fw-bold text-success').addClass('text-dark');
+                    $(`.gb-shop-cat[data-cat="${activeCategory}"]`).removeClass('text-dark').addClass('active fw-bold text-success');
+                } else {
+                    $('.gb-shop-cat').removeClass('active fw-bold text-success').addClass('text-dark');
+                    $(`.gb-shop-cat[data-cat="all"]`).removeClass('text-dark').addClass('active fw-bold text-success');
+                }
+
+                // 2. Search Filter
+                if (searchQuery) {
+                    products = products.filter(p =>
+                        p.name.toLowerCase().includes(searchQuery) ||
+                        p.farmOrigin.toLowerCase().includes(searchQuery) ||
+                        p.description.toLowerCase().includes(searchQuery)
+                    );
+                }
+
+                // 3. Price Range Filter
+                products = products.filter(p => p.price <= maxPrice);
+
+                // 4. Organic Checkbox Filter
+                if (organicOnly) {
+                    products = products.filter(p => p.organic === true);
+                }
+
+                // 5. Stock Status Checkbox Filter
+                if (inStockOnly) {
+                    products = products.filter(p => p.stockStatus === 'In Stock');
+                }
+
+                // 6. Sorting
+                if (sortBy === 'price-asc') {
+                    products.sort((a, b) => a.price - b.price);
+                } else if (sortBy === 'price-desc') {
+                    products.sort((a, b) => b.price - a.price);
+                } else if (sortBy === 'freshness') {
+                    products.sort((a, b) => new Date(b.harvestDate) - new Date(a.harvestDate));
+                } else if (sortBy === 'rating') {
+                    products.sort((a, b) => b.rating - a.rating);
+                }
+
+                // Update Filter Badge Text
+                $('#gb-active-filter-badge').text(`Showing ${products.length} Items`);
+
+                // Render Grid
+                const $grid = $('#gb-shop-grid');
+                $grid.empty();
+
+                if (products.length === 0) {
+                    $grid.html(`
+                        <div class="col-12 text-center py-5 bg-light rounded border">
+                            <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No produce matching your filter criteria</h4>
+                            <p class="text-muted">Try resetting your filters or search keywords.</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                products.forEach(p => {
+                    const stockBadge = p.stockStatus === 'In Stock'
+                        ? `<span class="badge-stock-in me-1"><i class="fas fa-check-circle me-1"></i>In Stock</span>`
+                        : (p.stockStatus === 'Low Stock'
+                            ? `<span class="badge-stock-low me-1"><i class="fas fa-exclamation-circle me-1"></i>Low Stock (${p.stockQuantity})</span>`
+                            : `<span class="badge-stock-out me-1"><i class="fas fa-times-circle me-1"></i>Out of Stock</span>`);
+
+                    const organicBadge = p.organic ? `<span class="badge-organic me-1"><i class="fas fa-leaf me-1"></i>VietGAP Organic</span>` : '';
+
+                    const cardHtml = `
+                        <div class="col-md-6 col-lg-6 col-xl-4">
+                            <div class="rounded position-relative fruite-item border h-100 d-flex flex-column">
+                                <div class="fruite-img position-relative">
+                                    <img src="${p.image}" class="img-fluid w-100 rounded-top" style="height: 200px; object-fit: cover;" alt="${p.name}">
+                                    <span class="badge-farm-origin position-absolute" style="top: 10px; left: 10px;">
+                                        <i class="fas fa-map-marker-alt me-1"></i>${p.farmOrigin}
+                                    </span>
+                                </div>
+                                <div class="p-4 rounded-bottom d-flex flex-column flex-grow-1">
+                                    <div class="mb-2">
+                                        ${stockBadge}
+                                        ${organicBadge}
+                                    </div>
+                                    <h4 class="fw-bold text-dark mb-1">${p.name}</h4>
+                                    <small class="text-muted mb-3 d-block"><i class="far fa-calendar-alt me-1"></i>Harvested: ${p.harvestDate}</small>
+                                    <p class="text-secondary small flex-grow-1 mb-3">${p.description}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <button class="btn btn-sm btn-outline-info rounded-pill px-3 btn-view-details" data-id="${p.id}">
+                                            <i class="fas fa-info-circle me-1"></i> Details
+                                        </button>
+                                        <div class="text-warning small">
+                                            <i class="fas fa-star"></i> ${p.rating} / 5.0
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                        <p class="text-dark fs-5 fw-bold mb-0">$${p.price.toFixed(2)} <span class="fs-6 text-muted">/ ${p.unit}</span></p>
+                                        <button class="btn border border-secondary rounded-pill px-3 text-primary btn-add-cart" data-product-id="${p.id}">
+                                            <i class="fa fa-shopping-bag me-2 text-primary"></i> Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $grid.append(cardHtml);
+                });
+            }
+
+            // Bind Filter Event Handlers
+            $('.gb-shop-cat').on('click', function (e) {
+                e.preventDefault();
+                activeCategory = $(this).data('cat');
+                applyFiltersAndRender();
+            });
+
+            $('#gb-shop-search-input').on('keyup input', applyFiltersAndRender);
+
+            $('#priceRange').on('input', function () {
+                $('#priceRangeVal').text('$' + parseFloat($(this).val()).toFixed(2));
+                applyFiltersAndRender();
+            });
+
+            $('#filterOrganic, #filterInStock, #sortSelect').on('change', applyFiltersAndRender);
+
+            // View Details Modal Handler
+            $(document).on('click', '.btn-view-details', function () {
+                const id = $(this).data('id');
+                const product = window.AppState.getProductById(id);
+                if (product) {
+                    $('#pModalTitle').text(product.name);
+                    $('#pModalBody').html(`
+                        <div class="row g-4">
+                            <div class="col-md-5">
+                                <img src="${product.image}" class="img-fluid rounded shadow" alt="${product.name}">
+                            </div>
+                            <div class="col-md-7">
+                                <div class="mb-2">
+                                    <span class="badge bg-success me-2">${product.categoryName}</span>
+                                    ${product.organic ? '<span class="badge bg-warning text-dark me-2">VietGAP Organic</span>' : ''}
+                                    <span class="badge bg-info text-dark">${product.stockStatus}</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-2">$${product.price.toFixed(2)} <span class="fs-6 text-muted">per ${product.unit}</span></h3>
+                                <hr>
+                                <p class="mb-2"><strong><i class="fas fa-map-marker-alt text-success me-2"></i>Farm Origin:</strong> ${product.farmOrigin}</p>
+                                <p class="mb-2"><strong><i class="far fa-calendar-alt text-primary me-2"></i>Harvest Date:</strong> ${product.harvestDate}</p>
+                                <p class="mb-2"><strong><i class="fas fa-cubes text-secondary me-2"></i>Available Stock:</strong> ${product.stockQuantity} ${product.unit}</p>
+                                <p class="mb-3"><strong><i class="fas fa-star text-warning me-2"></i>Rating:</strong> ${product.rating} / 5.0</p>
+                                <p class="text-secondary">${product.description}</p>
+                                <button class="btn btn-primary rounded-pill px-4 py-2 text-white mt-3 btn-add-cart" data-product-id="${product.id}" data-bs-dismiss="modal">
+                                    <i class="fa fa-shopping-bag me-2"></i> Add to Shopping Cart
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                    modal.show();
+                }
+            });
+
+            // Initial Filter Run
+            applyFiltersAndRender();
+        });
+    </script>
+</body>
+
+</html>

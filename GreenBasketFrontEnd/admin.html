@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>GreenBasket - Operations & Staff Fulfillment Portal</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Staff dashboard, order fulfillment, refund handler, catalog management, inventory turnover"
+        name="keywords">
+    <meta
+        content="Staff order fulfillment dashboard, quality ticket resolution, catalog and farm origin sourcing management."
+        name="description">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/Dragon_fruit.png">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-dark d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-shield-alt me-2 text-warning"></i> <a href="#"
+                            class="text-white fw-bold">GreenBasket Operations & Fulfillment Portal</a></small>
+                </div>
+                <div class="top-link pe-2 d-flex align-items-center">
+                    <span class="text-white me-2"><small>Active Portal Role:</small></span>
+                    <span class="gb-role-badge bg-success text-white me-3">Staff / Admin</span>
+                    <a href="index.html" class="text-white"><small class="text-white"><i
+                                class="fas fa-store me-1"></i>Return to Storefront</small></a>
+                </div>
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket <span
+                            class="fs-6 text-muted font-normal">Operations</span></h1>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
+                        <a href="orders.html" class="nav-item nav-link">Customer Orders</a>
+                        <a href="admin.html" class="nav-item nav-link active text-success fw-bold"><i
+                                class="fas fa-tasks me-1"></i>Staff Dashboard</a>
+                    </div>
+                    <div class="d-flex m-3 me-0 align-items-center">
+                        <a href="orders.html" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-3">
+                            <i class="fas fa-eye me-1"></i>Customer View
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Header Start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Staff Order Fulfillment & Admin Portal</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+            <li class="breadcrumb-item active text-white">Operations Portal</li>
+        </ol>
+    </div>
+    <!-- Header End -->
+
+
+    <!-- Product Add/Edit Modal (FR-6.1, FR-6.2) -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white fw-bold" id="editProductModalTitle"><i
+                            class="fas fa-edit me-2"></i>Add / Edit Produce Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editProductForm">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="pEditId">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Produce Name<sup>*</sup></label>
+                                <input type="text" id="pEditName" class="form-control p-3" required
+                                    placeholder="e.g. Organic Dalat Spinach">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Category<sup>*</sup></label>
+                                <select id="pEditCategory" class="form-select p-3" required>
+                                    <option value="leafy-greens">Leafy Greens</option>
+                                    <option value="root-veggies">Root Vegetables</option>
+                                    <option value="tropical-fruit">Tropical Fruit</option>
+                                    <option value="seasonal-fruit">Seasonal Fruit</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Farm Origin Traceability<sup>*</sup></label>
+                                <input type="text" id="pEditFarm" class="form-control p-3" required
+                                    placeholder="e.g. Green Valley Farm, Dalat">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Harvest Date<sup>*</sup></label>
+                                <input type="date" id="pEditHarvest" class="form-control p-3" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Price ($)<sup>*</sup></label>
+                                <input type="number" step="0.01" id="pEditPrice" class="form-control p-3" required
+                                    placeholder="3.50">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Weight Unit<sup>*</sup></label>
+                                <select id="pEditUnit" class="form-select p-3" required>
+                                    <option value="kg">kg</option>
+                                    <option value="500g">500g</option>
+                                    <option value="pack">pack</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Stock Quantity<sup>*</sup></label>
+                                <input type="number" id="pEditStockQty" class="form-control p-3" required
+                                    placeholder="50">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Stock Availability Status<sup>*</sup></label>
+                                <select id="pEditStockStatus" class="form-select p-3" required>
+                                    <option value="In Stock">In Stock</option>
+                                    <option value="Low Stock">Low Stock</option>
+                                    <option value="Out of Stock">Out of Stock</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-center pt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="pEditOrganic">
+                                    <label class="form-check-label fw-bold text-dark" for="pEditOrganic">
+                                        VietGAP Certified Organic
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Description</label>
+                                <textarea id="pEditDesc" class="form-control p-3" rows="3"
+                                    placeholder="Produce descriptions, taste notes..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 text-white fw-bold">
+                            <i class="fas fa-save me-1"></i>Save Produce Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Operations Container Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+
+            <!-- Section 1: Analytics & Metrics Widgets (FR-6.4) -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card stat-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Total Revenue</small>
+                                <h3 class="fw-bold text-dark mb-0 mt-1" id="statRevenue">$0.00</h3>
+                            </div>
+                            <div class="btn-square bg-success text-white rounded-circle">
+                                <i class="fas fa-dollar-sign fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card stat-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Total Orders</small>
+                                <h3 class="fw-bold text-dark mb-0 mt-1" id="statTotalOrders">0</h3>
+                            </div>
+                            <div class="btn-square bg-info text-white rounded-circle">
+                                <i class="fas fa-shopping-bag fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card stat-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Pending Processing</small>
+                                <h3 class="fw-bold text-dark mb-0 mt-1" id="statPendingOrders">0</h3>
+                            </div>
+                            <div class="btn-square bg-warning text-dark rounded-circle">
+                                <i class="fas fa-clock fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card stat-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold">Active Produce Items</small>
+                                <h3 class="fw-bold text-dark mb-0 mt-1" id="statActiveProducts">0</h3>
+                            </div>
+                            <div class="btn-square bg-primary text-white rounded-circle">
+                                <i class="fas fa-seedling fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Section 2: Tab Navigation for Staff Fulfillment / Catalog / Tickets -->
+            <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active fw-bold fs-5 text-primary" id="orders-tab" data-bs-toggle="tab"
+                        data-bs-target="#orders-pane">
+                        <i class="fas fa-dolly me-2"></i>Order Fulfillment Queue (FR-6.3)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-bold fs-5 text-primary" id="catalog-tab" data-bs-toggle="tab"
+                        data-bs-target="#catalog-pane">
+                        <i class="fas fa-boxes me-2"></i>Produce Catalog & Sourcing (FR-6.1, FR-6.2)
+                    </button>
+                </li>
+            </ul>
+
+
+            <div class="tab-content" id="adminTabsContent">
+
+                <!-- Tab Pane 1: Order Fulfillment Queue (FR-6.3) -->
+                <div class="tab-pane fade show active" id="orders-pane">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div
+                            class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title text-white mb-0"><i class="fas fa-list-ol me-2"></i>Incoming Orders &
+                                Status Progression</h5>
+                            <span class="badge bg-white text-primary fw-bold" id="orderCountBadge">0 Orders</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date & Customer</th>
+                                            <th>Delivery Window & Slot</th>
+                                            <th>Items</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Staff Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gb-admin-orders-tbody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Tab Pane 2: Catalog & Stock Management (FR-6.1, FR-6.2) -->
+                <div class="tab-pane fade" id="catalog-pane">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div
+                            class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title text-white mb-0"><i class="fas fa-leaf me-2"></i>Farm Sourcing Catalog
+                                & Inventory Levels</h5>
+                            <button id="btnAddNewProduct" class="btn btn-light rounded-pill px-4 text-primary fw-bold">
+                                <i class="fas fa-plus me-1"></i>Add New Produce Item
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Produce</th>
+                                            <th>Category</th>
+                                            <th>Farm Origin Sourcing</th>
+                                            <th>Harvest Date</th>
+                                            <th>Price / Unit</th>
+                                            <th>Stock Qty</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Manage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gb-admin-catalog-tbody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!-- Operations Container End -->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">GreenBasket Operations</h4>
+                        <p class="mb-4">Internal staff dashboard for cold-chain order processing, quality ticket
+                            resolutions, and sourcing administration.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">Staff Navigation</h4>
+                        <a class="btn-link" href="index.html">Storefront Home</a><br>
+                        <a class="btn-link" href="shop.html">Shop Catalog</a><br>
+                        <a class="btn-link" href="orders.html">Customer Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
+            class="fa fa-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- App State Engine & Script -->
+    <script src="js/app-state.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Set role to Staff / Admin
+            window.AppState.setUserRole('Staff / Admin');
+
+            function renderAdminDashboard() {
+                // 1. Render Analytics (FR-6.4)
+                const analytics = window.AppState.getAnalytics();
+                $('#statRevenue').text('$' + analytics.totalRevenue);
+                $('#statTotalOrders').text(analytics.totalOrders);
+                $('#statPendingOrders').text(analytics.pendingCount);
+                $('#statActiveProducts').text(analytics.activeProducts);
+
+                // 2. Render Order Fulfillment Queue (FR-6.3)
+                const orders = window.AppState.getOrders();
+                const $ordersTbody = $('#gb-admin-orders-tbody');
+                $ordersTbody.empty();
+                $('#orderCountBadge').text(orders.length + ' Orders');
+
+                if (orders.length === 0) {
+                    $ordersTbody.html('<tr><td colspan="7" class="text-center py-4 text-muted">No orders in queue.</td></tr>');
+                } else {
+                    orders.forEach(o => {
+                        let statusBadge = '';
+                        if (o.status === 'Processing') statusBadge = '<span class="badge bg-warning text-dark">Processing</span>';
+                        else if (o.status === 'Out for Delivery') statusBadge = '<span class="badge bg-info text-dark">Out for Delivery</span>';
+                        else if (o.status === 'Delivered') statusBadge = '<span class="badge bg-success">Delivered</span>';
+                        else if (o.status === 'Cancelled') statusBadge = '<span class="badge bg-danger">Cancelled</span>';
+
+                        // Action Buttons based on status
+                        let actionButtons = '';
+                        if (o.status === 'Processing') {
+                            actionButtons = `
+                                <button class="btn btn-sm btn-info rounded-pill px-3 me-1 btn-set-status" data-id="${o.id}" data-status="Out for Delivery">
+                                    <i class="fas fa-truck me-1"></i>Out for Delivery
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-2 btn-admin-refund" data-id="${o.id}">
+                                    Refund
+                                </button>
+                            `;
+                        } else if (o.status === 'Out for Delivery') {
+                            actionButtons = `
+                                <button class="btn btn-sm btn-success rounded-pill px-3 btn-set-status text-white" data-id="${o.id}" data-status="Delivered">
+                                    <i class="fas fa-check-circle me-1"></i>Mark Delivered
+                                </button>
+                            `;
+                        } else {
+                            actionButtons = `<span class="text-muted small"><i class="fas fa-check me-1"></i>Completed</span>`;
+                        }
+
+                        // Quality Report Badge if present (FR-5.3)
+                        let reportSnippet = '';
+                        if (o.qualityReport) {
+                            reportSnippet = `
+                                <div class="mt-1">
+                                    <span class="badge bg-danger text-white">Ticket #${o.qualityReport.ticketId}</span>
+                                    <small class="d-block text-danger font-bold">${o.qualityReport.issueType}</small>
+                                </div>
+                            `;
+                        }
+
+                        const itemsList = o.items.map(i => `${i.name} (${i.qty}${i.unit})`).join(', ');
+
+                        $ordersTbody.append(`
+                            <tr>
+                                <td class="fw-bold">#${o.id}</td>
+                                <td>
+                                    <span class="fw-bold text-dark d-block">${o.customerName}</span>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i>${o.date}</small>
+                                </td>
+                                <td>
+                                    <small class="fw-bold text-primary">${o.deliverySlot}</small><br>
+                                    <small class="text-muted">${o.deliveryAddress}</small>
+                                </td>
+                                <td class="small" style="max-width: 200px;">${itemsList}</td>
+                                <td class="fw-bold text-dark">$${o.total.toFixed(2)}</td>
+                                <td>
+                                    ${statusBadge}
+                                    ${reportSnippet}
+                                </td>
+                                <td class="text-end">${actionButtons}</td>
+                            </tr>
+                        `);
+                    });
+                }
+
+                // 3. Render Catalog Table (FR-6.1, FR-6.2)
+                const products = window.AppState.getProducts();
+                const $catalogTbody = $('#gb-admin-catalog-tbody');
+                $catalogTbody.empty();
+
+                products.forEach(p => {
+                    const stockBadge = p.stockStatus === 'In Stock'
+                        ? `<span class="badge-stock-in">In Stock</span>`
+                        : (p.stockStatus === 'Low Stock'
+                            ? `<span class="badge-stock-low">Low Stock</span>`
+                            : `<span class="badge-stock-out">Out of Stock</span>`);
+
+                    $catalogTbody.append(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="${p.image}" class="img-fluid rounded me-2" style="width: 45px; height: 45px; object-fit: cover;" alt="${p.name}">
+                                    <div>
+                                        <span class="fw-bold text-dark d-block">${p.name}</span>
+                                        ${p.organic ? '<span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Organic</span>' : ''}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark">${p.categoryName}</span></td>
+                            <td class="small"><i class="fas fa-map-marker-alt text-success me-1"></i>${p.farmOrigin}</td>
+                            <td class="small">${p.harvestDate}</td>
+                            <td class="fw-bold">$${p.price.toFixed(2)} / ${p.unit}</td>
+                            <td class="fw-bold">${p.stockQuantity} ${p.unit}</td>
+                            <td>${stockBadge}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-prod" data-id="${p.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-prod" data-id="${p.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // Order Status Advancement Handler
+            $(document).on('click', '.btn-set-status', function () {
+                const id = $(this).data('id');
+                const status = $(this).data('status');
+                if (window.AppState.updateOrderStatus(id, status)) {
+                    window.GB.showToast(`Order #${id} status updated to <strong>${status}</strong>!`, 'success');
+                    renderAdminDashboard();
+                }
+            });
+
+            // Refund / Cancel Handler
+            $(document).on('click', '.btn-admin-refund', function () {
+                const id = $(this).data('id');
+                if (confirm(`Process cancellation and refund for Order #${id}?`)) {
+                    window.AppState.cancelOrder(id);
+                    window.GB.showToast(`Order #${id} refund processed and status set to Cancelled.`, 'info');
+                    renderAdminDashboard();
+                }
+            });
+
+            // Add Product Modal Opener
+            $('#btnAddNewProduct').on('click', function () {
+                $('#editProductModalTitle').html('<i class="fas fa-plus me-2"></i>Add New Produce Item');
+                $('#pEditId').val('');
+                $('#pEditName').val('');
+                $('#pEditCategory').val('leafy-greens');
+                $('#pEditFarm').val('Green Valley Farm, Dalat');
+                $('#pEditHarvest').val(new Date().toISOString().substring(0, 10));
+                $('#pEditPrice').val('3.50');
+                $('#pEditUnit').val('kg');
+                $('#pEditStockQty').val('50');
+                $('#pEditStockStatus').val('In Stock');
+                $('#pEditOrganic').prop('checked', true);
+                $('#pEditDesc').val('');
+
+                const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                modal.show();
+            });
+
+            // Edit Product Modal Opener
+            $(document).on('click', '.btn-edit-prod', function () {
+                const id = $(this).data('id');
+                const product = window.AppState.getProductById(id);
+                if (product) {
+                    $('#editProductModalTitle').html('<i class="fas fa-edit me-2"></i>Edit Produce Item');
+                    $('#pEditId').val(product.id);
+                    $('#pEditName').val(product.name);
+                    $('#pEditCategory').val(product.category);
+                    $('#pEditFarm').val(product.farmOrigin);
+                    $('#pEditHarvest').val(product.harvestDate);
+                    $('#pEditPrice').val(product.price);
+                    $('#pEditUnit').val(product.unit);
+                    $('#pEditStockQty').val(product.stockQuantity);
+                    $('#pEditStockStatus').val(product.stockStatus);
+                    $('#pEditOrganic').prop('checked', product.organic);
+                    $('#pEditDesc').val(product.description);
+
+                    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                    modal.show();
+                }
+            });
+
+            // Save Product Form Handler
+            $('#editProductForm').on('submit', function (e) {
+                e.preventDefault();
+                const productData = {
+                    id: $('#pEditId').val() || undefined,
+                    name: $('#pEditName').val().trim(),
+                    category: $('#pEditCategory').val(),
+                    categoryName: $('#pEditCategory option:selected').text(),
+                    farmOrigin: $('#pEditFarm').val().trim(),
+                    harvestDate: $('#pEditHarvest').val(),
+                    price: parseFloat($('#pEditPrice').val()),
+                    unit: $('#pEditUnit').val(),
+                    stockQuantity: parseInt($('#pEditStockQty').val(), 10),
+                    stockStatus: $('#pEditStockStatus').val(),
+                    organic: $('#pEditOrganic').is(':checked'),
+                    description: $('#pEditDesc').val().trim(),
+                    image: 'img/fruite-item-5.jpg',
+                    rating: 4.8
+                };
+
+                window.AppState.saveProduct(productData);
+                window.GB.showToast(`Produce item <strong>${productData.name}</strong> saved to catalog!`, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                renderAdminDashboard();
+            });
+
+            // Delete Product Handler
+            $(document).on('click', '.btn-delete-prod', function () {
+                const id = $(this).data('id');
+                if (confirm('Delete this produce item from catalog?')) {
+                    window.AppState.deleteProduct(id);
+                    window.GB.showToast('Product deleted.', 'info');
+                    renderAdminDashboard();
+                }
+            });
+
+            // Initial render
+            renderAdminDashboard();
+
+            // State sync
+            window.addEventListener('gb_state_change', renderAdminDashboard);
+        });
+    </script>
+</body>
+
+</html>

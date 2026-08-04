@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>GreenBasket - Order History & Real-Time Tracking</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Track produce order, delivery status, report quality issues, reorder produce" name="keywords">
+    <meta
+        content="Track your GreenBasket order status in real-time, view order history, reorder in 1-click, and submit quality issue tickets."
+        name="description">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/Dragon_fruit.png">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#"
+                            class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                            href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                </div>
+                <div class="top-link pe-2 d-flex align-items-center">
+                    <span class="text-white me-2"><small>Role:</small></span>
+                    <span class="gb-role-badge me-3">Customer</span>
+                    <a href="orders.html" class="text-white me-3"><small class="text-white fw-bold">My
+                            Orders</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i
+                                class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                </div>
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
+                        <a href="cart.html" class="nav-item nav-link">Cart</a>
+                        <a href="chackout.html" class="nav-item nav-link">Checkout</a>
+                        <a href="orders.html" class="nav-item nav-link active">Track Orders</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i
+                                class="fas fa-cog me-1"></i>Operations</a>
+                    </div>
+                    <div class="d-flex m-3 me-0 align-items-center">
+                        <button type="button"
+                            class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i
+                                class="fas fa-search text-primary"></i></button>
+                        <a href="cart.html" class="position-relative me-4 my-auto">
+                            <i class="fa fa-shopping-bag fa-2x text-primary"></i>
+                            <span
+                                class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                                style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                        </a>
+                        <a href="orders.html" class="my-auto">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Header Start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Customer Dashboard & Order Tracking</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+            <li class="breadcrumb-item active text-white">Order Tracking</li>
+        </ol>
+    </div>
+    <!-- Header End -->
+
+
+    <!-- Report Quality Issue Modal (FR-5.3) -->
+    <div class="modal fade" id="qualityReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title text-white fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Report
+                        Quality Issue</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="qualityReportForm">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="reportOrderId">
+                        <p class="text-muted small mb-3">Our 100% Quality Guarantee protects your purchase. Report
+                            damaged or spoiled items for staff refund or replacement.</p>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Order Reference ID</label>
+                            <input type="text" id="reportOrderIdDisplay" class="form-control bg-light" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Issue Category<sup>*</sup></label>
+                            <select id="issueType" class="form-select p-3" required>
+                                <option value="Damaged during transit">Damaged / Bruised during transit</option>
+                                <option value="Freshness / Spoiled produce">Freshness / Spoiled produce</option>
+                                <option value="Incorrect produce items delivered">Incorrect produce items delivered
+                                </option>
+                                <option value="Missing weight quantity">Missing weight quantity</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description & Complaint Notes<sup>*</sup></label>
+                            <textarea id="issueComments" class="form-control p-3" rows="3"
+                                placeholder="Provide details about the quality problem..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 text-white fw-bold">
+                            <i class="fas fa-paper-plane me-1"></i>Submit Report Ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Content Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h2 class="text-primary fw-bold mb-1">My Orders & Tracking</h2>
+                    <p class="text-muted mb-0">View live status updates, delivery windows, and past purchases.</p>
+                </div>
+                <div>
+                    <a href="shop.html" class="btn btn-primary rounded-pill px-4 py-2 text-white fw-bold">
+                        <i class="fas fa-plus me-1"></i>Order More Fresh Produce
+                    </a>
+                </div>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="gb-orders-list">
+                <!-- Dynamically populated -->
+            </div>
+
+        </div>
+    </div>
+    <!-- Main Content End -->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">GreenBasket</h4>
+                        <p class="mb-4">100% Quality & Origin Sourcing Transparency.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">Quick Navigation</h4>
+                        <a class="btn-link" href="shop.html">Shop Produce</a><br>
+                        <a class="btn-link" href="cart.html">Cart</a><br>
+                        <a class="btn-link" href="orders.html">My Orders</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-item">
+                        <h4 class="text-light mb-3">Support</h4>
+                        <p>Email: support@greenbasket.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
+            class="fa fa-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- App State Engine & Script -->
+    <script src="js/app-state.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            function renderOrders() {
+                const orders = window.AppState.getOrders();
+                const $list = $('#gb-orders-list');
+                $list.empty();
+
+                if (orders.length === 0) {
+                    $list.html(`
+                        <div class="text-center py-5 bg-light rounded border">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">You haven't placed any orders yet.</h4>
+                            <a href="shop.html" class="btn btn-primary rounded-pill px-4 py-2 text-white mt-2">Start Shopping</a>
+                        </div>
+                    `);
+                    return;
+                }
+
+                orders.forEach(order => {
+                    // Status Badge Styling
+                    let statusBadgeClass = 'bg-primary';
+                    if (order.status === 'Processing') statusBadgeClass = 'bg-warning text-dark';
+                    if (order.status === 'Out for Delivery') statusBadgeClass = 'bg-info text-dark';
+                    if (order.status === 'Delivered') statusBadgeClass = 'bg-success text-white';
+                    if (order.status === 'Cancelled') statusBadgeClass = 'bg-danger text-white';
+
+                    // Progress Stepper Calculations (FR-5.1)
+                    const isProcessing = order.status === 'Processing' || order.status === 'Out for Delivery' || order.status === 'Delivered';
+                    const isOutForDelivery = order.status === 'Out for Delivery' || order.status === 'Delivered';
+                    const isDelivered = order.status === 'Delivered';
+
+                    const step1Class = 'completed';
+                    const step2Class = isProcessing ? (order.status === 'Processing' ? 'active' : 'completed') : '';
+                    const step3Class = isOutForDelivery ? (order.status === 'Out for Delivery' ? 'active' : 'completed') : '';
+                    const step4Class = isDelivered ? 'completed active' : '';
+
+                    // Items HTML
+                    let itemsHtml = '';
+                    order.items.forEach(item => {
+                        itemsHtml += `
+                            <div class="d-flex align-items-center mb-2 me-4">
+                                <img src="${item.image}" class="img-fluid rounded me-2" style="width: 40px; height: 40px; object-fit: cover;" alt="${item.name}">
+                                <div>
+                                    <small class="fw-bold text-dark d-block">${item.name}</small>
+                                    <small class="text-muted">${item.qty} ${item.unit} x $${item.price.toFixed(2)}</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Quality Ticket Status HTML (FR-5.3)
+                    let reportHtml = '';
+                    if (order.qualityReport) {
+                        const q = order.qualityReport;
+                        reportHtml = `
+                            <div class="mt-3 p-3 bg-white rounded border border-warning">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark"><i class="fas fa-ticket-alt text-warning me-2"></i>Quality Report Ticket #${q.ticketId}</span>
+                                    <span class="badge bg-warning text-dark">${q.status}</span>
+                                </div>
+                                <p class="small text-secondary mb-1 mt-2"><strong>Issue:</strong> ${q.issueType}</p>
+                                <p class="small text-muted mb-0"><strong>Note:</strong> ${q.comments}</p>
+                            </div>
+                        `;
+                    } else if (order.status === 'Delivered') {
+                        reportHtml = `
+                            <div class="mt-3 text-end">
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 btn-open-report" data-id="${order.id}">
+                                    <i class="fas fa-flag me-1"></i>Report Damaged / Spoiled Produce
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    // Cancel button for Processing orders
+                    let cancelBtnHtml = '';
+                    if (order.status === 'Processing') {
+                        cancelBtnHtml = `
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 me-2 btn-cancel-order" data-id="${order.id}">
+                                <i class="fas fa-ban me-1"></i>Cancel Order
+                            </button>
+                        `;
+                    }
+
+                    const cardHtml = `
+                        <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
+                            <div class="card-header bg-light p-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0 me-3 d-inline">Order #${order.id}</h5>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i>${order.date}</small>
+                                </div>
+                                <div>
+                                    <span class="badge ${statusBadgeClass} px-3 py-2 fs-6 rounded-pill">${order.status}</span>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-4">
+                                <!-- Stepper Visual (FR-5.1) -->
+                                ${order.status !== 'Cancelled' ? `
+                                    <div class="tracking-stepper">
+                                        <div class="step-item ${step1Class}">
+                                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                                            <div class="step-title small">Order Placed</div>
+                                        </div>
+                                        <div class="step-item ${step2Class}">
+                                            <div class="step-icon"><i class="fas fa-boxes"></i></div>
+                                            <div class="step-title small">Processing</div>
+                                        </div>
+                                        <div class="step-item ${step3Class}">
+                                            <div class="step-icon"><i class="fas fa-truck"></i></div>
+                                            <div class="step-title small">Out for Delivery</div>
+                                        </div>
+                                        <div class="step-item ${step4Class}">
+                                            <div class="step-icon"><i class="fas fa-home"></i></div>
+                                            <div class="step-title small">Delivered</div>
+                                        </div>
+                                    </div>
+                                ` : '<div class="alert alert-danger mb-4"><i class="fas fa-exclamation-circle me-2"></i>This order was cancelled before dispatch.</div>'}
+
+                                <div class="row g-4 mt-2">
+                                    <div class="col-md-7">
+                                        <h6 class="fw-bold text-dark mb-3">Itemized Produce:</h6>
+                                        <div class="d-flex flex-wrap">
+                                            ${itemsHtml}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 bg-light p-3 rounded border">
+                                        <small class="text-muted d-block"><strong>Delivery Slot:</strong> ${order.deliverySlot}</small>
+                                        <small class="text-muted d-block mt-1"><strong>Address:</strong> ${order.deliveryAddress}</small>
+                                        <small class="text-muted d-block mt-1"><strong>Payment Method:</strong> ${order.paymentMethod}</small>
+                                        <div class="d-flex justify-content-between mt-3 pt-2 border-top fw-bold text-dark fs-5">
+                                            <span>Total Paid:</span>
+                                            <span class="text-primary">$${order.total.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                ${reportHtml}
+
+                                <div class="d-flex justify-content-end align-items-center mt-3 pt-3 border-top">
+                                    ${cancelBtnHtml}
+                                    <button class="btn btn-sm btn-success rounded-pill px-4 text-white fw-bold btn-reorder" data-id="${order.id}">
+                                        <i class="fas fa-redo me-1"></i>Quick Reorder (1-Click)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $list.append(cardHtml);
+                });
+            }
+
+            // Quick Reorder Event Handler (FR-1.3)
+            $(document).on('click', '.btn-reorder', function () {
+                const id = $(this).data('id');
+                const order = window.AppState.getOrderById(id);
+                if (order) {
+                    order.items.forEach(item => {
+                        window.AppState.addToCart(item.productId, item.qty);
+                    });
+                    window.GB.showToast(`Reordered ${order.items.length} items from #${order.id}! Added to cart.`, 'success');
+                    setTimeout(() => {
+                        window.location.href = 'cart.html';
+                    }, 1000);
+                }
+            });
+
+            // Cancel Order Handler
+            $(document).on('click', '.btn-cancel-order', function () {
+                const id = $(this).data('id');
+                if (confirm(`Are you sure you want to cancel Order #${id}?`)) {
+                    window.AppState.cancelOrder(id);
+                    window.GB.showToast(`Order #${id} has been cancelled.`, 'info');
+                    renderOrders();
+                }
+            });
+
+            // Open Report Quality Ticket Modal (FR-5.3)
+            $(document).on('click', '.btn-open-report', function () {
+                const id = $(this).data('id');
+                $('#reportOrderId').val(id);
+                $('#reportOrderIdDisplay').val('#' + id);
+                const modal = new bootstrap.Modal(document.getElementById('qualityReportModal'));
+                modal.show();
+            });
+
+            // Submit Quality Ticket Form
+            $('#qualityReportForm').on('submit', function (e) {
+                e.preventDefault();
+                const orderId = $('#reportOrderId').val();
+                const issueType = $('#issueType').val();
+                const comments = $('#issueComments').val().trim();
+
+                const ticket = window.AppState.submitQualityReport(orderId, issueType, comments);
+                if (ticket) {
+                    window.GB.showToast(`Quality ticket <strong>#${ticket.ticketId}</strong> submitted to Staff Dashboard!`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('qualityReportModal')).hide();
+                    renderOrders();
+                }
+            });
+
+            // Initial render
+            renderOrders();
+
+            // Listen for state changes
+            window.addEventListener('gb_state_change', function () {
+                renderOrders();
+            });
+        });
+    </script>
+</body>
+
+</html>
