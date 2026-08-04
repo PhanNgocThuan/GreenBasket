@@ -1,11 +1,9 @@
-﻿namespace GreenBasket.Domain.Entities
+﻿namespace GreenBasket.Application.DTOs.Address
+
 {
-    public class Address
+    public class AddressDTO
     {
         public int Id { get; set; }
-        public string UserId { get; set; } = string.Empty;
-        public AppUser User { get; set; } = null!;
-
         public string ReceiverName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string StreetAddress { get; set; } = string.Empty;
