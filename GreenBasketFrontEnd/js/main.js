@@ -337,6 +337,81 @@
                 }
             }
         });
+
+        // Initialize Holographic Cards on document ready
+        window.GB.initHoloCards();
+    });
+
+    // =========================================================
+    // HOLOGRAPHIC FOIL & BRAND SECURITY SEAL MODULE (NO LAG 2D)
+    // =========================================================
+    window.GB.initHoloCards = function (targetSelector = '.fruite-item') {
+        $(targetSelector).each(function () {
+            const $card = $(this);
+            $card.addClass('gb-holo-card');
+
+            // Inject holographic elements if missing
+            if ($card.find('.gb-holo-foil').length === 0) {
+                $card.append('<div class="gb-holo-foil"></div>');
+            }
+            if ($card.find('.gb-holo-glare').length === 0) {
+                $card.append('<div class="gb-holo-glare"></div>');
+            }
+            if ($card.find('.gb-holo-security-seal').length === 0) {
+                $card.append(`
+                    <div class="gb-holo-security-seal" title="Tem Chống Hàng Giả - GreenBasket Certified Produce">
+                        <div class="gb-seal-banner">
+                            <i class="fas fa-shield-alt gb-seal-shield"></i>
+                            <div class="gb-seal-text">
+                                <span class="gb-seal-brand"><i class="fas fa-leaf me-1"></i>GREENBASKET</span>
+                                <small class="gb-seal-sub">AUTHENTIC ORGANIC</small>
+                            </div>
+                            <i class="fas fa-check-circle gb-seal-check"></i>
+                        </div>
+                    </div>
+                `);
+            }
+        });
+    };
+
+    // Smooth RequestAnimationFrame Mouse Tracking (No 3D Tilt, Maximum Smoothness)
+    let holoRaf = null;
+    $(document).on('mousemove touchmove', '.fruite-item.gb-holo-card', function (e) {
+        const card = this;
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+
+        if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 0) {
+            clientX = e.originalEvent.touches[0].clientX;
+            clientY = e.originalEvent.touches[0].clientY;
+        }
+
+        if (clientX === undefined || clientY === undefined) return;
+
+        if (holoRaf) cancelAnimationFrame(holoRaf);
+
+        holoRaf = requestAnimationFrame(() => {
+            const rect = card.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            const percentX = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            const percentY = Math.max(0, Math.min(100, (y / rect.height) * 100));
+
+            card.style.setProperty('--mouse-x', `${percentX.toFixed(1)}%`);
+            card.style.setProperty('--mouse-y', `${percentY.toFixed(1)}%`);
+            card.style.setProperty('--holo-opacity', '1');
+            card.style.setProperty('--glare-opacity', '0.6');
+        });
+    });
+
+    // Reset card state on mouseleave / touchend
+    $(document).on('mouseleave touchend touchcancel', '.fruite-item.gb-holo-card', function () {
+        const card = this;
+        card.style.setProperty('--holo-opacity', '0');
+        card.style.setProperty('--glare-opacity', '0');
     });
 
 })(jQuery);
+
+

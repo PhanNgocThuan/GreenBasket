@@ -423,6 +423,13 @@
                     products.sort((a, b) => b.rating - a.rating);
                 }
 
+                // Always push Out of Stock items to the very bottom
+                products.sort((a, b) => {
+                    const aOut = a.stockStatus === 'Out of Stock' ? 1 : 0;
+                    const bOut = b.stockStatus === 'Out of Stock' ? 1 : 0;
+                    return aOut - bOut;
+                });
+
                 // Update Filter Badge Text
                 $('#gb-active-filter-badge').text(`Showing ${products.length} Items`);
 
@@ -442,6 +449,9 @@
                 }
 
                 products.forEach(p => {
+                    const isOutOfStock = p.stockStatus === 'Out of Stock';
+                    const outOfStockClass = isOutOfStock ? 'gb-out-of-stock-card' : '';
+
                     const stockBadge = p.stockStatus === 'In Stock'
                         ? `<span class="badge-stock-in me-1"><i class="fas fa-check-circle me-1"></i>In Stock</span>`
                         : (p.stockStatus === 'Low Stock'
@@ -450,9 +460,13 @@
 
                     const organicBadge = p.organic ? `<span class="badge-organic me-1"><i class="fas fa-leaf me-1"></i>VietGAP Organic</span>` : '';
 
+                    const buttonHtml = isOutOfStock
+                        ? `<button class="btn border border-secondary rounded-pill px-3 btn-add-cart" data-product-id="${p.id}" disabled><i class="fa fa-ban me-2 text-danger"></i> Sold Out</button>`
+                        : `<button class="btn border border-secondary rounded-pill px-3 text-primary btn-add-cart" data-product-id="${p.id}"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add</button>`;
+
                     const cardHtml = `
                         <div class="col-md-6 col-lg-6 col-xl-4">
-                            <div class="rounded position-relative fruite-item border h-100 d-flex flex-column">
+                            <div class="rounded position-relative fruite-item border h-100 d-flex flex-column ${outOfStockClass}">
                                 <div class="fruite-img position-relative">
                                     <img src="${p.image}" class="img-fluid w-100 rounded-top" style="height: 200px; object-fit: cover;" alt="${p.name}">
                                     <span class="badge-farm-origin position-absolute" style="top: 10px; left: 10px;">
@@ -479,9 +493,7 @@
 
                                     <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
                                         <p class="text-dark fs-5 fw-bold mb-0">$${p.price.toFixed(2)} <span class="fs-6 text-muted">/ ${p.unit}</span></p>
-                                        <button class="btn border border-secondary rounded-pill px-3 text-primary btn-add-cart" data-product-id="${p.id}">
-                                            <i class="fa fa-shopping-bag me-2 text-primary"></i> Add
-                                        </button>
+                                        ${buttonHtml}
                                     </div>
                                 </div>
                             </div>
@@ -489,6 +501,10 @@
                     `;
                     $grid.append(cardHtml);
                 });
+
+                if (window.GB && window.GB.initHoloCards) {
+                    window.GB.initHoloCards('#gb-shop-grid .fruite-item');
+                }
             }
 
             // Bind Filter Event Handlers
