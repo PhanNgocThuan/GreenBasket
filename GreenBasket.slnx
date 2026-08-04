@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GreenBasket.API/GreenBasket.API.csproj" />
+  <Project Path="GreenBasket.Application/GreenBasket.Application.csproj" />
+  <Project Path="GreenBasket.Domain/GreenBasket.Domain.csproj" />
+  <Project Path="GreenBasket.Infrastructure/GreenBasket.Infrastructure.csproj" />
+</Solution>
