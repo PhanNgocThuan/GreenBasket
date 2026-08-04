@@ -6,18 +6,21 @@
     <title>GreenBasket Shop - Farm Produce & Traceable Catalog</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Vegetable catalog, farm sourcing, organic produce, fresh fruits" name="keywords">
-    <meta content="Browse organic leafy greens, root veggies, and seasonal fruits directly sourced from local farms." name="description">
+    <meta content="Browse organic leafy greens, root veggies, and seasonal fruits directly sourced from local farms."
+        name="description">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%232E7D32' d='M508.8 45.42c-56.12-39.63-131.6-48.4-198.8-23.77-90.87 33.32-157.9 107.5-177.9 201.1-23.75 1.125-47.5 7.75-68.5 20.25-63 37.5-83.62 119.8-46.12 182.9 37.5 63 119.8 83.62 182.9 46.12 40.87-24.38 65.5-66.25 69.12-111.1 69.37-33.87 119.2-97.75 133.4-173.9 11.25-60.5-2.25-121.2-34.1-166.7zM182.2 434.9c-44.25 26.37-101.9 11.87-128.2-32.37s-11.88-101.9 32.38-128.2c16.12-9.625 34.62-13.62 52.88-12.25-24.12 58.75-19.12 127 15.12 181.5 8.75 13.5 18.25 26.25 27.88 38.38-30 20.38-66.6 20.75-103.5 9.125z'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="img/Dragon_fruit.png">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap"
+        rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
@@ -34,7 +37,8 @@
 <body>
 
     <!-- Spinner Start -->
-    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-grow text-primary" role="status"></div>
     </div>
     <!-- Spinner End -->
@@ -45,21 +49,27 @@
         <div class="container topbar bg-primary d-none d-lg-block">
             <div class="d-flex justify-content-between">
                 <div class="top-info ps-2">
-                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
-                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#"
+                            class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                            href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
                 </div>
                 <div class="top-link pe-2 d-flex align-items-center">
                     <span class="text-white me-2"><small>Role:</small></span>
                     <span class="gb-role-badge me-3">Customer</span>
                     <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
-                    <a href="admin.html" class="text-white"><small class="text-white"><i class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i
+                                class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
                 </div>
             </div>
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1></a>
-                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars text-primary"></span>
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
@@ -69,13 +79,18 @@
                         <a href="cart.html" class="nav-item nav-link">Cart</a>
                         <a href="chackout.html" class="nav-item nav-link">Checkout</a>
                         <a href="orders.html" class="nav-item nav-link">Track Orders</a>
-                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i class="fas fa-cog me-1"></i>Operations</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i
+                                class="fas fa-cog me-1"></i>Operations</a>
                     </div>
                     <div class="d-flex m-3 me-0 align-items-center">
-                        <button type="button" class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i class="fas fa-search text-primary"></i></button>
+                        <button type="button"
+                            class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i
+                                class="fas fa-search text-primary"></i></button>
                         <a href="cart.html" class="position-relative me-4 my-auto">
                             <i class="fa fa-shopping-bag fa-2x text-primary"></i>
-                            <span class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                            <span
+                                class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                                style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
                         </a>
                         <a href="orders.html" class="my-auto">
                             <i class="fas fa-user-circle fa-2x text-primary"></i>
@@ -105,7 +120,8 @@
             <div class="modal-content border-0 rounded-3 overflow-hidden shadow-lg">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title text-white fw-bold" id="pModalTitle">Produce Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4" id="pModalBody">
                     <!-- Dynamic modal content -->
@@ -125,19 +141,23 @@
                     <div class="row g-4 mb-4 align-items-center">
                         <div class="col-xl-4">
                             <div class="input-group w-100 d-flex">
-                                <input type="text" id="gb-shop-search-input" class="form-control p-3" placeholder="Search keywords (e.g. spinach, Dalat)...">
-                                <span class="input-group-text p-3 bg-primary text-white"><i class="fa fa-search"></i></span>
+                                <input type="text" id="gb-shop-search-input" class="form-control p-3"
+                                    placeholder="Search keywords (e.g. spinach, Dalat)...">
+                                <span class="input-group-text p-3 bg-primary text-white"><i
+                                        class="fa fa-search"></i></span>
                             </div>
                         </div>
                         <div class="col-xl-4 col-md-6">
                             <div class="d-flex align-items-center justify-content-start">
                                 <span class="text-muted me-2 text-nowrap">Filter Status:</span>
-                                <span id="gb-active-filter-badge" class="badge bg-secondary text-dark p-2">Showing All Produce</span>
+                                <span id="gb-active-filter-badge" class="badge bg-secondary text-dark p-2">Showing All
+                                    Produce</span>
                             </div>
                         </div>
                         <div class="col-xl-4 col-md-6">
                             <div class="bg-light ps-3 py-2 rounded d-flex justify-content-between align-items-center">
-                                <label for="sortSelect" class="text-nowrap mb-0 me-2 text-muted fw-bold">Sort By:</label>
+                                <label for="sortSelect" class="text-nowrap mb-0 me-2 text-muted fw-bold">Sort
+                                    By:</label>
                                 <select id="sortSelect" class="border-0 form-select bg-light">
                                     <option value="default">Default Order</option>
                                     <option value="price-asc">Price: Low to High</option>
@@ -155,10 +175,12 @@
                             <div class="row g-4">
                                 <div class="col-lg-12">
                                     <div class="mb-4 bg-light p-4 rounded border">
-                                        <h4 class="fw-bold mb-3 text-primary"><i class="fas fa-th-list me-2"></i>Categories</h4>
+                                        <h4 class="fw-bold mb-3 text-primary"><i
+                                                class="fas fa-th-list me-2"></i>Categories</h4>
                                         <ul class="list-unstyled fruite-categorie">
                                             <li class="py-1">
-                                                <a href="#" class="gb-shop-cat active fw-bold text-success" data-cat="all">
+                                                <a href="#" class="gb-shop-cat active fw-bold text-success"
+                                                    data-cat="all">
                                                     <i class="fas fa-layer-group me-2"></i>All Produce
                                                 </a>
                                             </li>
@@ -188,8 +210,10 @@
 
                                 <div class="col-lg-12">
                                     <div class="mb-4 bg-light p-4 rounded border">
-                                        <h4 class="fw-bold mb-3 text-primary"><i class="fas fa-dollar-sign me-2"></i>Max Price ($/kg)</h4>
-                                        <input type="range" class="form-range w-100" id="priceRange" min="1" max="15" step="0.5" value="15">
+                                        <h4 class="fw-bold mb-3 text-primary"><i class="fas fa-dollar-sign me-2"></i>Max
+                                            Price ($/kg)</h4>
+                                        <input type="range" class="form-range w-100" id="priceRange" min="1" max="15"
+                                            step="0.5" value="15">
                                         <div class="d-flex justify-content-between mt-2">
                                             <span class="text-muted">$1.00</span>
                                             <span class="fw-bold text-success" id="priceRangeVal">$15.00</span>
@@ -199,7 +223,8 @@
 
                                 <div class="col-lg-12">
                                     <div class="mb-4 bg-light p-4 rounded border">
-                                        <h4 class="fw-bold mb-3 text-primary"><i class="fas fa-award me-2"></i>Certification & Stock</h4>
+                                        <h4 class="fw-bold mb-3 text-primary"><i
+                                                class="fas fa-award me-2"></i>Certification & Stock</h4>
                                         <div class="form-check mb-2">
                                             <input class="form-check-input" type="checkbox" id="filterOrganic">
                                             <label class="form-check-label fw-bold text-dark" for="filterOrganic">
@@ -217,8 +242,10 @@
 
                                 <div class="col-lg-12">
                                     <div class="position-relative">
-                                        <img src="img/banner-fruits.jpg" class="img-fluid w-100 rounded shadow" alt="Fresh Guarantee">
-                                        <div class="position-absolute bg-dark bg-opacity-75 p-3 rounded" style="top: 50%; left: 10px; right: 10px; transform: translateY(-50%);">
+                                        <img src="img/banner-fruits.jpg" class="img-fluid w-100 rounded shadow"
+                                            alt="Fresh Guarantee">
+                                        <div class="position-absolute bg-dark bg-opacity-75 p-3 rounded"
+                                            style="top: 50%; left: 10px; right: 10px; transform: translateY(-50%);">
                                             <h5 class="text-white fw-bold mb-1">Cold-Chain Fresh</h5>
                                             <small class="text-light">100% Quality & Origin Verified</small>
                                         </div>
@@ -248,22 +275,29 @@
                 <div class="row g-4 align-items-center">
                     <div class="col-lg-3">
                         <a href="index.html">
-                            <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
+                            <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i
+                                    class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
                             <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
                         </a>
                     </div>
                     <div class="col-lg-6">
                         <div class="position-relative mx-auto">
-                            <input class="form-control py-3 px-4 rounded-pill" type="email" placeholder="Your Email for Fresh Deals">
-                            <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill" style="top: 0; right: 0;">Subscribe</button>
+                            <input class="form-control py-3 px-4 rounded-pill" type="email"
+                                placeholder="Your Email for Fresh Deals">
+                            <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill"
+                                style="top: 0; right: 0;">Subscribe</button>
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="d-flex justify-content-end">
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-youtube"></i></a>
-                            <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i class="fab fa-linkedin-in"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i
+                                    class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
@@ -272,27 +306,36 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
                         <h4 class="mb-3">Why People Trust Us?</h4>
-                        <p class="mb-4">GreenBasket connects urban households directly with certified organic and VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
+                        <p class="mb-4">GreenBasket connects urban households directly with certified organic and
+                            VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
                         <a href="shop.html" class="btn btn-subscribe py-2 px-4 rounded-pill">Shop Now</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
                         <h4 class="mb-3">Quick Navigation</h4>
-                        <a class="btn-link d-block mb-2" href="shop.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
-                        <a class="btn-link d-block mb-2" href="cart.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
-                        <a class="btn-link d-block mb-2" href="chackout.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
-                        <a class="btn-link d-block mb-2" href="orders.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File Complaint</a>
-                        <a class="btn-link d-block mb-2" href="admin.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Staff Fulfillment Portal</a>
+                        <a class="btn-link d-block mb-2" href="shop.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
+                        <a class="btn-link d-block mb-2" href="cart.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
+                        <a class="btn-link d-block mb-2" href="chackout.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
+                        <a class="btn-link d-block mb-2" href="orders.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File
+                            Complaint</a>
+                        <a class="btn-link d-block mb-2" href="admin.html"><i
+                                class="fas fa-chevron-right me-1 small text-warning"></i>Staff Fulfillment Portal</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
                         <h4 class="mb-3">Contact Support</h4>
-                        <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic Agriculture Hub & HCMC Distribution Center</p>
+                        <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic Agriculture
+                            Hub & HCMC Distribution Center</p>
                         <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
                         <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
-                        <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM - 20:00 PM (Daily)</p>
+                        <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM - 20:00
+                            PM (Daily)</p>
                     </div>
                 </div>
             </div>
@@ -301,7 +344,8 @@
     <!-- Footer End -->
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
+            class="fa fa-arrow-up"></i></a>
 
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -316,7 +360,7 @@
     <script src="js/main.js"></script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             let activeCategory = 'all';
 
             // Parse URL parameters (e.g., shop.html?cat=leafy-greens or shop.html?search=spinach)
@@ -348,7 +392,7 @@
 
                 // 2. Search Filter
                 if (searchQuery) {
-                    products = products.filter(p => 
+                    products = products.filter(p =>
                         p.name.toLowerCase().includes(searchQuery) ||
                         p.farmOrigin.toLowerCase().includes(searchQuery) ||
                         p.description.toLowerCase().includes(searchQuery)
@@ -398,9 +442,9 @@
                 }
 
                 products.forEach(p => {
-                    const stockBadge = p.stockStatus === 'In Stock' 
+                    const stockBadge = p.stockStatus === 'In Stock'
                         ? `<span class="badge-stock-in me-1"><i class="fas fa-check-circle me-1"></i>In Stock</span>`
-                        : (p.stockStatus === 'Low Stock' 
+                        : (p.stockStatus === 'Low Stock'
                             ? `<span class="badge-stock-low me-1"><i class="fas fa-exclamation-circle me-1"></i>Low Stock (${p.stockQuantity})</span>`
                             : `<span class="badge-stock-out me-1"><i class="fas fa-times-circle me-1"></i>Out of Stock</span>`);
 
@@ -448,7 +492,7 @@
             }
 
             // Bind Filter Event Handlers
-            $('.gb-shop-cat').on('click', function(e) {
+            $('.gb-shop-cat').on('click', function (e) {
                 e.preventDefault();
                 activeCategory = $(this).data('cat');
                 applyFiltersAndRender();
@@ -456,7 +500,7 @@
 
             $('#gb-shop-search-input').on('keyup input', applyFiltersAndRender);
 
-            $('#priceRange').on('input', function() {
+            $('#priceRange').on('input', function () {
                 $('#priceRangeVal').text('$' + parseFloat($(this).val()).toFixed(2));
                 applyFiltersAndRender();
             });
@@ -464,7 +508,7 @@
             $('#filterOrganic, #filterInStock, #sortSelect').on('change', applyFiltersAndRender);
 
             // View Details Modal Handler
-            $(document).on('click', '.btn-view-details', function() {
+            $(document).on('click', '.btn-view-details', function () {
                 const id = $(this).data('id');
                 const product = window.AppState.getProductById(id);
                 if (product) {

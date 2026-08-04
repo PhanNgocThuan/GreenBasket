@@ -6,18 +6,21 @@
     <title>GreenBasket - Checkout & Delivery Slot Selection</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Checkout produce, delivery time slot, fresh vegetable delivery address" name="keywords">
-    <meta content="Select delivery slot, fill recipient address, choose payment method and confirm fresh produce order." name="description">
+    <meta content="Select delivery slot, fill recipient address, choose payment method and confirm fresh produce order."
+        name="description">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%232E7D32' d='M508.8 45.42c-56.12-39.63-131.6-48.4-198.8-23.77-90.87 33.32-157.9 107.5-177.9 201.1-23.75 1.125-47.5 7.75-68.5 20.25-63 37.5-83.62 119.8-46.12 182.9 37.5 63 119.8 83.62 182.9 46.12 40.87-24.38 65.5-66.25 69.12-111.1 69.37-33.87 119.2-97.75 133.4-173.9 11.25-60.5-2.25-121.2-34.1-166.7zM182.2 434.9c-44.25 26.37-101.9 11.87-128.2-32.37s-11.88-101.9 32.38-128.2c16.12-9.625 34.62-13.62 52.88-12.25-24.12 58.75-19.12 127 15.12 181.5 8.75 13.5 18.25 26.25 27.88 38.38-30 20.38-66.6 20.75-103.5 9.125z'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="img/Dragon_fruit.png">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap"
+        rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
@@ -34,7 +37,8 @@
 <body>
 
     <!-- Spinner Start -->
-    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-grow text-primary" role="status"></div>
     </div>
     <!-- Spinner End -->
@@ -45,21 +49,27 @@
         <div class="container topbar bg-primary d-none d-lg-block">
             <div class="d-flex justify-content-between">
                 <div class="top-info ps-2">
-                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
-                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#"
+                            class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                            href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
                 </div>
                 <div class="top-link pe-2 d-flex align-items-center">
                     <span class="text-white me-2"><small>Role:</small></span>
                     <span class="gb-role-badge me-3">Customer</span>
                     <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
-                    <a href="admin.html" class="text-white"><small class="text-white"><i class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
+                    <a href="admin.html" class="text-white"><small class="text-white"><i
+                                class="fas fa-user-shield me-1"></i>Staff Portal</small></a>
                 </div>
             </div>
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1></a>
-                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="text-primary display-6"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h1>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars text-primary"></span>
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
@@ -69,13 +79,18 @@
                         <a href="cart.html" class="nav-item nav-link">Cart</a>
                         <a href="chackout.html" class="nav-item nav-link active">Checkout</a>
                         <a href="orders.html" class="nav-item nav-link">Track Orders</a>
-                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i class="fas fa-cog me-1"></i>Operations</a>
+                        <a href="admin.html" class="nav-item nav-link text-success fw-bold"><i
+                                class="fas fa-cog me-1"></i>Operations</a>
                     </div>
                     <div class="d-flex m-3 me-0 align-items-center">
-                        <button type="button" class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i class="fas fa-search text-primary"></i></button>
+                        <button type="button"
+                            class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"><i
+                                class="fas fa-search text-primary"></i></button>
                         <a href="cart.html" class="position-relative me-4 my-auto">
                             <i class="fa fa-shopping-bag fa-2x text-primary"></i>
-                            <span class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
+                            <span
+                                class="gb-cart-count position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                                style="top: -5px; left: 15px; height: 20px; min-width: 20px;">0</span>
                         </a>
                         <a href="orders.html" class="my-auto">
                             <i class="fas fa-user-circle fa-2x text-primary"></i>
@@ -109,31 +124,40 @@
                 <div class="row g-5">
                     <!-- Left Column: Delivery Address & Time Slot -->
                     <div class="col-md-12 col-lg-7">
-                        
+
                         <!-- FR-3.2 Delivery Slot Selection Card -->
                         <div class="card border-0 shadow-sm rounded-3 mb-4">
                             <div class="card-header bg-primary text-white py-3">
-                                <h5 class="card-title mb-0 text-white"><i class="far fa-clock me-2"></i>1. Preferred Delivery Date & Time Window</h5>
+                                <h5 class="card-title mb-0 text-white"><i class="far fa-clock me-2"></i>1. Preferred
+                                    Delivery Date & Time Window</h5>
                             </div>
                             <div class="card-body p-4">
-                                <p class="text-muted small mb-3">Select when you would like your cold-chain fresh produce package delivered to your doorstep.</p>
-                                
+                                <p class="text-muted small mb-3">Select when you would like your cold-chain fresh
+                                    produce package delivered to your doorstep.</p>
+
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Delivery Window</label>
                                         <select class="form-select p-3" id="deliverySlot" required>
-                                            <option value="Today (Aug 03): 14:00 - 16:00" selected>Today (Aug 03): 14:00 - 16:00 (Afternoon)</option>
-                                            <option value="Today (Aug 03): 16:00 - 18:00">Today (Aug 03): 16:00 - 18:00 (Evening)</option>
-                                            <option value="Tomorrow (Aug 04): 08:00 - 10:00">Tomorrow (Aug 04): 08:00 - 10:00 (Morning)</option>
-                                            <option value="Tomorrow (Aug 04): 10:00 - 12:00">Tomorrow (Aug 04): 10:00 - 12:00 (Late Morning)</option>
-                                            <option value="Tomorrow (Aug 04): 14:00 - 16:00">Tomorrow (Aug 04): 14:00 - 16:00 (Afternoon)</option>
+                                            <option value="Today (Aug 03): 14:00 - 16:00" selected>Today (Aug 03): 14:00
+                                                - 16:00 (Afternoon)</option>
+                                            <option value="Today (Aug 03): 16:00 - 18:00">Today (Aug 03): 16:00 - 18:00
+                                                (Evening)</option>
+                                            <option value="Tomorrow (Aug 04): 08:00 - 10:00">Tomorrow (Aug 04): 08:00 -
+                                                10:00 (Morning)</option>
+                                            <option value="Tomorrow (Aug 04): 10:00 - 12:00">Tomorrow (Aug 04): 10:00 -
+                                                12:00 (Late Morning)</option>
+                                            <option value="Tomorrow (Aug 04): 14:00 - 16:00">Tomorrow (Aug 04): 14:00 -
+                                                16:00 (Afternoon)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="bg-light p-3 rounded border text-muted small h-100 d-flex align-items-center">
+                                        <div
+                                            class="bg-light p-3 rounded border text-muted small h-100 d-flex align-items-center">
                                             <div>
                                                 <i class="fas fa-snowflake text-info me-2"></i>
-                                                <strong>Fresh Guarantee:</strong> Packaged in insulated thermal boxes with ice packs.
+                                                <strong>Fresh Guarantee:</strong> Packaged in insulated thermal boxes
+                                                with ice packs.
                                             </div>
                                         </div>
                                     </div>
@@ -144,33 +168,43 @@
                         <!-- FR-1.2 Delivery Address Details Card -->
                         <div class="card border-0 shadow-sm rounded-3 mb-4">
                             <div class="card-header bg-primary text-white py-3">
-                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2. Recipient & Delivery Address</h5>
+                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2.
+                                    Recipient & Delivery Address</h5>
                             </div>
                             <div class="card-body p-4">
                                 <div class="row g-3">
                                     <div class="col-md-12">
-                                        <label class="form-label fw-bold text-dark">Full Recipient Name<sup>*</sup></label>
-                                        <input type="text" class="form-control p-3" id="fullName" value="Alex Johnson" required>
+                                        <label class="form-label fw-bold text-dark">Full Recipient
+                                            Name<sup>*</sup></label>
+                                        <input type="text" class="form-control p-3" id="fullName" value="Alex Johnson"
+                                            required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Phone Number<sup>*</sup></label>
-                                        <input type="tel" class="form-control p-3" id="phone" value="+84 901 234 567" required>
+                                        <input type="tel" class="form-control p-3" id="phone" value="+84 901 234 567"
+                                            required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Email Address<sup>*</sup></label>
-                                        <input type="email" class="form-control p-3" id="email" value="alex@example.com" required>
+                                        <input type="email" class="form-control p-3" id="email" value="alex@example.com"
+                                            required>
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label class="form-label fw-bold text-dark">Street Address & Apartment<sup>*</sup></label>
-                                        <input type="text" class="form-control p-3" id="address" value="123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City" required>
+                                        <label class="form-label fw-bold text-dark">Street Address &
+                                            Apartment<sup>*</sup></label>
+                                        <input type="text" class="form-control p-3" id="address"
+                                            value="123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City"
+                                            required>
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label class="form-label fw-bold text-dark">Delivery Notes / Gate Code (Optional)</label>
-                                        <textarea id="deliveryNotes" class="form-control p-3" rows="2" placeholder="e.g. Please leave package with building reception if not home."></textarea>
+                                        <label class="form-label fw-bold text-dark">Delivery Notes / Gate Code
+                                            (Optional)</label>
+                                        <textarea id="deliveryNotes" class="form-control p-3" rows="2"
+                                            placeholder="e.g. Please leave package with building reception if not home."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +216,8 @@
                     <div class="col-md-12 col-lg-5">
                         <div class="card border-0 shadow-sm rounded-3">
                             <div class="card-header bg-dark text-white py-3">
-                                <h5 class="card-title mb-0 text-white"><i class="fas fa-receipt me-2"></i>3. Order Summary & Payment</h5>
+                                <h5 class="card-title mb-0 text-white"><i class="fas fa-receipt me-2"></i>3. Order
+                                    Summary & Payment</h5>
                             </div>
                             <div class="card-body p-4">
                                 <!-- Itemized List -->
@@ -209,30 +244,35 @@
 
                                 <!-- Payment Methods (FR-4.1) -->
                                 <h6 class="fw-bold text-dark mt-4 mb-3">Select Payment Method:</h6>
-                                
+
                                 <div class="form-check p-3 rounded border mb-2 bg-light">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payCOD" value="Cash on Delivery (COD)" checked>
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payCOD"
+                                        value="Cash on Delivery (COD)" checked>
                                     <label class="form-check-label fw-bold text-dark" for="payCOD">
                                         <i class="fas fa-money-bill-wave text-success me-2"></i>Cash on Delivery (COD)
                                     </label>
-                                    <small class="text-muted d-block mt-1">Pay with cash or card upon drop-off delivery.</small>
+                                    <small class="text-muted d-block mt-1">Pay with cash or card upon drop-off
+                                        delivery.</small>
                                 </div>
 
                                 <div class="form-check p-3 rounded border mb-2 bg-light">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payMoMo" value="MoMo E-Wallet">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payMoMo"
+                                        value="MoMo E-Wallet">
                                     <label class="form-check-label fw-bold text-dark" for="payMoMo">
                                         <i class="fas fa-wallet text-danger me-2"></i>MoMo E-Wallet / QR Scan
                                     </label>
                                 </div>
 
                                 <div class="form-check p-3 rounded border mb-4 bg-light">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payBank" value="Direct Bank Transfer">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="payBank"
+                                        value="Direct Bank Transfer">
                                     <label class="form-check-label fw-bold text-dark" for="payBank">
                                         <i class="fas fa-university text-primary me-2"></i>Direct Bank Transfer (VietQR)
                                     </label>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 text-white text-uppercase fw-bold shadow fs-5">
+                                <button type="submit"
+                                    class="btn btn-primary w-100 rounded-pill py-3 text-white text-uppercase fw-bold shadow fs-5">
                                     <i class="fas fa-check-circle me-2"></i>Confirm Order & Place
                                 </button>
                             </div>
@@ -275,7 +315,8 @@
     <!-- Footer End -->
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
+            class="fa fa-arrow-up"></i></a>
 
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -290,7 +331,7 @@
     <script src="js/main.js"></script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             function renderCheckoutSummary() {
                 const cart = window.AppState.getCart();
                 const $container = $('#gb-checkout-items');
@@ -327,7 +368,7 @@
             }
 
             // Checkout Form Submission Handler
-            $('#gb-checkout-form').on('submit', function(e) {
+            $('#gb-checkout-form').on('submit', function (e) {
                 e.preventDefault();
 
                 const checkoutDetails = {
