@@ -6,15 +6,20 @@
     <title>GreenBasket - Organic Fresh Grocery Delivery</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Groceries sourced for flavor, fresh organic produce, direct farm delivery" name="keywords">
-    <meta content="Fresh organic fruits and vegetables sourced directly from local farms. Join GreenBasket today." name="description">
+    <meta content="Fresh organic fruits and vegetables sourced directly from local farms. Join GreenBasket today."
+        name="description">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%232E7D32' d='M508.8 45.42c-56.12-39.63-131.6-48.4-198.8-23.77-90.87 33.32-157.9 107.5-177.9 201.1-23.75 1.125-47.5 7.75-68.5 20.25-63 37.5-83.62 119.8-46.12 182.9 37.5 63 119.8 83.62 182.9 46.12 40.87-24.38 65.5-66.25 69.12-111.1 69.37-33.87 119.2-97.75 133.4-173.9 11.25-60.5-2.25-121.2-34.1-166.7zM182.2 434.9c-44.25 26.37-101.9 11.87-128.2-32.37s-11.88-101.9 32.38-128.2c16.12-9.625 34.62-13.62 52.88-12.25-24.12 58.75-19.12 127 15.12 181.5 8.75 13.5 18.25 26.25 27.88 38.38-30 20.38-66.6 20.75-103.5 9.125z'/></svg>">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
@@ -27,7 +32,8 @@
 <body>
 
     <!-- Spinner Start -->
-    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+    <div id="spinner"
+        class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-grow text-primary" role="status"></div>
     </div>
     <!-- Spinner End -->
@@ -46,17 +52,23 @@
 
                 <!-- Nav Links -->
                 <div class="d-none d-md-flex align-items-center gap-4">
-                    <a href="#how-it-works" class="fw-bold text-dark text-decoration-none">How It Works <i class="fas fa-chevron-down ms-1 small"></i></a>
-                    <a href="#our-food" class="fw-bold text-dark text-decoration-none">Our Food <i class="fas fa-chevron-down ms-1 small"></i></a>
-                    <a href="#about-us" class="fw-bold text-dark text-decoration-none">About Us <i class="fas fa-chevron-down ms-1 small"></i></a>
+                    <a href="#how-it-works" class="fw-bold text-dark text-decoration-none">How It Works <i
+                            class="fas fa-chevron-down ms-1 small"></i></a>
+                    <a href="#our-food" class="fw-bold text-dark text-decoration-none">Our Food <i
+                            class="fas fa-chevron-down ms-1 small"></i></a>
+                    <a href="#about-us" class="fw-bold text-dark text-decoration-none">About Us <i
+                            class="fas fa-chevron-down ms-1 small"></i></a>
                 </div>
 
                 <!-- Auth Buttons -->
                 <div class="d-flex align-items-center gap-3">
-                    <button id="btn-open-login" class="btn btn-link text-dark fw-bold text-decoration-none px-2" data-bs-toggle="modal" data-bs-target="#authModal" style="font-size: 1rem;">
+                    <button id="btn-open-login" class="btn btn-link text-dark fw-bold text-decoration-none px-2"
+                        data-bs-toggle="modal" data-bs-target="#authModal" style="font-size: 1rem;">
                         <i class="fas fa-user me-1"></i> Sign In
                     </button>
-                    <button id="btn-open-register" class="btn rounded-pill px-4 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#authModal" style="background-color: #FBFA86; color: #2B2118; border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118; font-size: 1rem;">
+                    <button id="btn-open-register" class="btn rounded-pill px-4 py-2 fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#authModal"
+                        style="background-color: #FBFA86; color: #2B2118; border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118; font-size: 1rem;">
                         Get Started
                     </button>
                 </div>
@@ -69,32 +81,36 @@
     <div class="hero-video-container" style="margin-top: 60px;">
         <!-- YouTube Fullscreen Background Video Stream (i5T6Fnbq34c) -->
         <div class="hero-youtube-wrapper">
-            <iframe id="heroYoutubeIframe" 
-                    src="https://www.youtube.com/embed/i5T6Fnbq34c?autoplay=1&mute=1&controls=0&loop=1&playlist=wopPRfeeCeQ&playsinline=1&enablejsapi=1&rel=0&start=10" 
-                    title="GreenBasket Background Video" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
+            <iframe id="heroYoutubeIframe"
+                src="https://www.youtube.com/embed/i5T6Fnbq34c?autoplay=1&mute=1&controls=0&loop=1&playlist=wopPRfeeCeQ&playsinline=1&enablejsapi=1&rel=0&start=10"
+                title="GreenBasket Background Video" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
             </iframe>
         </div>
 
         <!-- Video Dark Gradient Overlay & Headline Content -->
         <div class="hero-video-overlay">
             <div class="container py-5 text-center">
-                <span class="badge mb-3 fs-6" style="background-color: #FBFA86; color: #2B2118; border: 2px solid #2B2118; font-weight: 800; padding: 8px 20px; border-radius: 25px; box-shadow: 3px 3px 0px #2B2118;">
-                    <i class="fas fa-certificate me-1 text-success"></i> 100% Certified Farm Sourcing
+                <span class="badge mb-3 fs-6"
+                    style="background-color: #FBFA86; color: #2B2118; border: 2px solid #2B2118; font-weight: 800; padding: 8px 20px; border-radius: 25px; box-shadow: 3px 3px 0px #2B2118;">
+                    <i class="fas fa-leaf me-1 text-success"></i> 100% Nông Sản Hữu Cơ Chuẩn VietGAP
                 </span>
-                
-                <h1 class="display-3 fw-bold text-white mb-3" style="max-width: 900px; margin: 0 auto; text-shadow: 0 4px 16px rgba(0,0,0,0.6); font-size: 3.5rem;">
-                    Groceries sourced for flavor, not appearances
+
+                <h1 class="display-3 fw-bold text-white mb-3"
+                    style="max-width: 950px; margin: 0 auto; text-shadow: 0 4px 16px rgba(0,0,0,0.6); font-size: 3.2rem;">
+                    Nông sản hữu cơ tươi lành — Tận hưởng hương vị tự nhiên mỗi ngày
                 </h1>
 
-                <p class="fs-4 text-white mb-4" style="max-width: 750px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.6); font-weight: 500;">
-                    Fresh and unexpected finds with better taste, quality, and impact in each box delivered straight from local certified organic farms.
+                <p class="fs-4 text-white mb-4"
+                    style="max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.6); font-weight: 500;">
+                    GreenBasket kết nối trực tiếp các trang trại hữu cơ uy tín tới căn bếp gia đình bạn với cam kết minh bạch nguồn gốc & tươi ngon 100%.
                 </p>
 
                 <div>
-                    <button class="btn btn-open-auth-modal rounded-pill px-5 py-3 fw-bold fs-5" data-bs-toggle="modal" data-bs-target="#authModal" style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 4px 4px 0px #2B2118; transition: transform 0.2s ease;">
+                    <button class="btn btn-open-auth-modal rounded-pill px-5 py-3 fw-bold fs-5" data-bs-toggle="modal"
+                        data-bs-target="#authModal"
+                        style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 4px 4px 0px #2B2118; transition: transform 0.2s ease;">
                         Get Started <i class="fas fa-arrow-right ms-2"></i>
                     </button>
                 </div>
@@ -106,7 +122,15 @@
     <!-- Continuous Infinite Scrolling Marquee Ticker Bar -->
     <div class="marquee-ticker-bar">
         <div class="marquee-content">
-            <i class="fas fa-leaf text-success me-1"></i> GreenBasket &nbsp;&bull;&nbsp; Phan Ngoc Thuan &nbsp;&bull;&nbsp; Nguyen Quoc Thinh &nbsp;&bull;&nbsp; Danh Tuan Khang &nbsp;&bull;&nbsp; Vu Duc Tung &nbsp;&bull;&nbsp; Nguyen Van Trong &nbsp;&bull;&nbsp; 100% Certified Organic &amp; VietGAP Freshness &nbsp;&bull;&nbsp; Groceries Sourced for Flavor, Not Appearances &nbsp;&bull;&nbsp; Direct Farm-to-Table Traceability &nbsp;&bull;&nbsp; <i class="fas fa-leaf text-success me-1"></i> GreenBasket &nbsp;&bull;&nbsp; Phan Ngoc Thuan &nbsp;&bull;&nbsp; Nguyen Quoc Thinh &nbsp;&bull;&nbsp; Danh Tuan Khang &nbsp;&bull;&nbsp; Vu Duc Tung &nbsp;&bull;&nbsp; Nguyen Van Trong &nbsp;&bull;&nbsp; 100% Certified Organic &amp; VietGAP Freshness &nbsp;&bull;&nbsp; Groceries Sourced for Flavor, Not Appearances &nbsp;&bull;&nbsp; Direct Farm-to-Table Traceability
+            <i class="fas fa-leaf text-success me-1"></i> GreenBasket &nbsp;&bull;&nbsp; Phan Ngoc Thuan
+            &nbsp;&bull;&nbsp; Nguyen Quoc Thinh &nbsp;&bull;&nbsp; Danh Tuan Khang &nbsp;&bull;&nbsp; Vu Duc Tung
+            &nbsp;&bull;&nbsp; Nguyen Van Trong &nbsp;&bull;&nbsp; 100% Certified Organic &amp; VietGAP Freshness
+            &nbsp;&bull;&nbsp; Groceries Sourced for Flavor, Not Appearances &nbsp;&bull;&nbsp; Direct Farm-to-Table
+            Traceability &nbsp;&bull;&nbsp; <i class="fas fa-leaf text-success me-1"></i> GreenBasket &nbsp;&bull;&nbsp;
+            Phan Ngoc Thuan &nbsp;&bull;&nbsp; Nguyen Quoc Thinh &nbsp;&bull;&nbsp; Danh Tuan Khang &nbsp;&bull;&nbsp;
+            Vu Duc Tung &nbsp;&bull;&nbsp; Nguyen Van Trong &nbsp;&bull;&nbsp; 100% Certified Organic &amp; VietGAP
+            Freshness &nbsp;&bull;&nbsp; Groceries Sourced for Flavor, Not Appearances &nbsp;&bull;&nbsp; Direct
+            Farm-to-Table Traceability
         </div>
     </div>
 
@@ -114,8 +138,9 @@
     <!-- Interactive Authentication Modal (Sign In / Register) -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: #F9EDDE; border: 3px solid #2B2118; border-radius: 24px; box-shadow: 8px 8px 0px #2B2118;">
-                
+            <div class="modal-content"
+                style="background-color: #F9EDDE; border: 3px solid #2B2118; border-radius: 24px; box-shadow: 8px 8px 0px #2B2118;">
+
                 <div class="modal-header border-bottom border-dark pb-3">
                     <div class="w-100 text-center">
                         <h3 class="fw-bold mb-1" style="color: #1C3F2B;">
@@ -130,32 +155,40 @@
                     <!-- Auth Tabs -->
                     <ul class="nav nav-pills nav-justified mb-4" id="authTabs" role="tablist">
                         <li class="nav-item">
-                            <button class="nav-link active fw-bold border border-dark rounded-pill me-1" id="tab-login" data-bs-toggle="pill" data-bs-target="#pane-login" style="border: 2px solid #2B2118 !important;">
+                            <button class="nav-link active fw-bold border border-dark rounded-pill me-1" id="tab-login"
+                                data-bs-toggle="pill" data-bs-target="#pane-login"
+                                style="border: 2px solid #2B2118 !important;">
                                 <i class="fas fa-sign-in-alt me-1"></i> Sign In
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link fw-bold border border-dark rounded-pill ms-1" id="tab-register" data-bs-toggle="pill" data-bs-target="#pane-register" style="border: 2px solid #2B2118 !important;">
+                            <button class="nav-link fw-bold border border-dark rounded-pill ms-1" id="tab-register"
+                                data-bs-toggle="pill" data-bs-target="#pane-register"
+                                style="border: 2px solid #2B2118 !important;">
                                 <i class="fas fa-user-plus me-1"></i> Create Account
                             </button>
                         </li>
                     </ul>
 
                     <div class="tab-content" id="authTabsContent">
-                        
+
                         <!-- Sign In Form -->
                         <div class="tab-pane fade show active" id="pane-login">
                             <form id="form-login">
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Email Address</label>
-                                    <input type="email" id="login-email" class="form-control p-3" required placeholder="alex@example.com" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                    <input type="email" id="login-email" class="form-control p-3" required
+                                        placeholder="alex@example.com"
+                                        style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label fw-bold text-dark">Password</label>
-                                    <input type="password" id="login-password" class="form-control p-3" required placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                    <input type="password" id="login-password" class="form-control p-3" required
+                                        placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
 
-                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6 mb-3" style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
+                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6 mb-3"
+                                    style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
                                     Sign In & Start Shopping <i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </form>
@@ -164,10 +197,16 @@
                             <div class="border-top border-dark pt-3 mt-3 text-center">
                                 <small class="text-muted fw-bold d-block mb-2">QUICK 1-CLICK DEMO LOGIN</small>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login" data-email="alex@greenbasket.com" data-role="Customer" onclick="if(window.AppState){window.AppState.loginUser('alex@greenbasket.com','demo'); window.location.href='index.html';}">
+                                    <button type="button"
+                                        class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login"
+                                        data-email="alex@greenbasket.com" data-role="Customer"
+                                        onclick="if(window.AppState){window.AppState.loginUser('alex@greenbasket.com','demo'); window.location.href='index.html';}">
                                         <i class="fas fa-user me-1 text-success"></i> Customer Demo
                                     </button>
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login" data-email="staff@greenbasket.com" data-role="Staff / Admin" onclick="if(window.AppState){window.AppState.loginUser('staff@greenbasket.com','demo'); window.location.href='admin.html';}">
+                                    <button type="button"
+                                        class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 fw-bold btn-demo-login"
+                                        data-email="staff@greenbasket.com" data-role="Staff / Admin"
+                                        onclick="if(window.AppState){window.AppState.loginUser('staff@greenbasket.com','demo'); window.location.href='admin.html';}">
                                         <i class="fas fa-user-shield me-1 text-primary"></i> Staff Admin Demo
                                     </button>
                                 </div>
@@ -180,18 +219,24 @@
                             <form id="form-register">
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Full Name</label>
-                                    <input type="text" id="reg-name" class="form-control p-3" required placeholder="Alex Johnson" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                    <input type="text" id="reg-name" class="form-control p-3" required
+                                        placeholder="Alex Johnson"
+                                        style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Email Address</label>
-                                    <input type="email" id="reg-email" class="form-control p-3" required placeholder="alex@example.com" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                    <input type="email" id="reg-email" class="form-control p-3" required
+                                        placeholder="alex@example.com"
+                                        style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label fw-bold text-dark">Create Password</label>
-                                    <input type="password" id="reg-password" class="form-control p-3" required placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                    <input type="password" id="reg-password" class="form-control p-3" required
+                                        placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
 
-                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6" style="background-color: #91EFD2; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
+                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6"
+                                    style="background-color: #91EFD2; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
                                     Create Account & Join <i class="fas fa-check-circle ms-2"></i>
                                 </button>
                             </form>
@@ -202,177 +247,194 @@
 
             </div>
         </div>
-    <!-- Footer Start -->
-    <div class="container-fluid footer pt-5 mt-5">
-        <div class="container py-5">
-            <div class="pb-4 mb-4" style="border-bottom: 2px solid #FBFA86;">
-                <div class="row g-4 align-items-center">
-                    <div class="col-lg-3">
-                        <a href="landing.html">
-                            <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
-                            <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="position-relative mx-auto">
-                            <input class="form-control py-3 px-4 rounded-pill" type="email" placeholder="Your Email for Fresh Deals">
-                            <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill" style="top: 0; right: 0;">Subscribe</button>
+        <!-- Footer Start -->
+        <div class="container-fluid footer pt-5 mt-5">
+            <div class="container py-5">
+                <div class="pb-4 mb-4" style="border-bottom: 2px solid #FBFA86;">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-lg-3">
+                            <a href="landing.html">
+                                <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i
+                                        class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
+                                <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
+                            </a>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="position-relative mx-auto">
+                                <input class="form-control py-3 px-4 rounded-pill" type="email"
+                                    placeholder="Your Email for Fresh Deals">
+                                <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill"
+                                    style="top: 0; right: 0;">Subscribe</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="d-flex justify-content-end">
+                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                        class="fab fa-twitter"></i></a>
+                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                        class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i
+                                        class="fab fa-youtube"></i></a>
+                                <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i
+                                        class="fab fa-linkedin-in"></i></a>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-3">
-                        <div class="d-flex justify-content-end">
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-youtube"></i></a>
-                            <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <div class="row g-5">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-item">
+                            <h4 class="mb-3">Why People Trust Us?</h4>
+                            <p class="mb-4">GreenBasket connects urban households directly with certified organic and
+                                VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
+                            <button class="btn btn-subscribe py-2 px-4 rounded-pill btn-open-auth-modal"
+                                data-bs-toggle="modal" data-bs-target="#authModal">Get Started</button>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row g-5">
-                <div class="col-lg-4 col-md-6">
-                    <div class="footer-item">
-                        <h4 class="mb-3">Why People Trust Us?</h4>
-                        <p class="mb-4">GreenBasket connects urban households directly with certified organic and VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
-                        <button class="btn btn-subscribe py-2 px-4 rounded-pill btn-open-auth-modal" data-bs-toggle="modal" data-bs-target="#authModal">Get Started</button>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-item">
+                            <h4 class="mb-3">Quick Navigation</h4>
+                            <a class="btn-link d-block mb-2" href="index.html"><i
+                                    class="fas fa-chevron-right me-1 small text-warning"></i>Storefront Home</a>
+                            <a class="btn-link d-block mb-2" href="shop.html"><i
+                                    class="fas fa-chevron-right me-1 small text-warning"></i>Browse Produce Catalog</a>
+                            <a class="btn-link d-block mb-2" href="cart.html"><i
+                                    class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
+                            <a class="btn-link d-block mb-2" href="orders.html"><i
+                                    class="fas fa-chevron-right me-1 small text-warning"></i>Track Order Status</a>
+                            <a class="btn-link d-block mb-2" href="admin.html"><i
+                                    class="fas fa-chevron-right me-1 small text-warning"></i>Staff Operations</a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="footer-item">
-                        <h4 class="mb-3">Quick Navigation</h4>
-                        <a class="btn-link d-block mb-2" href="index.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Storefront Home</a>
-                        <a class="btn-link d-block mb-2" href="shop.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Browse Produce Catalog</a>
-                        <a class="btn-link d-block mb-2" href="cart.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
-                        <a class="btn-link d-block mb-2" href="orders.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Track Order Status</a>
-                        <a class="btn-link d-block mb-2" href="admin.html"><i class="fas fa-chevron-right me-1 small text-warning"></i>Staff Operations</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="footer-item">
-                        <h4 class="mb-3">Contact Support</h4>
-                        <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic Agriculture Hub & HCMC Distribution Center</p>
-                        <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
-                        <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
-                        <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM - 20:00 PM (Daily)</p>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-item">
+                            <h4 class="mb-3">Contact Support</h4>
+                            <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic
+                                Agriculture Hub & HCMC Distribution Center</p>
+                            <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
+                            <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
+                            <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM -
+                                20:00 PM (Daily)</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Footer End -->
+        <!-- Footer End -->
 
 
-    <!-- JavaScript Libraries -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- JavaScript Libraries -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- App State Engine & Script -->
-    <script src="js/app-state.js"></script>
-    <script src="js/main.js"></script>
+        <!-- App State Engine & Script -->
+        <script src="js/app-state.js"></script>
+        <script src="js/main.js"></script>
 
-    <!-- Landing Page Script -->
-    <script>
-        $(document).ready(function() {
-            // Check if already logged in -> allow direct access
-            if (window.AppState && window.AppState.isLoggedIn()) {
-                console.log('User already logged in:', window.AppState.getAuthUser());
-            }
-
-            // Video Toggle Handler
-            const video = document.getElementById('heroBgVideo');
-            $('#btn-toggle-video').on('click', function() {
-                if (video.paused) {
-                    video.play();
-                    $(this).html('<i class="fas fa-pause text-dark fs-5"></i>');
-                } else {
-                    video.pause();
-                    $(this).html('<i class="fas fa-play text-dark fs-5"></i>');
+        <!-- Landing Page Script -->
+        <script>
+            $(document).ready(function () {
+                // Check if already logged in -> allow direct access
+                if (window.AppState && window.AppState.isLoggedIn()) {
+                    console.log('User already logged in:', window.AppState.getAuthUser());
                 }
-            });
 
-            // Helper function to safely show modal
-            function showAuthModal(tab) {
-                if (tab === 'register') {
-                    $('#tab-register').trigger('click');
-                } else {
-                    $('#tab-login').trigger('click');
-                }
-                try {
-                    const modalEl = document.getElementById('authModal');
-                    if (window.bootstrap && window.bootstrap.Modal) {
-                        let modalInstance = window.bootstrap.Modal.getInstance(modalEl);
-                        if (!modalInstance) {
-                            modalInstance = new window.bootstrap.Modal(modalEl);
-                        }
-                        modalInstance.show();
+                // Video Toggle Handler
+                const video = document.getElementById('heroBgVideo');
+                $('#btn-toggle-video').on('click', function () {
+                    if (video.paused) {
+                        video.play();
+                        $(this).html('<i class="fas fa-pause text-dark fs-5"></i>');
                     } else {
+                        video.pause();
+                        $(this).html('<i class="fas fa-play text-dark fs-5"></i>');
+                    }
+                });
+
+                // Helper function to safely show modal
+                function showAuthModal(tab) {
+                    if (tab === 'register') {
+                        $('#tab-register').trigger('click');
+                    } else {
+                        $('#tab-login').trigger('click');
+                    }
+                    try {
+                        const modalEl = document.getElementById('authModal');
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            let modalInstance = window.bootstrap.Modal.getInstance(modalEl);
+                            if (!modalInstance) {
+                                modalInstance = new window.bootstrap.Modal(modalEl);
+                            }
+                            modalInstance.show();
+                        } else {
+                            $('#authModal').addClass('show').css('display', 'block');
+                        }
+                    } catch (e) {
                         $('#authModal').addClass('show').css('display', 'block');
                     }
-                } catch(e) {
-                    $('#authModal').addClass('show').css('display', 'block');
                 }
-            }
 
-            // Open Auth Modal Handlers
-            $('#btn-open-login, .btn-open-auth-modal').on('click', function(e) {
-                e.preventDefault();
-                showAuthModal('login');
-            });
+                // Open Auth Modal Handlers
+                $('#btn-open-login, .btn-open-auth-modal').on('click', function (e) {
+                    e.preventDefault();
+                    showAuthModal('login');
+                });
 
-            $('#btn-open-register').on('click', function(e) {
-                e.preventDefault();
-                showAuthModal('register');
-            });
+                $('#btn-open-register').on('click', function (e) {
+                    e.preventDefault();
+                    showAuthModal('register');
+                });
 
-            // Sign In Submit Form
-            $('#form-login').on('submit', function(e) {
-                e.preventDefault();
-                const email = $('#login-email').val().trim();
-                const pwd = $('#login-password').val().trim();
+                // Sign In Submit Form
+                $('#form-login').on('submit', function (e) {
+                    e.preventDefault();
+                    const email = $('#login-email').val().trim();
+                    const pwd = $('#login-password').val().trim();
 
-                if (email && window.AppState) {
-                    const user = window.AppState.loginUser(email, pwd);
-                    if (window.GB && window.GB.showToast) {
-                        window.GB.showToast(`Welcome back, <strong>${user.name}</strong>! Redirecting to storefront...`, 'success');
+                    if (email && window.AppState) {
+                        const user = window.AppState.loginUser(email, pwd);
+                        if (window.GB && window.GB.showToast) {
+                            window.GB.showToast(`Welcome back, <strong>${user.name}</strong>! Redirecting to storefront...`, 'success');
+                        }
+                        setTimeout(() => {
+                            window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        }, 400);
                     }
-                    setTimeout(() => {
-                        window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
-                    }, 400);
-                }
-            });
+                });
 
-            // Register Submit Form
-            $('#form-register').on('submit', function(e) {
-                e.preventDefault();
-                const name = $('#reg-name').val().trim();
-                const email = $('#reg-email').val().trim();
-                const pwd = $('#reg-password').val().trim();
+                // Register Submit Form
+                $('#form-register').on('submit', function (e) {
+                    e.preventDefault();
+                    const name = $('#reg-name').val().trim();
+                    const email = $('#reg-email').val().trim();
+                    const pwd = $('#reg-password').val().trim();
 
-                if (email && window.AppState) {
-                    const user = window.AppState.registerUser(name, email, pwd);
-                    if (window.GB && window.GB.showToast) {
-                        window.GB.showToast(`Account created successfully! Welcome to GreenBasket, <strong>${user.name}</strong>!`, 'success');
+                    if (email && window.AppState) {
+                        const user = window.AppState.registerUser(name, email, pwd);
+                        if (window.GB && window.GB.showToast) {
+                            window.GB.showToast(`Account created successfully! Welcome to GreenBasket, <strong>${user.name}</strong>!`, 'success');
+                        }
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 400);
                     }
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 400);
-                }
-            });
+                });
 
-            // Quick 1-Click Demo Login
-            $(document).on('click', '.btn-demo-login', function(e) {
-                e.preventDefault();
-                const email = $(this).data('email');
-                if (email && window.AppState) {
-                    const user = window.AppState.loginUser(email, 'demo123');
-                    window.GB.showToast(`Logged in as <strong>${user.name}</strong> (${user.role})! Redirecting...`, 'success');
-                    setTimeout(() => {
-                        window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
-                    }, 800);
-                }
+                // Quick 1-Click Demo Login
+                $(document).on('click', '.btn-demo-login', function (e) {
+                    e.preventDefault();
+                    const email = $(this).data('email');
+                    if (email && window.AppState) {
+                        const user = window.AppState.loginUser(email, 'demo123');
+                        window.GB.showToast(`Logged in as <strong>${user.name}</strong> (${user.role})! Redirecting...`, 'success');
+                        setTimeout(() => {
+                            window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        }, 800);
+                    }
+                });
             });
-        });
-    </script>
+        </script>
 
 </body>
+
 </html>
