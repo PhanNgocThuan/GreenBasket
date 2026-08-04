@@ -621,14 +621,14 @@ p {
     line-height: 1.6 !important;
 }
 
-.footer .footer-item a, .footer a.btn-link {
+.footer .footer-item a:not(.btn), .footer a.btn-link {
     color: #ffffff !important;
     font-weight: 600 !important;
     transition: color 0.2s ease, text-decoration 0.2s ease !important;
     text-decoration: none !important;
 }
 
-.footer .footer-item a:hover, .footer a.btn-link:hover {
+.footer .footer-item a:not(.btn):hover, .footer a.btn-link:hover {
     color: #FBFA86 !important;
     text-decoration: underline !important;
 }
@@ -646,7 +646,7 @@ p {
     font-weight: 500 !important;
 }
 
-.footer button[type="submit"], .footer .btn-subscribe {
+.footer button[type="submit"], .footer .btn-subscribe, .footer .footer-item a.btn-subscribe, .footer a.btn-subscribe {
     background-color: var(--mm-yellow) !important;
     color: var(--mm-dark) !important;
     border: 2.5px solid var(--mm-dark) !important;
@@ -655,7 +655,7 @@ p {
     border-radius: 30px !important;
 }
 
-.footer button[type="submit"]:hover, .footer .btn-subscribe:hover {
+.footer button[type="submit"]:hover, .footer .btn-subscribe:hover, .footer .footer-item a.btn-subscribe:hover, .footer a.btn-subscribe:hover {
     background-color: var(--mm-mint) !important;
     color: var(--mm-dark) !important;
 }
