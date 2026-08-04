@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GreenBasket.Application\GreenBasket.Application.csproj" />
     <ProjectReference Include="..\GreenBasket.Domain\GreenBasket.Domain.csproj" />
   </ItemGroup>
 
