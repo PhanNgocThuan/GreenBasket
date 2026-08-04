@@ -11,18 +11,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Đăng ký DbContext với chuỗi kết nối từ appsettings.json
+// 1. Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Đăng ký ASP.NET Core Identity với luật Mật khẩu BẢO MẬT CAO
+// 2. Đăng ký ASP.NET Core Identity với luật mật khẩu bảo mật cao
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
-    options.Password.RequireDigit = true;           // Bắt buộc có số
-    options.Password.RequireLowercase = true;       // Bắt buộc chữ thường
-    options.Password.RequireUppercase = true;       // Bắt buộc chữ IN HOA
-    options.Password.RequireNonAlphanumeric = true; // Bắt buộc ký tự đặc biệt (@, !, ?,...)
-    options.Password.RequiredLength = 8;            // Tối thiểu 8 ký tự
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -59,11 +59,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 5. Đăng ký các Service (Dependency Injection)
+// 5. Đăng ký Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -102,13 +101,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 7. Tự động khởi tạo dữ liệu mẫu (Seeding Data cho Roles) khi ứng dụng chạy
+// 7. Seeding Data: Khởi tạo Roles và tài khoản Admin mặc định khi ứng dụng chạy
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
         string[] roleNames = { "Admin", "Staff", "Customer" };
 
         foreach (var roleName in roleNames)
@@ -119,10 +120,29 @@ using (var scope = app.Services.CreateScope())
                 await roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
+
+        // Tự động tạo một tài khoản Admin mặc định để test hệ thống
+        string adminEmail = "admin@greenbasket.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            var newAdmin = new AppUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FullName = "System Administrator"
+            };
+            // Mật khẩu thỏa mãn luật bảo mật cao (có chữ hoa, thường, số, ký tự đặc biệt)
+            var createAdmin = await userManager.CreateAsync(newAdmin, "Admin@12345");
+            if (createAdmin.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newAdmin, "Admin");
+            }
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Đã xảy ra lỗi khi khởi tạo dữ liệu Roles: {ex.Message}");
+        Console.WriteLine($"Đã xảy ra lỗi khi khởi tạo dữ liệu Seeding: {ex.Message}");
     }
 }
 
@@ -135,10 +155,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 8. Kích hoạt CORS (Bắt buộc đặt trước Authentication)
 app.UseCors("AllowFrontend");
 
-// 9. Kích hoạt Middleware Xác thực & Phân quyền
 app.UseAuthentication();
 app.UseAuthorization();
 
