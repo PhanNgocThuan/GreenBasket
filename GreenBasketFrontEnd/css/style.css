@@ -720,4 +720,215 @@ p {
     }
 }
 
+/* =========================================================
+   HOLOGRAPHIC FOIL & BRAND SECURITY SEAL CARDS (FAST & SMOOTH)
+   ========================================================= */
+
+.fruite-item.gb-holo-card {
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    --holo-opacity: 0;
+    --glare-opacity: 0;
+
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+}
+
+.fruite-item.gb-holo-card:hover {
+    transform: translate(-3px, -3px) !important;
+    box-shadow: 6px 6px 0px var(--mm-dark), 0 10px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Holographic Rainbow Spectrum Foil Overlay */
+.fruite-item .gb-holo-foil {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 4;
+    opacity: var(--holo-opacity);
+    transition: opacity 0.25s ease;
+    mix-blend-mode: color-dodge;
+    background-image: 
+        radial-gradient(
+            circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.85) 0%,
+            rgba(255, 255, 255, 0.25) 35%,
+            transparent 70%
+        ),
+        linear-gradient(
+            calc(var(--mouse-x) * 3.6deg),
+            #ff0055 0%,
+            #ff9900 16.6%,
+            #33cc33 33.3%,
+            #00ccff 50%,
+            #9933ff 66.6%,
+            #ff00cc 83.3%,
+            #ff0055 100%
+        );
+    background-size: 150% 150%, 200% 200%;
+    background-position: center, var(--mouse-x) var(--mouse-y);
+    filter: brightness(1.15) contrast(1.2) saturate(1.2);
+}
+
+/* Specular Glare Reflection Layer */
+.fruite-item .gb-holo-glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 5;
+    opacity: var(--glare-opacity);
+    transition: opacity 0.25s ease;
+    background: radial-gradient(
+        circle at var(--mouse-x) var(--mouse-y),
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(255, 255, 255, 0.1) 35%,
+        transparent 70%
+    );
+    mix-blend-mode: overlay;
+}
+
+/* Metallic Holographic GreenBasket Brand Security Seal (Tem Chống Hàng Giả Diagonal Stamp) */
+.fruite-item .gb-holo-security-seal {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    width: 110%;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(0.9);
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    display: flex;
+    justify-content: center;
+}
+
+.fruite-item:hover .gb-holo-security-seal {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1) !important;
+}
+
+
+.fruite-item .gb-seal-banner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 90%;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, rgba(28, 63, 43, 0.94) 0%, rgba(15, 38, 25, 0.96) 100%);
+    border: 2px dashed rgba(251, 250, 134, 0.9);
+    border-radius: 40px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(251, 250, 134, 0.5),
+        inset 0 0 15px rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* The Shining Holographic Light Overlay inside the Security Seal */
+.fruite-item .gb-seal-banner::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: linear-gradient(
+        115deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.6) 45%,
+        rgba(251, 250, 134, 0.85) 50%,
+        rgba(145, 239, 210, 0.85) 55%,
+        rgba(255, 164, 235, 0.85) 60%,
+        transparent 75%
+    );
+    background-size: 200% 200%;
+    background-position: var(--mouse-x) var(--mouse-y);
+    mix-blend-mode: color-dodge;
+    opacity: calc(var(--holo-opacity) * 0.95);
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.fruite-item .gb-seal-shield {
+    color: #FBFA86;
+    font-size: 1.25rem;
+    filter: drop-shadow(0 0 6px rgba(251, 250, 134, 0.9));
+    animation: gbShieldGlow 1.8s infinite ease-in-out;
+}
+
+.fruite-item .gb-seal-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+}
+
+.fruite-item .gb-seal-brand {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(251, 250, 134, 0.7);
+}
+
+.fruite-item .gb-seal-sub {
+    color: #FBFA86;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.fruite-item .gb-seal-check {
+    color: #91EFD2;
+    font-size: 1.15rem;
+    filter: drop-shadow(0 0 6px rgba(145, 239, 210, 0.9));
+}
+
+@keyframes gbShieldGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(251, 250, 134, 0.8)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(251, 250, 134, 1)); }
+}
+
+/* =========================================================
+   OUT OF STOCK CARDS (GRAYSCALE & BOTTOM SORTED)
+   ========================================================= */
+.fruite-item.gb-out-of-stock-card {
+    background-color: #f3f0ea !important;
+    filter: grayscale(85%);
+    opacity: 0.78;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.fruite-item.gb-out-of-stock-card:hover {
+    filter: grayscale(35%);
+    opacity: 0.95;
+}
+
+.fruite-item.gb-out-of-stock-card .btn-add-cart {
+    background-color: #d1cbc1 !important;
+    color: #555555 !important;
+    border-color: #999999 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+}
+
+
+
+
 
