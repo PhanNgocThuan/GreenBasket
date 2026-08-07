@@ -1,11 +1,62 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GreenBasket.Application.DTOs.Admin;
+using GreenBasket.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace GreenBasket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")] // Bắt buộc phải là Admin mới được phép gọi toàn bộ API trong đây
     public class AdminController : ControllerBase
     {
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AdminController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        // API nâng quyền cho user (Ví dụ: Từ Customer lên Staff)
+        [HttpPost("assign-role")]
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // 1. Tìm user theo Email
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return NotFound(new { IsSuccess = false, Message = "User not found with this email." });
+            }
+
+            // 2. Kiểm tra xem Role truyền vào có tồn tại trong hệ thống không
+            var roleExists = await _roleManager.RoleExistsAsync(model.RoleName);
+            if (!roleExists)
+            {
+                return BadRequest(new { IsSuccess = false, Message = $"Role '{model.RoleName}' does not exist in the system." });
+            }
+
+            // 3. Kiểm tra xem user đã có quyền này chưa
+            var isInRole = await _userManager.IsInRoleAsync(user, model.RoleName);
+            if (isInRole)
+            {
+                return BadRequest(new { IsSuccess = false, Message = "The user already has this role." });
+            }
+
+            // 4. Tiến hành gán Role mới cho user
+            var result = await _userManager.AddToRoleAsync(user, model.RoleName);
+            if (result.Succeeded)
+            {
+                return Ok(new { IsSuccess = true, Message = $"Successfully assigned role '{model.RoleName}' to user {model.Email}!" });
+            }
+
+            return BadRequest(new { IsSuccess = false, Message = "Failed to assign role.", Errors = result.Errors });
+        }
     }
 }
