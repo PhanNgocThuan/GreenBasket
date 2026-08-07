@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using GreenBasket.Domain.Entities;
@@ -17,7 +17,13 @@ namespace GreenBasket.Infrastructure.Data
         // Khai báo các bảng (DbSet) của hệ thống ở đây (ngoại trừ các bảng của Identity đã có sẵn)
         // Ví dụ:
         public DbSet<Address> Addresses { get; set; }
-        // public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<DiscountCode> DiscountCodes { get; set; }
+        public DbSet<DeliverySlot> DeliverySlots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
