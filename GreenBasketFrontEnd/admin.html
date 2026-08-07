@@ -553,11 +553,11 @@
             // Refund / Cancel Handler
             $(document).on('click', '.btn-admin-refund', function () {
                 const id = $(this).data('id');
-                if (confirm(`Process cancellation and refund for Order #${id}?`)) {
+                window.GB.confirm(`Process cancellation and refund for Order <strong>#${id}</strong>?`, function () {
                     window.AppState.cancelOrder(id);
                     window.GB.showToast(`Order #${id} refund processed and status set to Cancelled.`, 'info');
                     renderAdminDashboard();
-                }
+                }, 'Process Refund & Cancel');
             });
 
             // Add Product Modal Opener
@@ -631,11 +631,11 @@
             // Delete Product Handler
             $(document).on('click', '.btn-delete-prod', function () {
                 const id = $(this).data('id');
-                if (confirm('Delete this produce item from catalog?')) {
+                window.GB.confirm('Delete this produce item from catalog?', function () {
                     window.AppState.deleteProduct(id);
                     window.GB.showToast('Product deleted.', 'info');
                     renderAdminDashboard();
-                }
+                }, 'Delete Item');
             });
 
             // Initial render

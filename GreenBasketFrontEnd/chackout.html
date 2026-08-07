@@ -174,27 +174,27 @@
                                     <div class="col-md-12">
                                         <label class="form-label fw-bold text-dark">Full Recipient
                                             Name<sup>*</sup></label>
-                                        <input type="text" class="form-control p-3" id="fullName" value="Alex Johnson"
+                                        <input type="text" class="form-control p-3" id="fullName" placeholder="e.g. Alex Johnson"
                                             required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Phone Number<sup>*</sup></label>
-                                        <input type="tel" class="form-control p-3" id="phone" value="+84 901 234 567"
+                                        <input type="tel" class="form-control p-3" id="phone" placeholder="e.g. +84 901 234 567"
                                             required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-dark">Email Address<sup>*</sup></label>
-                                        <input type="email" class="form-control p-3" id="email" value="alex@example.com"
+                                        <input type="email" class="form-control p-3" id="email" placeholder="e.g. alex@example.com"
                                             required>
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label class="form-label fw-bold text-dark">Street Address &
+                                        <label class="form-label fw-bold text-dark">Street Address &amp;
                                             Apartment<sup>*</sup></label>
                                         <input type="text" class="form-control p-3" id="address"
-                                            value="123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City"
+                                            placeholder="e.g. 123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City"
                                             required>
                                     </div>
 
@@ -330,6 +330,23 @@
 
     <script>
         $(document).ready(function () {
+            // Auto-fill logged in user's saved profile & shipping address
+            function fillUserProfile() {
+                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
+                if (authUser) {
+                    if (authUser.name && !$('#fullName').val()) $('#fullName').val(authUser.name);
+                    if (authUser.phone && !$('#phone').val()) $('#phone').val(authUser.phone);
+                    if (authUser.email && !$('#email').val()) $('#email').val(authUser.email);
+                    if (authUser.address && !$('#address').val()) $('#address').val(authUser.address);
+                } else {
+                    // Default fallback for demo guest users
+                    if (!$('#fullName').val()) $('#fullName').val('Alex Johnson');
+                    if (!$('#phone').val()) $('#phone').val('+84 901 234 567');
+                    if (!$('#email').val()) $('#email').val('alex@example.com');
+                    if (!$('#address').val()) $('#address').val('123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City');
+                }
+            }
+
             function renderCheckoutSummary() {
                 const cart = window.AppState.getCart();
                 const $container = $('#gb-checkout-items');
@@ -378,9 +395,19 @@
                     paymentMethod: $('input[name="paymentMethod"]:checked').val()
                 };
 
+                // Save/update user profile address for future 1-click purchases
+                if (window.AppState && window.AppState.updateUserProfile) {
+                    window.AppState.updateUserProfile({
+                        fullName: checkoutDetails.fullName,
+                        phone: checkoutDetails.phone,
+                        email: checkoutDetails.email,
+                        address: checkoutDetails.address
+                    });
+                }
+
                 const newOrder = window.AppState.placeOrder(checkoutDetails);
                 if (newOrder) {
-                    window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully!`, 'success');
+                    window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully! Delivery address saved to your account.`, 'success');
                     setTimeout(() => {
                         window.location.href = 'orders.html?highlight=' + newOrder.id;
                     }, 1200);
@@ -389,6 +416,7 @@
                 }
             });
 
+            fillUserProfile();
             renderCheckoutSummary();
         });
     </script>

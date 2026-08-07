@@ -505,19 +505,24 @@
             return 'Customer';
         },
 
-        // Async Login API Integration
+        // Async Login API Integration with 2s Timeout & Clean Exception Handling
         async loginUserAsync(email, password) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
             try {
                 const response = await fetch(`${API_BASE_URL}/Auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 const resData = await response.json().catch(() => null);
 
                 if (!response.ok || (resData && resData.isSuccess === false)) {
-                    let errMsg = (resData && resData.message) ? resData.message : 'Login failed. Please check your email and password!';
+                    let errMsg = (resData && resData.message) ? resData.message : 'Incorrect password or email!';
                     if (resData && resData.errors) {
                         const errList = Object.values(resData.errors).flat().join(', ');
                         if (errList) errMsg = errList;
@@ -541,19 +546,29 @@
                 saveStorage(STORAGE_KEYS.AUTH_USER, user);
                 return user;
             } catch (err) {
-                console.error('API Login Error:', err);
+                clearTimeout(timeoutId);
+                console.warn('API Login Notice:', err.message);
+                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch') || err.message.includes('aborted')) {
+                    console.info('Backend API server offline/unreachable. Falling back to local authentication...');
+                    return this.loginUser(email, password);
+                }
                 throw err;
             }
         },
 
-        // Async Registration API Integration
+        // Async Registration API Integration with 2s Timeout
         async registerUserAsync(fullName, email, password) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
             try {
                 const response = await fetch(`${API_BASE_URL}/Auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fullName, email, password })
+                    body: JSON.stringify({ fullName, email, password }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 const resData = await response.json().catch(() => null);
 
@@ -584,7 +599,12 @@
                 saveStorage(STORAGE_KEYS.AUTH_USER, user);
                 return user;
             } catch (err) {
-                console.error('API Register Error:', err);
+                clearTimeout(timeoutId);
+                console.warn('API Register Notice:', err.message);
+                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch') || err.message.includes('aborted')) {
+                    console.info('Backend API server offline/unreachable. Falling back to local registration...');
+                    return this.registerUser(fullName, email, password);
+                }
                 throw err;
             }
         },
@@ -599,6 +619,18 @@
                 loginTime: new Date().toISOString()
             };
             this.setUserRole(user.role);
+            saveStorage(STORAGE_KEYS.AUTH_USER, user);
+            return user;
+        },
+        updateUserProfile(profileData) {
+            let user = this.getAuthUser() || {};
+            user = {
+                ...user,
+                name: profileData.fullName || profileData.name || user.name || 'Customer',
+                phone: profileData.phone || user.phone || '',
+                email: profileData.email || user.email || '',
+                address: profileData.address || user.address || ''
+            };
             saveStorage(STORAGE_KEYS.AUTH_USER, user);
             return user;
         },

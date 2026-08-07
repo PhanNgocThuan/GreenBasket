@@ -928,6 +928,90 @@ p {
     cursor: not-allowed !important;
 }
 
+/* =========================================================
+   MISFITS MARKET CUSTOM TOAST & NOTIFICATION SYSTEM
+   ========================================================= */
+#gb-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10900;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    max-width: 420px;
+    width: calc(100% - 48px);
+}
+
+.gb-misfits-toast {
+    pointer-events: auto;
+    background-color: var(--mm-forest, #1C3F2B);
+    color: #F9EDDE;
+    border: 2.5px solid var(--mm-dark, #2B2118);
+    border-radius: 16px;
+    box-shadow: 4px 4px 0px var(--mm-dark, #2B2118);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    animation: gbToastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: transform 0.2s ease, opacity 0.25s ease;
+}
+
+.gb-misfits-toast.gb-toast-success {
+    background-color: #1C3F2B !important;
+    border-color: #2B2118 !important;
+    color: #FBFA86 !important;
+}
+
+.gb-misfits-toast.gb-toast-danger {
+    background-color: #7E2211 !important;
+    border-color: #2B2118 !important;
+    color: #F9EDDE !important;
+}
+
+.gb-misfits-toast.gb-toast-info {
+    background-color: #1A3E40 !important;
+    border-color: #2B2118 !important;
+    color: #91EFD2 !important;
+}
+
+.gb-misfits-toast .gb-toast-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.gb-misfits-toast .gb-toast-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.8;
+    margin-left: auto;
+    padding: 2px;
+    line-height: 1;
+}
+
+.gb-misfits-toast .gb-toast-close:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+@keyframes gbToastSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 
 
 

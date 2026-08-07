@@ -406,11 +406,11 @@
             // Cancel Order Handler
             $(document).on('click', '.btn-cancel-order', function () {
                 const id = $(this).data('id');
-                if (confirm(`Are you sure you want to cancel Order #${id}?`)) {
+                window.GB.confirm(`Are you sure you want to cancel Order <strong>#${id}</strong>?`, function () {
                     window.AppState.cancelOrder(id);
                     window.GB.showToast(`Order #${id} has been cancelled.`, 'info');
                     renderOrders();
-                }
+                }, 'Cancel Order Request');
             });
 
             // Open Report Quality Ticket Modal (FR-5.3)

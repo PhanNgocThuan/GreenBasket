@@ -99,34 +99,109 @@
     // =========================================================
     window.GB = window.GB || {};
 
-    // Toast Notification System
+    // Custom Misfits Market Organic Toast Notification System
     window.GB.showToast = function (message, type = 'success') {
         let container = document.getElementById('gb-toast-container');
         if (!container) {
             container = document.createElement('div');
             container.id = 'gb-toast-container';
-            container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+            container.style.cssText = 'position: fixed; bottom: 24px; right: 24px; z-index: 99999 !important; display: flex; flex-direction: column; gap: 12px; pointer-events: none; max-width: 420px; width: calc(100% - 48px);';
             document.body.appendChild(container);
+        } else {
+            container.style.zIndex = '99999';
         }
 
         const toast = document.createElement('div');
-        const bgClass = type === 'success' ? 'bg-success' : (type === 'danger' ? 'bg-danger' : 'bg-primary');
-        const iconClass = type === 'success' ? 'fa-check-circle' : (type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+        const toastClass = type === 'success' ? 'gb-toast-success' : (type === 'danger' ? 'gb-toast-danger' : 'gb-toast-info');
+        const iconHtml = type === 'success' 
+            ? '<i class="fas fa-leaf text-success me-2 fs-5"></i>' 
+            : (type === 'danger' 
+                ? '<i class="fas fa-exclamation-triangle text-warning me-2 fs-5"></i>' 
+                : '<i class="fas fa-info-circle text-info me-2 fs-5"></i>');
 
-        toast.className = `toast show align-items-center text-white ${bgClass} border-0 shadow-lg`;
-        toast.style.cssText = 'pointer-events: auto; min-width: 280px; border-radius: 10px; font-weight: 500;';
+        toast.className = `gb-misfits-toast ${toastClass}`;
         toast.innerHTML = `
-            <div class="d-flex p-3 align-items-center">
-                <i class="fas ${iconClass} fa-lg me-3"></i>
-                <div class="toast-body p-0 flex-grow-1">${message}</div>
-                <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.parentElement.remove()"></button>
-            </div>
+            ${iconHtml}
+            <div class="gb-toast-content" style="flex-grow: 1; line-height: 1.4;">${message}</div>
+            <button type="button" class="gb-toast-close" title="Close"><i class="fas fa-times"></i></button>
         `;
+
+        // Click to close
+        toast.querySelector('.gb-toast-close').onclick = function () {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px) scale(0.95)';
+            setTimeout(() => toast.remove(), 250);
+        };
 
         container.appendChild(toast);
         setTimeout(() => {
-            if (toast.parentElement) toast.remove();
-        }, 3500);
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px) scale(0.95)';
+                setTimeout(() => toast.remove(), 250);
+            }
+        }, 4000);
+    };
+
+    // Custom Misfits Market Confirmation Modal System
+    window.GB.confirm = function (message, onConfirm, title = 'GreenBasket Confirmation') {
+        let modalEl = document.getElementById('gb-confirm-modal');
+        if (!modalEl) {
+            modalEl = document.createElement('div');
+            modalEl.id = 'gb-confirm-modal';
+            modalEl.className = 'modal fade';
+            modalEl.tabIndex = -1;
+            modalEl.style.zIndex = '10800';
+            modalEl.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background-color: #F9EDDE; border: 3px solid #2B2118; border-radius: 24px; box-shadow: 8px 8px 0px #2B2118;">
+                        <div class="modal-header border-bottom border-dark pb-3">
+                            <h4 class="fw-bold mb-0" id="gb-confirm-title" style="color: #1C3F2B;">
+                                <i class="fas fa-leaf text-success me-2"></i>GreenBasket Notice
+                            </h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 fs-5 text-dark fw-bold" id="gb-confirm-message">
+                        </div>
+                        <div class="modal-footer border-0 pt-0 gap-2">
+                            <button type="button" class="btn rounded-pill px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background-color: #e2e8f0; color: #2B2118; border: 2px solid #2B2118;">
+                                Cancel
+                            </button>
+                            <button type="button" id="gb-btn-confirm-action" class="btn rounded-pill px-4 py-2 fw-bold text-white" style="background-color: #1C3F2B; border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118;">
+                                Confirm <i class="fas fa-check-circle ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalEl);
+        }
+
+        document.getElementById('gb-confirm-title').innerHTML = `<i class="fas fa-leaf text-success me-2"></i>${title}`;
+        document.getElementById('gb-confirm-message').innerHTML = message;
+
+        const confirmBtn = document.getElementById('gb-btn-confirm-action');
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        const bsModal = new bootstrap.Modal(modalEl);
+
+        newConfirmBtn.onclick = function () {
+            bsModal.hide();
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        };
+
+        bsModal.show();
+    };
+
+    // Override global alert() so native browser popups like "127.0.0.1 says Incorrect password."
+    // are automatically intercepted & converted into Misfits Market Toasts
+    window.alert = function (msg) {
+        if (window.GB && window.GB.showToast) {
+            window.GB.showToast(msg || 'Notice', 'danger');
+        }
     };
 
     // Update Header UI Elements (Cart Count Badge, User Role, Auth Sign Out)

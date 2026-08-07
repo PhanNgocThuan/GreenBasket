@@ -176,6 +176,9 @@
                         <!-- Sign In Form -->
                         <div class="tab-pane fade show active" id="pane-login">
                             <form id="form-login">
+                                <div id="login-error-alert" class="alert alert-danger py-2 px-3 rounded-3 small fw-bold mb-3 d-none" style="border: 2px solid #2B2118; background-color: #FFC4C4; color: #2B2118;">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i><span class="err-txt">Incorrect password. Please try again!</span>
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Email Address</label>
                                     <input type="email" id="login-email" class="form-control p-3" required
@@ -199,6 +202,9 @@
                         <!-- Create Account Form -->
                         <div class="tab-pane fade" id="pane-register">
                             <form id="form-register">
+                                <div id="reg-error-alert" class="alert alert-danger py-2 px-3 rounded-3 small fw-bold mb-3 d-none" style="border: 2px solid #2B2118; background-color: #FFC4C4; color: #2B2118;">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i><span class="err-txt">Registration error. Please try again!</span>
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Full Name</label>
                                     <input type="text" id="reg-name" class="form-control p-3" required
@@ -370,6 +376,7 @@
                 // Sign In Submit Form (Async API Call)
                 $('#form-login').on('submit', async function (e) {
                     e.preventDefault();
+                    $('#login-error-alert').addClass('d-none');
                     const email = $('#login-email').val().trim();
                     const pwd = $('#login-password').val().trim();
                     const $btn = $(this).find('button[type="submit"]');
@@ -390,10 +397,10 @@
                         }, 500);
                     } catch (err) {
                         $btn.prop('disabled', false).html(origBtnText);
+                        const errMsg = err.message || 'Login failed. Please check your credentials!';
+                        $('#login-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
                         if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(err.message || 'Login failed. Please try again!', 'danger');
-                        } else {
-                            alert(err.message || 'Login failed!');
+                            window.GB.showToast(errMsg, 'danger');
                         }
                     }
                 });
@@ -401,6 +408,7 @@
                 // Register Submit Form (Async API Call)
                 $('#form-register').on('submit', async function (e) {
                     e.preventDefault();
+                    $('#reg-error-alert').addClass('d-none');
                     const name = $('#reg-name').val().trim();
                     const email = $('#reg-email').val().trim();
                     const pwd = $('#reg-password').val().trim();
@@ -422,10 +430,10 @@
                         }, 500);
                     } catch (err) {
                         $btn.prop('disabled', false).html(origBtnText);
+                        const errMsg = err.message || 'Registration failed. Please try again!';
+                        $('#reg-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
                         if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(err.message || 'Registration failed. Please try again!', 'danger');
-                        } else {
-                            alert(err.message || 'Registration failed!');
+                            window.GB.showToast(errMsg, 'danger');
                         }
                     }
                 });
