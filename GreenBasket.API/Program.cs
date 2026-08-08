@@ -57,7 +57,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -117,7 +117,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.MigrateAsync();
+        
 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
@@ -144,13 +144,15 @@ using (var scope = app.Services.CreateScope())
                 Email = adminEmail,
                 FullName = "System Administrator"
             };
-            // Mật khẩu thỏa mãn luật bảo mật cao (có chữ hoa, thường, số, ký tự đặc biệt)
             var createAdmin = await userManager.CreateAsync(newAdmin, "Admin@12345");
             if (createAdmin.Succeeded)
             {
                 await userManager.AddToRoleAsync(newAdmin, "Admin");
             }
         }
+
+        // Seed Farms/Products/Batches cho module Product & Admin
+        await DbInitializer.SeedAsync(dbContext);
     }
     catch (Exception ex)
     {

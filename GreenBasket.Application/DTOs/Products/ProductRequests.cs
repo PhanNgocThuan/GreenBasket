@@ -22,6 +22,7 @@ namespace GreenBasket.Application.DTOs.Products
 
         [Range(0.01, 100000, ErrorMessage = "Price must be greater than 0.")]
         public decimal Price { get; set; }
+        public string? ImageUrl { get; set; }
 
         public bool Organic { get; set; }
     }

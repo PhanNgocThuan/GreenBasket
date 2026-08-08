@@ -38,6 +38,7 @@ namespace GreenBasket.Domain.Entities
         public decimal Price { get; set; }
 
         public bool Organic { get; set; }
+        public string? ImageUrl { get; set; }
 
         public bool IsActive { get; set; } = true;
 

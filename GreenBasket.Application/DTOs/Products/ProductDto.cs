@@ -12,6 +12,7 @@
         public string StockStatus { get; set; } = string.Empty;
 
         public string? FarmOrigin { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime? HarvestDate { get; set; }
     }
 }

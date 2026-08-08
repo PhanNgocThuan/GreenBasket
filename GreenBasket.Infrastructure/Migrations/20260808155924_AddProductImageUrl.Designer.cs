@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreenBasket.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260807082009_AddCartOrderDelivery")]
-    partial class AddCartOrderDelivery
+    [Migration("20260808155924_AddProductImageUrl")]
+    partial class AddProductImageUrl
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,6 +140,44 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("GreenBasket.Domain.Entities.Batch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FarmId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("HarvestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityReceived")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityRemaining")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FarmId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Batches");
+                });
+
             modelBuilder.Entity("GreenBasket.Domain.Entities.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -245,6 +283,30 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.ToTable("DiscountCodes");
                 });
 
+            modelBuilder.Entity("GreenBasket.Domain.Entities.Farm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContactInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Farms");
+                });
+
             modelBuilder.Entity("GreenBasket.Domain.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -325,16 +387,38 @@ namespace GreenBasket.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsSoldByWeight")
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("Organic")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("StockQty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -485,6 +569,25 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GreenBasket.Domain.Entities.Batch", b =>
+                {
+                    b.HasOne("GreenBasket.Domain.Entities.Farm", "Farm")
+                        .WithMany("Batches")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GreenBasket.Domain.Entities.Product", "Product")
+                        .WithMany("Batches")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Farm");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("GreenBasket.Domain.Entities.Cart", b =>
                 {
                     b.HasOne("GreenBasket.Domain.Entities.AppUser", "AppUser")
@@ -547,7 +650,7 @@ namespace GreenBasket.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("GreenBasket.Domain.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -618,8 +721,20 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.Navigation("CartItems");
                 });
 
+            modelBuilder.Entity("GreenBasket.Domain.Entities.Farm", b =>
+                {
+                    b.Navigation("Batches");
+                });
+
             modelBuilder.Entity("GreenBasket.Domain.Entities.Order", b =>
                 {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("GreenBasket.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Batches");
+
                     b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618

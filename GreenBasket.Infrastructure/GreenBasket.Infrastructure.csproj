@@ -15,4 +15,8 @@
     <ProjectReference Include="..\GreenBasket.Domain\GreenBasket.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

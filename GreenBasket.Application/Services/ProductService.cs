@@ -46,8 +46,12 @@ namespace GreenBasket.Application.Services
                 query = query.Where(p => p.Category == cat);
             }
 
-            if (inStock == true)
-                query = query.Where(p => p.StockStatus != StockStatus.OutOfStock);
+            if (inStock.HasValue)
+            {
+                query = inStock.Value
+                    ? query.Where(p => p.StockStatus != StockStatus.OutOfStock)
+                    : query.Where(p => p.StockStatus == StockStatus.OutOfStock);
+            }
 
             query = sort switch
             {
@@ -93,6 +97,7 @@ namespace GreenBasket.Application.Services
                 StockStatus = dto.StockStatus,
                 FarmOrigin = dto.FarmOrigin,
                 HarvestDate = dto.HarvestDate,
+                ImageUrl = dto.ImageUrl,
                 Description = product.Description,
                 // Public detail — chỉ dùng BatchDto, KHÔNG dùng AdminBatchDto
                 Batches = product.Batches
@@ -119,6 +124,7 @@ namespace GreenBasket.Application.Services
                 Unit = request.Unit,
                 Price = request.Price,
                 Organic = request.Organic,
+                ImageUrl = request.ImageUrl,
                 IsActive = true,
                 StockQty = 0,
                 StockStatus = StockStatus.OutOfStock
@@ -141,6 +147,7 @@ namespace GreenBasket.Application.Services
             product.Unit = request.Unit;
             product.Price = request.Price;
             product.Organic = request.Organic;
+            product.ImageUrl = request.ImageUrl;
 
             await _context.SaveChangesAsync();
             return true;
@@ -223,6 +230,7 @@ namespace GreenBasket.Application.Services
                 StockQty = p.StockQty,
                 StockStatus = p.StockStatus.ToString(),
                 FarmOrigin = latestBatch?.Farm.Name,
+                ImageUrl = p.ImageUrl,
                 HarvestDate = latestBatch?.HarvestDate
             };
         }
