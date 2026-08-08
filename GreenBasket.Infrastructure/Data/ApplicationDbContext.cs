@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using GreenBasket.Domain.Entities;
@@ -36,13 +36,10 @@ namespace GreenBasket.Infrastructure.Data
             builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
             // --- Product / Farm / Batch (module bạn) ---
-            builder.Entity<Product>()
-                .Property(p => p.Price)
-                .HasColumnType("decimal(10,2)");
-
+            // Product.Price đã có [Column(TypeName = "decimal(18,2)")] trên entity — không cấu hình lại ở đây để tránh 2 nguồn định nghĩa
             builder.Entity<Batch>()
                 .Property(b => b.CostPrice)
-                .HasColumnType("decimal(10,2)");
+                .HasColumnType("decimal(18,2)");
 
             builder.Entity<Batch>()
                 .HasOne(b => b.Product)
@@ -55,8 +52,6 @@ namespace GreenBasket.Infrastructure.Data
                 .WithMany(f => f.Batches)
                 .HasForeignKey(b => b.FarmId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // Fluent API của module Order/Cart/DiscountCode... để người đó tự thêm vào đây nếu cần
         }
     }
 }
