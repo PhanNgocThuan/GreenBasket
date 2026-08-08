@@ -78,12 +78,5 @@ namespace GreenBasket.API.Controllers
             return Ok(batches);
         }
 
-        // GET: api/admin/products/reports/low-stock
-        [HttpGet("reports/low-stock")]
-        public async Task<IActionResult> GetLowStockReport()
-        {
-            var report = await _productService.GetLowStockReportAsync();
-            return Ok(report);
-        }
     }
 }
