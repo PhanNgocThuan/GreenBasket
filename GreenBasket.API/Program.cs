@@ -9,16 +9,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Đăng ký DbContext
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlOptions => sqlOptions.EnableRetryOnFailure()
     ));
 
-// 2. Đăng ký ASP.NET Core Identity với luật mật khẩu bảo mật cao
+
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -30,7 +31,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 3. Đăng ký JWT Authentication
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -68,6 +69,9 @@ builder.Services.AddScoped<IAddressService, AddressService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFarmService, FarmService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // 6. Cấu hình Swagger kèm nút Authorize (JWT Bearer)
 builder.Services.AddSwaggerGen(c =>

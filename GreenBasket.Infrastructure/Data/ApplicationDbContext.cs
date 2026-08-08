@@ -5,8 +5,6 @@ using GreenBasket.Domain.Entities;
 
 namespace GreenBasket.Infrastructure.Data
 {
-    // Tạm thời sử dụng IdentityUser. 
-    // Sau khi tạo class AppUser ở tầng Domain, chúng ta sẽ đổi thành IdentityDbContext<AppUser>
     public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -14,17 +12,21 @@ namespace GreenBasket.Infrastructure.Data
         {
         }
 
-        // Khai báo các bảng (DbSet) của hệ thống ở đây (ngoại trừ các bảng của Identity đã có sẵn)
-        // Ví dụ:
         public DbSet<Address> Addresses { get; set; }
-        // public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Farm> Farms { get; set; }
+        public DbSet<Batch> Batches { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<DiscountCode> DiscountCodes { get; set; }
+        public DbSet<DeliverySlot> DeliverySlots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // BẮT BUỘC phải gọi base.OnModelCreating(builder) đầu tiên khi dùng IdentityDbContext
             base.OnModelCreating(builder);
 
-            // Tùy chỉnh tên bảng của Identity cho ngắn gọn và đẹp hơn trong SQL Server (Tùy chọn)
             builder.Entity<AppUser>().ToTable("Users");
             builder.Entity<IdentityRole>().ToTable("Roles");
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
@@ -33,7 +35,28 @@ namespace GreenBasket.Infrastructure.Data
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
-            // Sau này bạn có thể viết Fluent API để cấu hình quan hệ các bảng (1-N, N-N) ở đây
+            // --- Product / Farm / Batch (module bạn) ---
+            builder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(10,2)");
+
+            builder.Entity<Batch>()
+                .Property(b => b.CostPrice)
+                .HasColumnType("decimal(10,2)");
+
+            builder.Entity<Batch>()
+                .HasOne(b => b.Product)
+                .WithMany(p => p.Batches)
+                .HasForeignKey(b => b.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Batch>()
+                .HasOne(b => b.Farm)
+                .WithMany(f => f.Batches)
+                .HasForeignKey(b => b.FarmId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Fluent API của module Order/Cart/DiscountCode... để người đó tự thêm vào đây nếu cần
         }
     }
 }
