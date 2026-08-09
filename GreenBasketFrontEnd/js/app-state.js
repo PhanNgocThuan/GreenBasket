@@ -8,7 +8,7 @@
     'use strict';
 
     const STORAGE_KEYS = {
-        PRODUCTS: 'gb_products_v3',
+        PRODUCTS: 'gb_products_v5',
         CART: 'gb_cart_v1',
         ORDERS: 'gb_orders_v1',
         ADDRESSES: 'gb_addresses_v1',
@@ -20,135 +20,263 @@
 
     const API_BASE_URL = localStorage.getItem('gb_api_url') || 'http://localhost:5062/api';
 
-    // Default Fresh Produce Seed Data (FR-2.1, FR-2.2, FR-2.4, FR-6.2)
+    // Synchronized C# Backend Fresh Produce Catalog (DbInitializer.cs)
     const DEFAULT_PRODUCTS = [
         {
-            id: 'gb-001',
-            name: 'Organic Dalat Spinach',
+            id: '1',
+            name: 'Crystal Lettuce',
             category: 'leafy-greens',
             categoryName: 'Leafy Greens',
-            price: 3.50,
+            price: 1.50,
             unit: 'kg',
-            image: 'img/vegetable-item-2.jpg',
-            farmOrigin: 'Green Valley Organic Farm, Dalat',
-            harvestDate: '2026-08-02',
+            image: 'img/lettuce.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-05',
             stockStatus: 'In Stock',
-            stockQuantity: 50,
+            stockQuantity: 120,
             rating: 4.9,
             organic: true,
-            description: 'Freshly harvested VietGAP organic spinach leaves packed with vitamins, iron, and rich crisp texture.'
+            description: 'Crisp hydroponic lettuce freshly harvested from Dalat greenhouses.'
         },
         {
-            id: 'gb-002',
-            name: 'Hydroponic Romaine Lettuce',
+            id: '2',
+            name: 'Green Broccoli',
             category: 'leafy-greens',
             categoryName: 'Leafy Greens',
-            price: 2.80,
-            unit: '500g',
-            image: 'img/vegetable-item-6.jpg',
-            farmOrigin: 'Highland Hydroponic Eco-Farm',
-            harvestDate: '2026-08-03',
+            price: 1.70,
+            unit: 'kg',
+            image: 'img/broccoli.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-06',
             stockStatus: 'In Stock',
-            stockQuantity: 35,
+            stockQuantity: 85,
             rating: 4.8,
             organic: true,
-            description: 'Pesticide-free crunchy romaine lettuce heads grown hydroponically with pure mountain water.'
+            description: 'Freshly cut organic broccoli crowns, harvested same-day.'
         },
         {
-            id: 'gb-003',
-            name: 'Organic Red Bell Peppers',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 4.20,
+            id: '3',
+            name: 'Celery Stalks',
+            category: 'leafy-greens',
+            categoryName: 'Leafy Greens',
+            price: 1.20,
             unit: 'kg',
-            image: 'img/vegetable-item-4.jpg',
-            farmOrigin: 'Sunrise Agri Farm, Moc Chau',
-            harvestDate: '2026-08-01',
-            stockStatus: 'In Stock',
-            stockQuantity: 40,
-            rating: 4.7,
-            organic: true,
-            description: 'Naturally sweet and juicy organic bell peppers, ideal for juicing, salads, or home cooking.'
-        },
-        {
-            id: 'gb-004',
-            name: 'Farm Sweet Potatoes',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 3.90,
-            unit: 'kg',
-            image: 'img/vegetable-item-5.jpg',
-            farmOrigin: 'Vinh Long Eco Produce',
-            harvestDate: '2026-07-31',
-            stockStatus: 'Low Stock',
-            stockQuantity: 8,
-            rating: 4.9,
-            organic: false,
-            description: 'Rich in antioxidants, naturally sweet potatoes harvested directly from Mekong Delta soil.'
-        },
-        {
-            id: 'gb-005',
-            name: 'Highland Green Grapes',
-            category: 'seasonal-fruit',
-            categoryName: 'Seasonal Fruit',
-            price: 6.99,
-            unit: 'kg',
-            image: 'img/fruite-item-5.jpg',
-            farmOrigin: 'Ninh Thuan Vineyard Collective',
-            harvestDate: '2026-08-02',
-            stockStatus: 'In Stock',
-            stockQuantity: 25,
-            rating: 4.9,
-            organic: true,
-            description: 'Seedless green grapes harvested at peak sweetness with crisp bite and bursting juice.'
-        },
-        {
-            id: 'gb-006',
-            name: 'Fresh Red Raspberries',
-            category: 'seasonal-fruit',
-            categoryName: 'Seasonal Fruit',
-            price: 8.50,
-            unit: '500g',
-            image: 'img/fruite-item-2.jpg',
-            farmOrigin: 'Dalat Alpine Berry Farm',
-            harvestDate: '2026-08-03',
-            stockStatus: 'Low Stock',
-            stockQuantity: 5,
-            rating: 5.0,
-            organic: true,
-            description: 'Hand-picked fresh wild red raspberries cooled in cold-chain containers to preserve delicate flavor.'
-        },
-        {
-            id: 'gb-007',
-            name: 'Mekong Golden Oranges',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
-            price: 4.50,
-            unit: 'kg',
-            image: 'img/fruite-item-1.jpg',
-            farmOrigin: 'Tien Giang Tropical Groves',
-            harvestDate: '2026-08-01',
+            image: 'img/celery.jpg',
+            farmOrigin: 'Sunrise Organic Farm, Hanoi',
+            harvestDate: '2026-08-04',
             stockStatus: 'In Stock',
             stockQuantity: 60,
-            rating: 4.8,
-            organic: false,
-            description: 'Fragrant golden ripe oranges featuring juicy fiberless flesh and rich natural sweetness.'
+            rating: 4.7,
+            organic: true,
+            description: 'Thick, crisp organic celery stalks, ideal for juicing and cooking.'
         },
         {
-            id: 'gb-008',
-            name: 'Farm Fresh Organic Bananas',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
+            id: '4',
+            name: 'Purple Cabbage',
+            category: 'leafy-greens',
+            categoryName: 'Leafy Greens',
+            price: 1.30,
+            unit: 'kg',
+            image: 'img/purple-cabbage.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-05',
+            stockStatus: 'In Stock',
+            stockQuantity: 90,
+            rating: 4.8,
+            organic: true,
+            description: 'Crunchy purple cabbage heads packed with vitamins and antioxidants.'
+        },
+        {
+            id: '5',
+            name: 'Straw Mushroom',
+            category: 'leafy-greens',
+            categoryName: 'Leafy Greens',
             price: 3.80,
             unit: 'kg',
-            image: 'img/vegetable-item-3.png',
-            farmOrigin: 'Binh Thuan Sunrise Farms',
+            image: 'img/mushroom.jpg',
+            farmOrigin: 'Mekong Orchard, Can Tho',
+            harvestDate: '2026-08-06',
+            stockStatus: 'In Stock',
+            stockQuantity: 45,
+            rating: 4.9,
+            organic: true,
+            description: 'Freshly picked organic straw mushrooms from humid Delta farm houses.'
+        },
+        {
+            id: '6',
+            name: 'Baby Carrot',
+            category: 'root-veggies',
+            categoryName: 'Root Vegetables',
+            price: 1.10,
+            unit: 'kg',
+            image: 'img/carrot.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-03',
+            stockStatus: 'In Stock',
+            stockQuantity: 110,
+            rating: 4.7,
+            organic: false,
+            description: 'Naturally sweet and crunchy Dalat baby carrots.'
+        },
+        {
+            id: '7',
+            name: 'Golden Potato',
+            category: 'root-veggies',
+            categoryName: 'Root Vegetables',
+            price: 0.90,
+            unit: 'kg',
+            image: 'img/potato.jpg',
+            farmOrigin: 'Sunrise Organic Farm, Hanoi',
             harvestDate: '2026-08-02',
             stockStatus: 'In Stock',
-            stockQuantity: 30,
+            stockQuantity: 150,
             rating: 4.6,
+            organic: false,
+            description: 'Soft golden potatoes perfect for stews, soups, and roasting.'
+        },
+        {
+            id: '8',
+            name: 'Honey Sweet Potato',
+            category: 'root-veggies',
+            categoryName: 'Root Vegetables',
+            price: 1.50,
+            unit: 'kg',
+            image: 'img/sweet-potato.jpg',
+            farmOrigin: 'Mekong Orchard, Can Tho',
+            harvestDate: '2026-08-04',
+            stockStatus: 'In Stock',
+            stockQuantity: 70,
+            rating: 4.9,
             organic: true,
-            description: 'Sweet organic bananas high in potassium and fiber, directly sourced from certified farms.'
+            description: 'Rich, honey-infused sweet potatoes grown in fertile Mekong soil.'
+        },
+        {
+            id: '9',
+            name: 'Cherry Tomato',
+            category: 'root-veggies',
+            categoryName: 'Root Vegetables',
+            price: 2.00,
+            unit: 'kg',
+            image: 'img/cherry-tomato.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-05',
+            stockStatus: 'In Stock',
+            stockQuantity: 65,
+            rating: 4.8,
+            organic: true,
+            description: 'Juicy, bite-sized cherry tomatoes with vibrant red color.'
+        },
+        {
+            id: '10',
+            name: 'Ri6 Durian',
+            category: 'tropical-fruit',
+            categoryName: 'Tropical Fruit',
+            price: 6.50,
+            unit: 'kg',
+            image: 'img/durian.jpg',
+            farmOrigin: 'Mekong Orchard, Can Tho',
+            harvestDate: '2026-08-06',
+            stockStatus: 'In Stock',
+            stockQuantity: 40,
+            rating: 5.0,
+            organic: false,
+            description: 'Creamy Ri6 durian with small seeds and rich golden flesh.'
+        },
+        {
+            id: '11',
+            name: '034 Avocado',
+            category: 'tropical-fruit',
+            categoryName: 'Tropical Fruit',
+            price: 2.80,
+            unit: 'kg',
+            image: 'img/avocado.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-05',
+            stockStatus: 'In Stock',
+            stockQuantity: 55,
+            rating: 4.9,
+            organic: true,
+            description: 'Rich and buttery 034 Dalat avocado with thin skin.'
+        },
+        {
+            id: '12',
+            name: 'Laba Banana',
+            category: 'tropical-fruit',
+            categoryName: 'Tropical Fruit',
+            price: 1.10,
+            unit: 'bunch',
+            image: 'img/banana.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-04',
+            stockStatus: 'In Stock',
+            stockQuantity: 80,
+            rating: 4.8,
+            organic: true,
+            description: 'Sweet, fragrant Dalat Laba bananas harvested at ideal ripeness.'
+        },
+        {
+            id: '13',
+            name: 'Royal Cantaloupe',
+            category: 'tropical-fruit',
+            categoryName: 'Tropical Fruit',
+            price: 3.50,
+            unit: 'each',
+            image: 'img/cantaloupe.jpg',
+            farmOrigin: 'Sunrise Organic Farm, Hanoi',
+            harvestDate: '2026-08-03',
+            stockStatus: 'In Stock',
+            stockQuantity: 30,
+            rating: 4.7,
+            organic: true,
+            description: 'Orange-fleshed cantaloupe melon with rich natural sweetness.'
+        },
+        {
+            id: '14',
+            name: 'New Zealand Strawberry',
+            category: 'seasonal-fruit',
+            categoryName: 'Seasonal Fruit',
+            price: 10.50,
+            unit: 'kg',
+            image: 'img/strawberry.jpg',
+            farmOrigin: 'Green Valley Farm, Dalat',
+            harvestDate: '2026-08-06',
+            stockStatus: 'In Stock',
+            stockQuantity: 25,
+            rating: 5.0,
+            organic: true,
+            description: 'Large, mildly sweet New Zealand variety strawberries grown in Dalat.'
+        },
+        {
+            id: '15',
+            name: 'Vinh Long Orange',
+            category: 'seasonal-fruit',
+            categoryName: 'Seasonal Fruit',
+            price: 1.50,
+            unit: 'kg',
+            image: 'img/orange.jpg',
+            farmOrigin: 'Mekong Orchard, Can Tho',
+            harvestDate: '2026-08-05',
+            stockStatus: 'In Stock',
+            stockQuantity: 95,
+            rating: 4.8,
+            organic: false,
+            description: 'Juicy Vinh Long king oranges, perfect for fresh morning juice.'
+        },
+        {
+            id: '16',
+            name: 'Ha Giang Rock Apple',
+            category: 'seasonal-fruit',
+            categoryName: 'Seasonal Fruit',
+            price: 1.90,
+            unit: 'kg',
+            image: 'img/apple.jpg',
+            farmOrigin: 'Sunrise Organic Farm, Hanoi',
+            harvestDate: '2026-08-04',
+            stockStatus: 'In Stock',
+            stockQuantity: 75,
+            rating: 4.9,
+            organic: true,
+            description: 'Crisp, sweet highland rock apples with deep red skin.'
         }
     ];
 
@@ -263,15 +391,32 @@
 
         // --- Catalog & Stock (FR-2.1 to FR-2.4, FR-6.1, FR-6.2) ---
         getProducts() {
-            return loadStorage(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+            const products = loadStorage(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+            let modified = false;
+            const seedMap = {};
+            DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
+
+            products.forEach(p => {
+                const numPrice = parseFloat(p.price);
+                if (isNaN(numPrice) || numPrice <= 0) {
+                    const seed = seedMap[String(p.id)] || seedMap[p.name];
+                    p.price = (seed && seed.price > 0) ? seed.price : 1.50;
+                    modified = true;
+                }
+            });
+
+            if (modified) {
+                saveStorage(STORAGE_KEYS.PRODUCTS, products);
+            }
+            return products;
         },
         getProductById(id) {
             const products = this.getProducts();
-            return products.find(p => p.id === id) || null;
+            return products.find(p => String(p.id) === String(id)) || null;
         },
         saveProduct(productData) {
             const products = this.getProducts();
-            const existingIdx = products.findIndex(p => p.id === productData.id);
+            const existingIdx = products.findIndex(p => String(p.id) === String(productData.id));
             if (existingIdx >= 0) {
                 products[existingIdx] = { ...products[existingIdx], ...productData };
             } else {
@@ -283,60 +428,251 @@
         },
         deleteProduct(id) {
             let products = this.getProducts();
-            products = products.filter(p => p.id !== id);
+            products = products.filter(p => String(p.id) !== String(id));
             saveStorage(STORAGE_KEYS.PRODUCTS, products);
             return products;
         },
+        async fetchProductsFromBackend() {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            try {
+                const response = await fetch(`${API_BASE_URL}/Products?pageSize=50`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!response.ok) return this.getProducts();
+
+                const resData = await response.json();
+                const items = resData.items || resData.Items || (Array.isArray(resData) ? resData : []);
+
+                if (items && items.length > 0) {
+                    const categoryMap = {
+                        'LeafyGreens': 'leafy-greens',
+                        'RootVeggies': 'root-veggies',
+                        'TropicalFruit': 'tropical-fruit',
+                        'SeasonalFruit': 'seasonal-fruit',
+                        '0': 'leafy-greens',
+                        '1': 'root-veggies',
+                        '2': 'tropical-fruit',
+                        '3': 'seasonal-fruit'
+                    };
+                    const categoryNameMap = {
+                        'LeafyGreens': 'Leafy Greens',
+                        'RootVeggies': 'Root Vegetables',
+                        'TropicalFruit': 'Tropical Fruit',
+                        'SeasonalFruit': 'Seasonal Fruit',
+                        '0': 'Leafy Greens',
+                        '1': 'Root Vegetables',
+                        '2': 'Tropical Fruit',
+                        '3': 'Seasonal Fruit'
+                    };
+
+                    const seedMap = {};
+                    DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
+
+                    const syncedProducts = items.map((p, idx) => {
+                        const pid = String(p.id !== undefined ? p.id : (p.Id !== undefined ? p.Id : (idx + 1)));
+                        const pName = p.name || p.Name || 'Produce';
+                        const seed = seedMap[pid] || seedMap[pName] || {};
+
+                        let rawPrice = p.price !== undefined && p.price !== null ? p.price : (p.Price !== undefined && p.Price !== null ? p.Price : null);
+                        let numPrice = parseFloat(rawPrice);
+                        if (isNaN(numPrice) || numPrice <= 0) {
+                            numPrice = seed.price || 1.50;
+                        }
+
+                        let rawStock = p.stockQty !== undefined && p.stockQty !== null ? p.stockQty : (p.StockQty !== undefined && p.StockQty !== null ? p.StockQty : null);
+                        let stockVal = parseInt(rawStock, 10);
+                        if (isNaN(stockVal)) stockVal = seed.stockQuantity || 50;
+
+                        return {
+                            id: pid,
+                            name: pName,
+                            category: categoryMap[p.category] || categoryMap[p.Category] || seed.category || 'leafy-greens',
+                            categoryName: categoryNameMap[p.category] || categoryNameMap[p.Category] || seed.categoryName || 'Leafy Greens',
+                            price: numPrice,
+                            unit: p.unit || p.Unit || seed.unit || 'kg',
+                            image: (p.imageUrl || p.ImageUrl || seed.image || 'img/vegetable-item-2.jpg').replace(/^\//, ''),
+                            farmOrigin: p.farmOrigin || p.FarmOrigin || seed.farmOrigin || 'Green Valley Farm, Dalat',
+                            harvestDate: p.harvestDate ? String(p.harvestDate).substring(0, 10) : (p.HarvestDate ? String(p.HarvestDate).substring(0, 10) : '2026-08-05'),
+                            stockStatus: (stockVal > 0) ? 'In Stock' : (p.stockStatus || p.StockStatus || 'In Stock'),
+                            stockQuantity: stockVal,
+                            rating: seed.rating || 4.8,
+                            organic: p.organic !== undefined ? !!p.organic : (p.Organic !== undefined ? !!p.Organic : (seed.organic !== undefined ? seed.organic : true)),
+                            description: p.description || p.Description || seed.description || `${pName} sourced fresh from certified farms.`
+                        };
+                    });
+
+                    saveStorage(STORAGE_KEYS.PRODUCTS, syncedProducts);
+                    if (window.renderCheckoutSummary) window.renderCheckoutSummary();
+                    if (window.renderCartPage) window.renderCartPage();
+                    if (window.updateHeaderUI) window.updateHeaderUI();
+                    return syncedProducts;
+                }
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.info('Backend API server offline. Using synchronized produce seed catalog.');
+            }
+            return this.getProducts();
+        },
+        async createProductAsync(productData) {
+            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            if (!token) return this.saveProduct(productData);
+
+            const categoryToBackendMap = {
+                'leafy-greens': 0,
+                'root-veggies': 1,
+                'tropical-fruit': 2,
+                'seasonal-fruit': 3
+            };
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: productData.name,
+                        category: categoryToBackendMap[productData.category] ?? 0,
+                        description: productData.description || '',
+                        unit: productData.unit || 'kg',
+                        price: parseFloat(productData.price) || 0,
+                        imageUrl: productData.image || 'img/vegetable-item-2.jpg',
+                        organic: !!productData.organic
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) return this.saveProduct(productData);
+                const resData = await response.json();
+                this.fetchProductsFromBackend();
+                return resData;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                return this.saveProduct(productData);
+            }
+        },
 
         // --- Shopping Cart (FR-3.1) ---
+        getCartKey() {
+            const authUser = this.getAuthUser();
+            if (authUser && (authUser.email || authUser.id)) {
+                const identifier = String(authUser.email || authUser.id).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+                return `gb_cart_user_${identifier}`;
+            }
+            return 'gb_cart_guest';
+        },
         getCart() {
-            return loadStorage(STORAGE_KEYS.CART, []);
+            const key = this.getCartKey();
+            let cart = loadStorage(key, null);
+
+            // Migration from legacy global cart for guest or first time user
+            if (cart === null) {
+                cart = loadStorage(STORAGE_KEYS.CART, []);
+                saveStorage(key, cart);
+            }
+
+            let modified = false;
+            const products = this.getProducts();
+            const seedMap = {};
+            DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
+
+            cart.forEach(item => {
+                let numPrice = parseFloat(item.price);
+                if (isNaN(numPrice) || numPrice <= 0) {
+                    const prod = products.find(p => String(p.id) === String(item.productId));
+                    const seed = seedMap[String(item.productId)] || seedMap[item.name];
+                    if (prod && parseFloat(prod.price) > 0) {
+                        item.price = parseFloat(prod.price);
+                        modified = true;
+                    } else if (seed && seed.price > 0) {
+                        item.price = seed.price;
+                        modified = true;
+                    } else {
+                        item.price = 1.50;
+                        modified = true;
+                    }
+                }
+                if (!item.name || !item.image || !item.unit) {
+                    const prod = products.find(p => String(p.id) === String(item.productId));
+                    const seed = seedMap[String(item.productId)];
+                    const ref = prod || seed;
+                    if (ref) {
+                        if (!item.name) item.name = ref.name;
+                        if (!item.image) item.image = ref.image;
+                        if (!item.unit) item.unit = ref.unit;
+                        modified = true;
+                    }
+                }
+            });
+
+            if (modified) {
+                saveStorage(key, cart);
+            }
+            return cart;
         },
         addToCart(productId, qty = 1) {
             const product = this.getProductById(productId);
             if (!product) return false;
             
             let cart = this.getCart();
-            const existingItem = cart.find(item => item.productId === productId);
+            const existingItem = cart.find(item => String(item.productId) === String(productId));
+            const numQty = parseInt(qty, 10) || 1;
+            const numPrice = parseFloat(product.price) || 0;
+
             if (existingItem) {
-                existingItem.qty += qty;
+                existingItem.qty = (parseInt(existingItem.qty, 10) || 0) + numQty;
+                existingItem.price = numPrice;
+                existingItem.name = product.name;
+                existingItem.image = product.image;
+                existingItem.unit = product.unit;
             } else {
                 cart.push({
                     productId: product.id,
                     name: product.name,
-                    price: product.price,
-                    unit: product.unit,
-                    image: product.image,
-                    farmOrigin: product.farmOrigin,
-                    qty: qty
+                    price: numPrice,
+                    unit: product.unit || 'kg',
+                    image: product.image || 'img/vegetable-item-2.jpg',
+                    farmOrigin: product.farmOrigin || 'Certified Farm',
+                    qty: numQty
                 });
             }
-            saveStorage(STORAGE_KEYS.CART, cart);
+            saveStorage(this.getCartKey(), cart);
             return true;
         },
         updateCartQty(productId, qty) {
             let cart = this.getCart();
-            const item = cart.find(i => i.productId === productId);
+            const item = cart.find(i => String(i.productId) === String(productId));
             if (item) {
-                item.qty = Math.max(1, qty);
-                saveStorage(STORAGE_KEYS.CART, cart);
+                item.qty = Math.max(1, parseInt(qty, 10) || 1);
+                saveStorage(this.getCartKey(), cart);
             }
         },
         removeFromCart(productId) {
             let cart = this.getCart();
-            cart = cart.filter(i => i.productId !== productId);
-            saveStorage(STORAGE_KEYS.CART, cart);
+            cart = cart.filter(i => String(i.productId) !== String(productId));
+            saveStorage(this.getCartKey(), cart);
         },
         clearCart() {
-            saveStorage(STORAGE_KEYS.CART, []);
+            saveStorage(this.getCartKey(), []);
         },
         getCartCount() {
             const cart = this.getCart();
-            return cart.reduce((sum, item) => sum + item.qty, 0);
+            return cart.reduce((sum, item) => sum + (parseInt(item.qty, 10) || 0), 0);
         },
         getCartSubtotal() {
             const cart = this.getCart();
-            return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            return cart.reduce((sum, item) => {
+                const price = parseFloat(item.price) || 0;
+                const qty = parseInt(item.qty, 10) || 0;
+                return sum + (price * qty);
+            }, 0);
         },
 
         // --- Delivery Addresses (FR-1.2) ---
@@ -634,6 +970,167 @@
             saveStorage(STORAGE_KEYS.AUTH_USER, user);
             return user;
         },
+
+        // =========================================================
+        // Multi-Address Management Methods (FR-1.2 Address Selector)
+        // =========================================================
+        getUserAddresses() {
+            let addresses = getStorage(STORAGE_KEYS.ADDRESSES);
+            if (!addresses || !Array.isArray(addresses)) {
+                const authUser = this.getAuthUser() || {};
+                addresses = [
+                    {
+                        id: 1,
+                        receiverName: authUser.name || 'Alex Johnson',
+                        phoneNumber: authUser.phone || '+84 901 234 567',
+                        streetAddress: authUser.address ? authUser.address.split(',')[0] : '123 High Street',
+                        city: 'Ho Chi Minh City',
+                        district: 'District 1',
+                        ward: 'Ward Ben Nghe',
+                        isDefault: true
+                    }
+                ];
+                saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+            }
+            return addresses;
+        },
+        getAddressById(id) {
+            const addresses = this.getUserAddresses();
+            return addresses.find(a => a.id == id) || null;
+        },
+        addAddress(addressData) {
+            const addresses = this.getUserAddresses();
+            if (addressData.isDefault || addresses.length === 0) {
+                addresses.forEach(a => a.isDefault = false);
+                addressData.isDefault = true;
+            }
+            const newAddress = {
+                id: Date.now(),
+                receiverName: addressData.receiverName || addressData.fullName || 'Recipient',
+                phoneNumber: addressData.phoneNumber || addressData.phone || '',
+                streetAddress: addressData.streetAddress || addressData.address || '',
+                city: addressData.city || 'Ho Chi Minh City',
+                district: addressData.district || 'District 1',
+                ward: addressData.ward || 'Ward Ben Nghe',
+                isDefault: !!addressData.isDefault
+            };
+            addresses.unshift(newAddress);
+            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+
+            if (newAddress.isDefault) {
+                this.updateUserProfile({
+                    fullName: newAddress.receiverName,
+                    phone: newAddress.phoneNumber,
+                    address: `${newAddress.streetAddress}, ${newAddress.ward}, ${newAddress.district}, ${newAddress.city}`
+                });
+            }
+
+            notifyStateChange();
+            return newAddress;
+        },
+        setDefaultAddress(addressId) {
+            const addresses = this.getUserAddresses();
+            let selected = null;
+            addresses.forEach(a => {
+                if (a.id == addressId) {
+                    a.isDefault = true;
+                    selected = a;
+                } else {
+                    a.isDefault = false;
+                }
+            });
+            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+            if (selected) {
+                this.updateUserProfile({
+                    fullName: selected.receiverName,
+                    phone: selected.phoneNumber,
+                    address: `${selected.streetAddress}, ${selected.ward}, ${selected.district}, ${selected.city}`
+                });
+            }
+            notifyStateChange();
+            return selected;
+        },
+        deleteAddress(addressId) {
+            let addresses = this.getUserAddresses();
+            addresses = addresses.filter(a => a.id != addressId);
+            if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
+                addresses[0].isDefault = true;
+            }
+            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+            notifyStateChange();
+            return addresses;
+        },
+
+        // Async C# API Address Methods with 2s Timeout & Local Fallback
+        async getUserAddressesAsync() {
+            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            if (!token) return this.getUserAddresses();
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Address`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) return this.getUserAddresses();
+                const resData = await response.json();
+                if (resData && resData.isSuccess && Array.isArray(resData.data)) {
+                    saveStorage(STORAGE_KEYS.ADDRESSES, resData.data);
+                    return resData.data;
+                }
+                return this.getUserAddresses();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                return this.getUserAddresses();
+            }
+        },
+        async createAddressAsync(addressData) {
+            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            if (!token) return this.addAddress(addressData);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Address`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverName: addressData.receiverName || addressData.fullName,
+                        phoneNumber: addressData.phoneNumber || addressData.phone,
+                        streetAddress: addressData.streetAddress || addressData.address,
+                        city: addressData.city || 'Ho Chi Minh City',
+                        district: addressData.district || 'District 1',
+                        ward: addressData.ward || 'Ward Ben Nghe',
+                        isDefault: !!addressData.isDefault
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) return this.addAddress(addressData);
+                const resData = await response.json();
+                if (resData && resData.isSuccess && resData.data) {
+                    this.getUserAddressesAsync();
+                    return resData.data;
+                }
+                return this.addAddress(addressData);
+            } catch (err) {
+                clearTimeout(timeoutId);
+                return this.addAddress(addressData);
+            }
+        },
         registerUser(name, email, password) {
             const user = {
                 name: name || 'New Customer',
@@ -648,8 +1145,35 @@
         logoutUser() {
             saveStorage(STORAGE_KEYS.JWT_TOKEN, null);
             saveStorage(STORAGE_KEYS.AUTH_USER, null);
+            if (window.updateHeaderUI) window.updateHeaderUI();
+            if (window.renderCartPage) window.renderCartPage();
+            if (window.renderCheckoutSummary) window.renderCheckoutSummary();
+        },
+        clearAllUsersKeepAdmin() {
+            const adminUser = {
+                name: 'System Administrator',
+                email: 'admin@greenbasket.com',
+                role: 'Admin',
+                loginTime: new Date().toISOString()
+            };
+            saveStorage(STORAGE_KEYS.AUTH_USER, adminUser);
+            saveStorage(STORAGE_KEYS.USER_ROLE, 'Admin');
+
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('gb_cart_') || key === 'gb_cart_v1') {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            if (window.updateHeaderUI) window.updateHeaderUI();
+            if (window.renderCartPage) window.renderCartPage();
+            if (window.renderCheckoutSummary) window.renderCheckoutSummary();
+            return adminUser;
         }
     };
+
+    // Clear legacy product caches
+    ['gb_products_v1', 'gb_products_v2', 'gb_products_v3', 'gb_products_v4'].forEach(k => localStorage.removeItem(k));
 
     // Ensure default initializations if storage empty
     if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
@@ -661,5 +1185,12 @@
     if (!localStorage.getItem(STORAGE_KEYS.ADDRESSES)) {
         saveStorage(STORAGE_KEYS.ADDRESSES, DEFAULT_ADDRESSES);
     }
+
+    // Auto-sync products from Backend API if available
+    setTimeout(() => {
+        if (window.AppState && window.AppState.fetchProductsFromBackend) {
+            window.AppState.fetchProductsFromBackend();
+        }
+    }, 100);
 
 })();

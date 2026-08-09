@@ -605,6 +605,7 @@
             // Save Product Form Handler
             $('#editProductForm').on('submit', function (e) {
                 e.preventDefault();
+                const isNew = !$('#pEditId').val();
                 const productData = {
                     id: $('#pEditId').val() || undefined,
                     name: $('#pEditName').val().trim(),
@@ -618,11 +619,16 @@
                     stockStatus: $('#pEditStockStatus').val(),
                     organic: $('#pEditOrganic').is(':checked'),
                     description: $('#pEditDesc').val().trim(),
-                    image: 'img/fruite-item-5.jpg',
+                    image: 'img/vegetable-item-2.jpg',
                     rating: 4.8
                 };
 
-                window.AppState.saveProduct(productData);
+                if (isNew && window.AppState.createProductAsync) {
+                    window.AppState.createProductAsync(productData);
+                } else {
+                    window.AppState.saveProduct(productData);
+                }
+
                 window.GB.showToast(`Produce item <strong>${productData.name}</strong> saved to catalog!`, 'success');
                 bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
                 renderAdminDashboard();

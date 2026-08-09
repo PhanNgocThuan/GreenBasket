@@ -1,4 +1,4 @@
-﻿using GreenBasket.Application.DTOs.Address;
+using GreenBasket.Application.DTOs.Address;
 using GreenBasket.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +41,7 @@ namespace GreenBasket.API.Controllers
             if (userId == null) return Unauthorized();
 
             var result = await _addressService.CreateAddressAsync(userId, model);
-            return Ok(new { IsSuccess = true, Message = "Thêm địa chỉ thành công!", Data = result });
+            return Ok(new { IsSuccess = true, Message = "Address added successfully!", Data = result });
         }
 
         // Cập nhật địa chỉ
@@ -56,9 +56,9 @@ namespace GreenBasket.API.Controllers
 
             var result = await _addressService.UpdateAddressAsync(id, userId, model);
             if (result == null)
-                return NotFound(new { IsSuccess = false, Message = "Không tìm thấy địa chỉ hoặc bạn không có quyền sửa." });
+                return NotFound(new { IsSuccess = false, Message = "Address not found or you do not have permission to edit it." });
 
-            return Ok(new { IsSuccess = true, Message = "Cập nhật địa chỉ thành công!", Data = result });
+            return Ok(new { IsSuccess = true, Message = "Address updated successfully!", Data = result });
         }
 
         // Xóa địa chỉ
@@ -70,9 +70,9 @@ namespace GreenBasket.API.Controllers
 
             var success = await _addressService.DeleteAddressAsync(id, userId);
             if (!success)
-                return NotFound(new { IsSuccess = false, Message = "Không tìm thấy địa chỉ hoặc bạn không có quyền xóa." });
+                return NotFound(new { IsSuccess = false, Message = "Address not found or you do not have permission to delete it." });
 
-            return Ok(new { IsSuccess = true, Message = "Xóa địa chỉ thành công!" });
+            return Ok(new { IsSuccess = true, Message = "Address deleted successfully!" });
         }
     }
 }

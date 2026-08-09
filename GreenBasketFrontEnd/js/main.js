@@ -444,7 +444,7 @@
             e.preventDefault();
             const productId = $(this).data('product-id');
             const qty = parseInt($(this).data('qty') || 1, 10);
-            if (productId && window.AppState) {
+            if (productId !== undefined && productId !== null && window.AppState) {
                 const product = window.AppState.getProductById(productId);
                 if (product && product.stockStatus === 'Out of Stock') {
                     window.GB.showToast(`Sorry, ${product.name} is currently out of stock!`, 'danger');
@@ -453,6 +453,7 @@
                 const success = window.AppState.addToCart(productId, qty);
                 if (success && product) {
                     window.GB.showToast(`Added <strong>${product.name}</strong> to your cart!`, 'success');
+                    updateHeaderUI();
                 }
             }
         });

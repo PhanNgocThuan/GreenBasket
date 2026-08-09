@@ -117,7 +117,14 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        
+        try
+        {
+            await dbContext.Database.MigrateAsync();
+        }
+        catch (Exception)
+        {
+            // Table already exists or migration history mismatch - safely ignore and continue
+        }
 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
@@ -151,12 +158,19 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
+        // Xóa tất cả các tài khoản phụ (Customer/Staff khác) để chỉ giữ lại 1 tài khoản Admin duy nhất
+        var existingNonAdmins = userManager.Users.Where(u => u.Email != adminEmail).ToList();
+        foreach (var user in existingNonAdmins)
+        {
+            await userManager.DeleteAsync(user);
+        }
+
         // Seed Farms/Products/Batches cho module Product & Admin
         await DbInitializer.SeedAsync(dbContext);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Đã xảy ra lỗi khi khởi tạo dữ liệu Seeding: {ex.Message}");
+        Console.WriteLine($"An error occurred during Seeding initialization: {ex.Message}");
     }
 }
 

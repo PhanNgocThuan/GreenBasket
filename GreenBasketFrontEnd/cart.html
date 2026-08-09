@@ -75,7 +75,7 @@
                         <a href="index.html" class="nav-item nav-link">Home</a>
                         <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
                         <a href="cart.html" class="nav-item nav-link active">Cart</a>
-                        <a href="chackout.html" class="nav-item nav-link">Checkout</a>
+                        <a href="checkout.html" class="nav-item nav-link">Checkout</a>
                         <a href="orders.html" class="nav-item nav-link">Track Orders</a>
                         <a href="admin.html" class="nav-item nav-link text-success fw-bold gb-staff-link"><i
                                 class="fas fa-cog me-1"></i>Operations</a>
@@ -183,7 +183,7 @@
                             <span class="fw-bold text-primary" id="cartTotal">$0.00</span>
                         </div>
 
-                        <a href="chackout.html" id="btnProceedCheckout"
+                        <a href="checkout.html" id="btnProceedCheckout"
                             class="btn btn-primary w-100 rounded-pill py-3 text-white text-uppercase fw-bold shadow">
                             Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
                         </a>
@@ -245,7 +245,7 @@
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
                         <a class="btn-link d-block mb-2" href="cart.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
-                        <a class="btn-link d-block mb-2" href="chackout.html"><i
+                        <a class="btn-link d-block mb-2" href="checkout.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
                         <a class="btn-link d-block mb-2" href="orders.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File
@@ -310,7 +310,7 @@
                     `);
                     $('#btnProceedCheckout').addClass('disabled').attr('href', '#');
                 } else {
-                    $('#btnProceedCheckout').removeClass('disabled').attr('href', 'chackout.html');
+                    $('#btnProceedCheckout').removeClass('disabled').attr('href', 'checkout.html');
 
                     cart.forEach(item => {
                         const itemTotal = (item.price * item.qty).toFixed(2);
@@ -389,7 +389,7 @@
                 const id = $(this).data('id');
                 const delta = parseInt($(this).data('delta'), 10);
                 const cart = window.AppState.getCart();
-                const item = cart.find(i => i.productId === id);
+                const item = cart.find(i => String(i.productId) === String(id));
                 if (item) {
                     const newQty = item.qty + delta;
                     if (newQty > 0) {
@@ -398,6 +398,7 @@
                         window.AppState.removeFromCart(id);
                     }
                     renderCartPage();
+                    if (window.updateHeaderUI) window.updateHeaderUI();
                 }
             });
 

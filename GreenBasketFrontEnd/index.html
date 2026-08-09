@@ -75,7 +75,7 @@
                         <a href="index.html" class="nav-item nav-link active">Home</a>
                         <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
                         <a href="cart.html" class="nav-item nav-link">Cart</a>
-                        <a href="chackout.html" class="nav-item nav-link">Checkout</a>
+                        <a href="checkout.html" class="nav-item nav-link">Checkout</a>
                         <a href="orders.html" class="nav-item nav-link">Track Orders</a>
                         <a href="admin.html" class="nav-item nav-link text-success fw-bold gb-staff-link"><i
                                 class="fas fa-cog me-1"></i>Operations</a>
@@ -373,7 +373,7 @@
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Browse Catalog</a>
                         <a class="btn-link d-block mb-2" href="cart.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
-                        <a class="btn-link d-block mb-2" href="chackout.html"><i
+                        <a class="btn-link d-block mb-2" href="checkout.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Checkout & Delivery Slot</a>
                         <a class="btn-link d-block mb-2" href="orders.html"><i
                                 class="fas fa-chevron-right me-1 small text-warning"></i>Track Order & File
@@ -487,6 +487,13 @@
 
             // Initial render
             renderProducts('all');
+
+            // Listen for state change (e.g. backend sync complete)
+            window.addEventListener('gb_state_change', function (e) {
+                if (e.detail && e.detail.key === 'gb_products_v5') {
+                    renderProducts('all');
+                }
+            });
 
             // Category Tab Filter click handler
             $('.gb-tab-filter').on('click', function (e) {

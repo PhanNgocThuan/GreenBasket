@@ -75,7 +75,7 @@
                         <a href="index.html" class="nav-item nav-link">Home</a>
                         <a href="shop.html" class="nav-item nav-link">Shop Catalog</a>
                         <a href="cart.html" class="nav-item nav-link">Cart</a>
-                        <a href="chackout.html" class="nav-item nav-link active">Checkout</a>
+                        <a href="checkout.html" class="nav-item nav-link active">Checkout</a>
                         <a href="orders.html" class="nav-item nav-link">Track Orders</a>
                         <a href="admin.html" class="nav-item nav-link text-success fw-bold gb-staff-link"><i
                                 class="fas fa-cog me-1"></i>Operations</a>
@@ -165,11 +165,23 @@
 
                         <!-- FR-1.2 Delivery Address Details Card -->
                         <div class="card border-0 shadow-sm rounded-3 mb-4">
-                            <div class="card-header bg-primary text-white py-3">
-                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2.
-                                    Recipient & Delivery Address</h5>
+                            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2. Recipient & Delivery Address</h5>
+                                <button type="button" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill" id="btn-open-add-address" style="font-size: 0.8rem; border: 1.5px solid #2B2118; box-shadow: 1.5px 1.5px 0px #2B2118;">
+                                    <i class="fas fa-plus-circle me-1"></i>Add New Address
+                                </button>
                             </div>
                             <div class="card-body p-4">
+                                <!-- Saved Addresses Selection Grid -->
+                                <div id="gb-saved-addresses-wrapper" class="mb-4 d-none">
+                                    <label class="form-label fw-bold text-dark mb-2">
+                                        <i class="fas fa-bookmark text-success me-1"></i>Choose from your Saved Delivery Locations:
+                                    </label>
+                                    <div id="gb-address-cards-container" class="row g-3">
+                                        <!-- Rendered dynamically -->
+                                    </div>
+                                </div>
+
                                 <div class="row g-3">
                                     <div class="col-md-12">
                                         <label class="form-label fw-bold text-dark">Full Recipient
@@ -312,6 +324,60 @@
     </div>
     <!-- Footer End -->
 
+    <!-- Add New Address Modal -->
+    <div class="modal fade" id="addNewAddressModal" tabindex="-1" aria-hidden="true" style="z-index: 10850;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #F9EDDE; border: 3.5px solid #2B2118; border-radius: 20px; box-shadow: 6px 6px 0px #2B2118;">
+                <div class="modal-header border-bottom border-dark pb-3">
+                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-map-marked-alt text-success me-2"></i>Add New Delivery Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="form-add-new-address">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Full Recipient Name<sup>*</sup></label>
+                            <input type="text" id="new-rec-name" class="form-control p-3" required placeholder="e.g. Alex Johnson" style="border: 2px solid #2B2118; border-radius: 12px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Phone Number<sup>*</sup></label>
+                            <input type="tel" id="new-rec-phone" class="form-control p-3" required placeholder="e.g. +84 901 234 567" style="border: 2px solid #2B2118; border-radius: 12px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Street Address &amp; Apartment<sup>*</sup></label>
+                            <input type="text" id="new-rec-street" class="form-control p-3" required placeholder="e.g. 456 Le Loi Street" style="border: 2px solid #2B2118; border-radius: 12px;">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark">Ward</label>
+                                <input type="text" id="new-rec-ward" class="form-control p-2" placeholder="Ward Ben Nghe" style="border: 2px solid #2B2118; border-radius: 10px;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark">District</label>
+                                <input type="text" id="new-rec-district" class="form-control p-2" placeholder="District 1" style="border: 2px solid #2B2118; border-radius: 10px;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark">City</label>
+                                <input type="text" id="new-rec-city" class="form-control p-2" value="Ho Chi Minh City" style="border: 2px solid #2B2118; border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="new-rec-default" checked>
+                            <label class="form-check-label fw-bold text-dark" for="new-rec-default">
+                                Set as Primary / Default Address
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 gap-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" style="border: 2px solid #2B2118;">Cancel</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4 text-white fw-bold" style="border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118;">
+                            <i class="fas fa-save me-1"></i>Save &amp; Select Address
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
             class="fa fa-arrow-up"></i></a>
@@ -330,6 +396,116 @@
 
     <script>
         $(document).ready(function () {
+            // Render Saved Addresses Selection Grid
+            function renderSavedAddresses() {
+                if (!window.AppState || !window.AppState.getUserAddresses) return;
+
+                const addresses = window.AppState.getUserAddresses();
+                const $wrapper = $('#gb-saved-addresses-wrapper');
+                const $container = $('#gb-address-cards-container');
+
+                if (!addresses || addresses.length === 0) {
+                    $wrapper.addClass('d-none');
+                    fillUserProfile();
+                    return;
+                }
+
+                $wrapper.removeClass('d-none');
+                $container.empty();
+
+                let defaultSelectedAddr = addresses.find(a => a.isDefault) || addresses[0];
+
+                addresses.forEach(addr => {
+                    const isChecked = defaultSelectedAddr && defaultSelectedAddr.id == addr.id;
+                    const fullStr = `${addr.streetAddress}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
+
+                    $container.append(`
+                        <div class="col-md-6">
+                            <div class="card p-3 gb-addr-card ${isChecked ? 'bg-light' : ''}" data-id="${addr.id}" style="border: 2.5px solid #2B2118 !important; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
+                                <div class="form-check m-0">
+                                    <input class="form-check-input addr-radio me-2" type="radio" name="selectedAddress" id="addr-radio-${addr.id}" value="${addr.id}" ${isChecked ? 'checked' : ''}>
+                                    <label class="form-check-label w-100" for="addr-radio-${addr.id}" style="cursor: pointer;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <strong class="text-dark fs-6">${addr.receiverName}</strong>
+                                            ${addr.isDefault ? '<span class="badge bg-success" style="font-size: 0.7rem;">Default</span>' : ''}
+                                        </div>
+                                        <small class="text-muted d-block"><i class="fas fa-phone-alt me-1 text-success"></i>${addr.phoneNumber}</small>
+                                        <small class="text-dark d-block mt-1 fw-bold"><i class="fas fa-map-marker-alt me-1 text-danger"></i>${fullStr}</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                if (defaultSelectedAddr) {
+                    selectAddress(defaultSelectedAddr);
+                }
+            }
+
+            function selectAddress(addr) {
+                if (!addr) return;
+                $('#fullName').val(addr.receiverName || '');
+                $('#phone').val(addr.phoneNumber || '');
+                const fullStr = `${addr.streetAddress}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
+                $('#address').val(fullStr);
+            }
+
+            // Click Address Card Event
+            $(document).on('click', '.gb-addr-card', function () {
+                const id = $(this).data('id');
+                $('.gb-addr-card').removeClass('bg-light');
+                $(this).addClass('bg-light');
+                $(`#addr-radio-${id}`).prop('checked', true);
+
+                if (window.AppState) {
+                    const addr = window.AppState.getAddressById(id);
+                    if (addr) selectAddress(addr);
+                }
+            });
+
+            // Open Add New Address Modal
+            $('#btn-open-add-address').on('click', function () {
+                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
+                $('#new-rec-name').val(authUser ? authUser.name : '');
+                $('#new-rec-phone').val(authUser ? authUser.phone : '');
+                $('#new-rec-street').val('');
+                $('#new-rec-ward').val('Ward Ben Nghe');
+                $('#new-rec-district').val('District 1');
+                $('#new-rec-city').val('Ho Chi Minh City');
+                $('#new-rec-default').prop('checked', true);
+
+                const modal = new bootstrap.Modal(document.getElementById('addNewAddressModal'));
+                modal.show();
+            });
+
+            // Submit Add New Address Form
+            $('#form-add-new-address').on('submit', function (e) {
+                e.preventDefault();
+                const addressData = {
+                    receiverName: $('#new-rec-name').val().trim(),
+                    phoneNumber: $('#new-rec-phone').val().trim(),
+                    streetAddress: $('#new-rec-street').val().trim(),
+                    ward: $('#new-rec-ward').val().trim(),
+                    district: $('#new-rec-district').val().trim(),
+                    city: $('#new-rec-city').val().trim(),
+                    isDefault: $('#new-rec-default').is(':checked')
+                };
+
+                if (window.AppState && window.AppState.addAddress) {
+                    const created = window.AppState.addAddress(addressData);
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('New address saved and selected for delivery!', 'success');
+                    }
+                    const modalEl = document.getElementById('addNewAddressModal');
+                    const bsModal = bootstrap.Modal.getInstance(modalEl);
+                    if (bsModal) bsModal.hide();
+
+                    renderSavedAddresses();
+                    if (created) selectAddress(created);
+                }
+            });
+
             // Auto-fill logged in user's saved profile & shipping address
             function fillUserProfile() {
                 const authUser = window.AppState ? window.AppState.getAuthUser() : null;
@@ -339,7 +515,6 @@
                     if (authUser.email && !$('#email').val()) $('#email').val(authUser.email);
                     if (authUser.address && !$('#address').val()) $('#address').val(authUser.address);
                 } else {
-                    // Default fallback for demo guest users
                     if (!$('#fullName').val()) $('#fullName').val('Alex Johnson');
                     if (!$('#phone').val()) $('#phone').val('+84 901 234 567');
                     if (!$('#email').val()) $('#email').val('alex@example.com');
@@ -352,20 +527,31 @@
                 const $container = $('#gb-checkout-items');
                 $container.empty();
 
-                if (cart.length === 0) {
-                    window.location.href = 'cart.html';
+                if (!cart || cart.length === 0) {
+                    $container.html(`
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-basket text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-2">Your shopping cart is currently empty.</p>
+                            <a href="shop.html" class="btn btn-sm btn-primary rounded-pill text-white px-3">Browse Shop</a>
+                        </div>
+                    `);
+                    $('#coSubtotal').text('$0.00');
+                    $('#coDeliveryFee').text('$0.00');
+                    $('#coTotal').text('$0.00');
                     return;
                 }
 
                 cart.forEach(item => {
-                    const itemTotal = (item.price * item.qty).toFixed(2);
+                    const price = parseFloat(item.price) || 0;
+                    const qty = parseInt(item.qty, 10) || 1;
+                    const itemTotal = (price * qty).toFixed(2);
                     $container.append(`
                         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                             <div class="d-flex align-items-center">
-                                <img src="${item.image}" class="img-fluid rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="${item.name}">
+                                <img src="${item.image || 'img/vegetable-item-2.jpg'}" class="img-fluid rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="${item.name || 'Produce'}">
                                 <div>
-                                    <h6 class="mb-0 text-dark font-bold">${item.name}</h6>
-                                    <small class="text-muted">${item.qty} ${item.unit} x $${item.price.toFixed(2)}</small>
+                                    <h6 class="mb-0 text-dark font-bold">${item.name || 'Produce Item'}</h6>
+                                    <small class="text-muted">${qty} ${item.unit || 'kg'} x $${price.toFixed(2)}</small>
                                 </div>
                             </div>
                             <span class="fw-bold text-dark">$${itemTotal}</span>
@@ -396,12 +582,15 @@
                 };
 
                 // Save/update user profile address for future 1-click purchases
-                if (window.AppState && window.AppState.updateUserProfile) {
-                    window.AppState.updateUserProfile({
-                        fullName: checkoutDetails.fullName,
-                        phone: checkoutDetails.phone,
-                        email: checkoutDetails.email,
-                        address: checkoutDetails.address
+                if (window.AppState && window.AppState.addAddress) {
+                    window.AppState.addAddress({
+                        receiverName: checkoutDetails.fullName,
+                        phoneNumber: checkoutDetails.phone,
+                        streetAddress: checkoutDetails.address,
+                        city: 'Ho Chi Minh City',
+                        district: 'District 1',
+                        ward: 'Ward Ben Nghe',
+                        isDefault: true
                     });
                 }
 
@@ -416,7 +605,9 @@
                 }
             });
 
-            fillUserProfile();
+            window.renderCheckoutSummary = renderCheckoutSummary;
+
+            renderSavedAddresses();
             renderCheckoutSummary();
         });
     </script>
