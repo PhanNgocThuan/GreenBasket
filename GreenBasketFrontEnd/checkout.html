@@ -201,7 +201,7 @@
                                         <input type="email" class="form-control p-3" id="email" placeholder="e.g. alex@example.com"
                                             required>
                                     </div>
-
+                                    
                                     <div class="col-md-12">
                                         <label class="form-label fw-bold text-dark">Street Address &amp;
                                             Apartment<sup>*</sup></label>
@@ -215,6 +215,13 @@
                                             (Optional)</label>
                                         <textarea id="deliveryNotes" class="form-control p-3" rows="2"
                                             placeholder="e.g. Please leave package with building reception if not home."></textarea>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3 d-flex justify-content-between align-items-center">
+                                        <!-- Nút Cập nhật thông tin hiện tại -->
+                                        <button type="button" id="btn-update-address" class="btn btn-warning fw-bold rounded-pill px-4 text-dark" style="border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118;">
+                                            <i class="fas fa-edit me-1"></i> Update Address
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -343,6 +350,10 @@
                             <input type="tel" id="new-rec-phone" class="form-control p-3" required placeholder="e.g. +84 901 234 567" style="border: 2px solid #2B2118; border-radius: 12px;">
                         </div>
                         <div class="mb-3">
+                            <label for="newEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="new-rec-email" placeholder="Enter email" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label fw-bold text-dark">Street Address &amp; Apartment<sup>*</sup></label>
                             <input type="text" id="new-rec-street" class="form-control p-3" required placeholder="e.g. 456 Le Loi Street" style="border: 2px solid #2B2118; border-radius: 12px;">
                         </div>
@@ -391,38 +402,55 @@
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- App State Engine & Script -->
+     <script src="js/config.js"></script>
     <script src="js/app-state.js"></script>
     <script src="js/main.js"></script>
 
     <script>
-        $(document).ready(function () {
-            // Render Saved Addresses Selection Grid
-            function renderSavedAddresses() {
-                if (!window.AppState || !window.AppState.getUserAddresses) return;
+        function selectAddress(addr) {
+            if (!addr) return;
+            $('#fullName').val(addr.receiverName || '');
+            $('#phone').val(addr.phoneNumber || '');
+            $('#email').val(addr.email || '');
+            const fullStr = `${addr.streetAddress || ''}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
+            $('#address').val(fullStr);
+        }
 
-                const addresses = window.AppState.getUserAddresses();
-                const $wrapper = $('#gb-saved-addresses-wrapper');
-                const $container = $('#gb-address-cards-container');
+        function renderSavedAddresses() {
+            if (!window.AppState || !window.AppState.getUserAddresses) return;
 
-                if (!addresses || addresses.length === 0) {
-                    $wrapper.addClass('d-none');
-                    fillUserProfile();
-                    return;
-                }
+            let addresses = window.AppState.getUserAddresses();
+            
+            // 🛠️ TỰ ĐỘNG DỌN SẠCH CÁC ĐỊA CHỈ RÁC "UNDEFINED" BỊ KẸT
+            addresses = addresses.filter(a => a && a.receiverName && a.receiverName !== 'undefined');
+            localStorage.setItem('gb_addresses_v1', JSON.stringify(addresses)); // Đồng bộ lại localStorage
 
-                $wrapper.removeClass('d-none');
-                $container.empty();
+            const $wrapper = $('#gb-saved-addresses-wrapper');
+            const $container = $('#gb-address-cards-container');
 
-                let defaultSelectedAddr = addresses.find(a => a.isDefault) || addresses[0];
+            if (!addresses || addresses.length === 0) {
+                $wrapper.addClass('d-none');
+                if (typeof fillUserProfile === 'function') fillUserProfile();
+                return;
+            }
 
-                addresses.forEach(addr => {
-                    const isChecked = defaultSelectedAddr && defaultSelectedAddr.id == addr.id;
-                    const fullStr = `${addr.streetAddress}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
+            $wrapper.removeClass('d-none');
+            $container.empty();
 
-                    $container.append(`
-                        <div class="col-md-6">
-                            <div class="card p-3 gb-addr-card ${isChecked ? 'bg-light' : ''}" data-id="${addr.id}" style="border: 2.5px solid #2B2118 !important; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
-                                <div class="form-check m-0">
+            let defaultSelectedAddr = addresses.find(a => a.isDefault) || addresses[0];
+
+            addresses.forEach(addr => {
+                const isChecked = defaultSelectedAddr && defaultSelectedAddr.id == addr.id;
+                const fullStr = `${addr.streetAddress || ''}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
+                
+                const emailHtml = addr.email ? `<small class="text-muted d-block mt-1"><i class="fas fa-envelope me-1 text-primary"></i>${addr.email}</small>` : '';
+
+                // Đảm bảo truyền đúng ID (${addr.id}) vào nút xóa để không bị lỗi ReferenceError
+                $container.append(`
+                    <div class="col-md-6">
+                        <div class="card p-3 gb-addr-card ${isChecked ? 'bg-light' : ''}" data-id="${addr.id}" style="border: 2.5px solid #2B2118 !important; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
+                            <div class="form-check m-0 d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
                                     <input class="form-check-input addr-radio me-2" type="radio" name="selectedAddress" id="addr-radio-${addr.id}" value="${addr.id}" ${isChecked ? 'checked' : ''}>
                                     <label class="form-check-label w-100" for="addr-radio-${addr.id}" style="cursor: pointer;">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -430,97 +458,38 @@
                                             ${addr.isDefault ? '<span class="badge bg-success" style="font-size: 0.7rem;">Default</span>' : ''}
                                         </div>
                                         <small class="text-muted d-block"><i class="fas fa-phone-alt me-1 text-success"></i>${addr.phoneNumber}</small>
+                                        ${emailHtml}
                                         <small class="text-dark d-block mt-1 fw-bold"><i class="fas fa-map-marker-alt me-1 text-danger"></i>${fullStr}</small>
                                     </label>
                                 </div>
+                                <button type="button" class="btn btn-sm text-danger ms-2 border-0 p-1" 
+                                    onclick="event.preventDefault(); window.AppState.deleteAddress(${addr.id});" 
+                                    title="Delete this address" style="z-index: 10;">
+                                    <i class="fas fa-trash-alt fs-5"></i>
+                                </button>
                             </div>
                         </div>
-                    `);
-                });
-
-                if (defaultSelectedAddr) {
-                    selectAddress(defaultSelectedAddr);
-                }
-            }
-
-            function selectAddress(addr) {
-                if (!addr) return;
-                $('#fullName').val(addr.receiverName || '');
-                $('#phone').val(addr.phoneNumber || '');
-                const fullStr = `${addr.streetAddress}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
-                $('#address').val(fullStr);
-            }
-
-            // Click Address Card Event
-            $(document).on('click', '.gb-addr-card', function () {
-                const id = $(this).data('id');
-                $('.gb-addr-card').removeClass('bg-light');
-                $(this).addClass('bg-light');
-                $(`#addr-radio-${id}`).prop('checked', true);
-
-                if (window.AppState) {
-                    const addr = window.AppState.getAddressById(id);
-                    if (addr) selectAddress(addr);
-                }
+                    </div>
+                `);
             });
 
-            // Open Add New Address Modal
-            $('#btn-open-add-address').on('click', function () {
-                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
-                $('#new-rec-name').val(authUser ? authUser.name : '');
-                $('#new-rec-phone').val(authUser ? authUser.phone : '');
-                $('#new-rec-street').val('');
-                $('#new-rec-ward').val('Ward Ben Nghe');
-                $('#new-rec-district').val('District 1');
-                $('#new-rec-city').val('Ho Chi Minh City');
-                $('#new-rec-default').prop('checked', true);
-
-                const modal = new bootstrap.Modal(document.getElementById('addNewAddressModal'));
-                modal.show();
-            });
-
-            // Submit Add New Address Form
-            $('#form-add-new-address').on('submit', function (e) {
-                e.preventDefault();
-                const addressData = {
-                    receiverName: $('#new-rec-name').val().trim(),
-                    phoneNumber: $('#new-rec-phone').val().trim(),
-                    streetAddress: $('#new-rec-street').val().trim(),
-                    ward: $('#new-rec-ward').val().trim(),
-                    district: $('#new-rec-district').val().trim(),
-                    city: $('#new-rec-city').val().trim(),
-                    isDefault: $('#new-rec-default').is(':checked')
-                };
-
-                if (window.AppState && window.AppState.addAddress) {
-                    const created = window.AppState.addAddress(addressData);
-                    if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('New address saved and selected for delivery!', 'success');
-                    }
-                    const modalEl = document.getElementById('addNewAddressModal');
-                    const bsModal = bootstrap.Modal.getInstance(modalEl);
-                    if (bsModal) bsModal.hide();
-
-                    renderSavedAddresses();
-                    if (created) selectAddress(created);
-                }
-            });
-
-            // Auto-fill logged in user's saved profile & shipping address
-            function fillUserProfile() {
-                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
-                if (authUser) {
-                    if (authUser.name && !$('#fullName').val()) $('#fullName').val(authUser.name);
-                    if (authUser.phone && !$('#phone').val()) $('#phone').val(authUser.phone);
-                    if (authUser.email && !$('#email').val()) $('#email').val(authUser.email);
-                    if (authUser.address && !$('#address').val()) $('#address').val(authUser.address);
-                } else {
-                    if (!$('#fullName').val()) $('#fullName').val('Alex Johnson');
-                    if (!$('#phone').val()) $('#phone').val('+84 901 234 567');
-                    if (!$('#email').val()) $('#email').val('alex@example.com');
-                    if (!$('#address').val()) $('#address').val('123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City');
-                }
+            if (defaultSelectedAddr) {
+                selectAddress(defaultSelectedAddr);
             }
+        }
+
+        function fillUserProfile() {
+            const authUser = window.AppState ? window.AppState.getAuthUser() : null;
+            if (authUser) {
+                if (authUser.name && !$('#fullName').val()) $('#fullName').val(authUser.name);
+                if (authUser.phone && !$('#phone').val()) $('#phone').val(authUser.phone);
+                if (authUser.email && !$('#email').val()) $('#email').val(authUser.email);
+                if (authUser.address && !$('#address').val()) $('#address').val(authUser.address);
+            }
+        }
+
+        $(document).ready(function () {
+            renderSavedAddresses();
 
             function renderCheckoutSummary() {
                 const cart = window.AppState.getCart();
@@ -568,7 +537,61 @@
                 $('#coTotal').text('$' + total.toFixed(2));
             }
 
-            // Checkout Form Submission Handler
+            $(document).on('click', '.gb-addr-card', function () {
+                const id = $(this).data('id');
+                $('.gb-addr-card').removeClass('bg-light');
+                $(this).addClass('bg-light');
+                $(`#addr-radio-${id}`).prop('checked', true);
+
+                if (window.AppState) {
+                    const addr = window.AppState.getAddressById(id);
+                    if (addr) selectAddress(addr);
+                }
+            });
+
+            $('#btn-open-add-address').on('click', function () {
+                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
+                $('#new-rec-name').val(authUser ? authUser.name : '');
+                $('#new-rec-phone').val(authUser ? authUser.phone : '');
+                $('#new-rec-email').val(authUser ? authUser.email : '');
+                $('#new-rec-street').val('');
+                $('#new-rec-ward').val('Ward Ben Nghe');
+                $('#new-rec-district').val('District 1');
+                $('#new-rec-city').val('Ho Chi Minh City');
+                $('#new-rec-default').prop('checked', true);
+
+                const modal = new bootstrap.Modal(document.getElementById('addNewAddressModal'));
+                modal.show();
+            });
+
+            $('#form-add-new-address').on('submit', function (e) {
+                e.preventDefault();
+                const addressData = {
+                    receiverName: $('#new-rec-name').val().trim(),
+                    phoneNumber: $('#new-rec-phone').val().trim(),
+                    email: $('#new-rec-email').val().trim(),
+                    streetAddress: $('#new-rec-street').val().trim(),
+                    ward: $('#new-rec-ward').val().trim(),
+                    district: $('#new-rec-district').val().trim(),
+                    city: $('#new-rec-city').val().trim(),
+                    isDefault: $('#new-rec-default').is(':checked')
+                };
+
+                if (window.AppState && window.AppState.addAddress) {
+                    const created = window.AppState.addAddress(addressData);
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('New address saved and selected for delivery!', 'success');
+                    }
+                    const modalEl = document.getElementById('addNewAddressModal');
+                    const bsModal = bootstrap.Modal.getInstance(modalEl);
+                    if (bsModal) bsModal.hide();
+
+                    renderSavedAddresses();
+                    if (created) selectAddress(created);
+                }
+            });
+
+            // 🛠️ SỬA LỖI: KHÔNG TỰ ĐỘNG THÊM ĐỊA CHỈ TRÙNG LẶP KHI ĐẶT HÀNG NỮA
             $('#gb-checkout-form').on('submit', function (e) {
                 e.preventDefault();
 
@@ -581,22 +604,11 @@
                     paymentMethod: $('input[name="paymentMethod"]:checked').val()
                 };
 
-                // Save/update user profile address for future 1-click purchases
-                if (window.AppState && window.AppState.addAddress) {
-                    window.AppState.addAddress({
-                        receiverName: checkoutDetails.fullName,
-                        phoneNumber: checkoutDetails.phone,
-                        streetAddress: checkoutDetails.address,
-                        city: 'Ho Chi Minh City',
-                        district: 'District 1',
-                        ward: 'Ward Ben Nghe',
-                        isDefault: true
-                    });
-                }
+                // Chỉ cho phép đặt hàng, bỏ đoạn code tự gọi addAddress gây nhân bản địa chỉ rác
 
                 const newOrder = window.AppState.placeOrder(checkoutDetails);
                 if (newOrder) {
-                    window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully! Delivery address saved to your account.`, 'success');
+                    window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully!`, 'success');
                     setTimeout(() => {
                         window.location.href = 'orders.html?highlight=' + newOrder.id;
                     }, 1200);
@@ -606,9 +618,83 @@
             });
 
             window.renderCheckoutSummary = renderCheckoutSummary;
-
-            renderSavedAddresses();
             renderCheckoutSummary();
+        });
+
+        window.addEventListener('addressDataChanged', function() {
+            const addModalEl = document.getElementById('addNewAddressModal');
+            if (addModalEl) {
+                const addModal = bootstrap.Modal.getInstance(addModalEl);
+                if (addModal) addModal.hide();
+            }
+
+            if (typeof renderSavedAddresses === 'function') {
+                renderSavedAddresses(); 
+            }
+        });
+
+        // Xử lý sự kiện khi bấm nút "Update Address"
+        $('#btn-update-address').on('click', function () {
+            // 1. Lấy ID của địa chỉ đang được chọn (dựa vào radio button đang checked)
+            const selectedRadio = $('input[name="selectedAddress"]:checked');
+            if (!selectedRadio.length) {
+                if (window.GB && window.GB.showToast) {
+                    window.GB.showToast('Please select an address to update!', 'warning');
+                } else {
+                    alert('Please select an address to update!');
+                }
+                return;
+            }
+
+            const addressId = selectedRadio.val();
+
+            // 2. Lấy dữ liệu mới từ các ô input trên form
+            const updatedData = {
+                receiverName: $('#fullName').val().trim(),
+                phoneNumber: $('#phone').val().trim(),
+                email: $('#email').val().trim(),
+                streetAddress: $('#address').val().trim(),
+                city: 'Ho Chi Minh City',
+                district: 'District 1',
+                ward: 'Ward Ben Nghe'
+            };
+
+            // 3. Gọi hàm cập nhật trong AppState (hoặc xử lý trực tiếp localStorage)
+            if (window.AppState) {
+                let addresses = window.AppState.getUserAddresses();
+                
+                // Tìm và cập nhật lại thông tin của địa chỉ có id tương ứng
+                addresses = addresses.map(a => {
+                    if (a.id == addressId) {
+                        return {
+                            ...a, // Giữ lại id và trạng thái isDefault cũ
+                            receiverName: updatedData.receiverName,
+                            phoneNumber: updatedData.phoneNumber,
+                            email: updatedData.email,
+                            streetAddress: updatedData.streetAddress,
+                            city: updatedData.city,
+                            district: updatedData.district,
+                            ward: updatedData.ward
+                        };
+                    }
+                    return a;
+                });
+
+                // Lưu lại vào localStorage
+                localStorage.setItem('gb_addresses_v1', JSON.stringify(addresses));
+
+                // 4. Thông báo và làm mới lại danh sách thẻ hiển thị ở trên
+                if (window.GB && window.GB.showToast) {
+                    window.GB.showToast('Address updated successfully!', 'success');
+                } else {
+                    alert('Address updated successfully!');
+                }
+
+                // Vẽ lại danh sách card địa chỉ để cập nhật thông tin mới thay đổi
+                if (typeof renderSavedAddresses === 'function') {
+                    renderSavedAddresses();
+                }
+            }
         });
     </script>
 </body>

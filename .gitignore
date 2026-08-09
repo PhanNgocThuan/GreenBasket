@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Ignore môi trường local của mỗi người
+js/config.js
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
