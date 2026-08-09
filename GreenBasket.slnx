@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/GreenBasket.Tests/">
+    <Project Path="GreenBasket.API.Tests/GreenBasket.API.Tests.csproj" Id="e81bf622-d1f8-4bbf-aaa0-af2788fa984b" />
+    <Project Path="GreenBasket.Application.Tests/GreenBasket.Application.Tests.csproj" Id="c7fe5774-50da-4f7d-9efe-d13c92fd6541" />
+  </Folder>
   <Project Path="GreenBasket.API/GreenBasket.API.csproj" />
   <Project Path="GreenBasket.Application/GreenBasket.Application.csproj" />
   <Project Path="GreenBasket.Domain/GreenBasket.Domain.csproj" />

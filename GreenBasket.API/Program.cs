@@ -177,3 +177,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+// Cho phép Project Test truy cập
+public partial class Program { }
