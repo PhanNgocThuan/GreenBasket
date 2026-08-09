@@ -1042,3 +1042,135 @@ p {
         transform: translateY(0) scale(1);
     }
 }
+
+/* =========================================================
+   Mobile-First Optimization System (FR-Mobile UX & Responsive)
+   ========================================================= */
+
+/* --- Tablet Breakpoint (max-width: 991px) --- */
+@media (max-width: 991.98px) {
+    .hero-youtube-wrapper iframe {
+        min-height: 60vh;
+    }
+    
+    .navbar-brand h2 {
+        font-size: 1.6rem !important;
+    }
+}
+
+/* --- Mobile Landscape & Small Tablet (max-width: 768px) --- */
+@media (max-width: 768px) {
+    /* Touch Target & Spacing Optimization */
+    body {
+        font-size: 15px;
+    }
+
+    .container, .container-fluid {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    /* Hero Headline & Typography Scaling */
+    .display-1, .display-2, .display-3 {
+        font-size: 2rem !important;
+        line-height: 1.25 !important;
+    }
+
+    .display-4, .display-5 {
+        font-size: 1.6rem !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Compact Hero Container */
+    .hero-header {
+        padding-top: 5rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    .hero-video-container {
+        min-height: 380px !important;
+    }
+
+    /* Modal Mobile Full-screen Padding */
+    .modal-dialog {
+        margin: 10px !important;
+    }
+
+    .modal-content {
+        border-radius: 16px !important;
+    }
+
+    /* Mobile Cart Table Stacked Layout */
+    .table-responsive {
+        border: 0 !important;
+    }
+
+    /* Buttons Mobile Touch Targets */
+    .btn {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Toast Notification Mobile Positioning */
+    #gb-toast-container {
+        bottom: 16px !important;
+        right: 14px !important;
+        left: 14px !important;
+        max-width: none !important;
+    }
+}
+
+/* --- Smartphone Portrait (max-width: 576px) --- */
+@media (max-width: 576px) {
+    /* 2 Items Per Row Compact Product Grid */
+    .fruite-item {
+        margin-bottom: 12px !important;
+    }
+
+    .fruite-item .fruite-img {
+        height: 140px !important;
+    }
+
+    .fruite-item h4 {
+        font-size: 1rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .fruite-item p {
+        font-size: 0.82rem !important;
+        line-height: 1.3 !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .fruite-item .p-4 {
+        padding: 12px !important;
+    }
+
+    /* Header Navigation Branding */
+    .navbar-brand h2 {
+        font-size: 1.35rem !important;
+    }
+
+    /* Auth Buttons Compact */
+    #landing-auth-btns button, #header-auth-btns button {
+        padding: 6px 14px !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Checkout Form Padding */
+    .checkout-step-card {
+        padding: 16px !important;
+    }
+
+    /* Order Card Header Stack */
+    .order-card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px;
+    }
+}
