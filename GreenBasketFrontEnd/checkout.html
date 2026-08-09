@@ -569,7 +569,7 @@
             }
 
             // Checkout Form Submission Handler
-            $('#gb-checkout-form').on('submit', function (e) {
+            $('#gb-checkout-form').on('submit', async function (e) {
                 e.preventDefault();
 
                 const checkoutDetails = {
@@ -594,7 +594,7 @@
                     });
                 }
 
-                const newOrder = window.AppState.placeOrder(checkoutDetails);
+                const newOrder = await window.AppState.placeOrderAsync(checkoutDetails);
                 if (newOrder) {
                     window.GB.showToast(`Order <strong>#${newOrder.id}</strong> placed successfully! Delivery address saved to your account.`, 'success');
                     setTimeout(() => {

@@ -734,6 +734,42 @@
             this.clearCart();
             return newOrder;
         },
+        async placeOrderAsync(checkoutDetails) {
+            const localOrder = this.placeOrder(checkoutDetails);
+            const authUser = this.getAuthUser();
+            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+
+            if (token && authUser && localOrder) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+                    const dto = {
+                        userId: authUser.id || authUser.email,
+                        items: (localOrder.items || []).map(item => ({
+                            productId: parseInt(item.productId, 10) || 1,
+                            quantity: item.qty
+                        })),
+                        deliveryAddress: checkoutDetails.address || '',
+                        deliverySlotId: 1
+                    };
+
+                    await fetch(`${API_BASE_URL}/Order/create`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(dto),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (err) {
+                    // Fallback to local storage order
+                }
+            }
+            return localOrder;
+        },
         updateOrderStatus(orderId, newStatus) {
             const orders = this.getOrders();
             const order = orders.find(o => o.id === orderId);
