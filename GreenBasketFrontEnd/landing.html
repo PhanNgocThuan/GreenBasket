@@ -314,6 +314,7 @@
         <!-- JavaScript Libraries -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
         <!-- App State Engine & Script -->
         <script src="js/app-state.js"></script>
@@ -322,22 +323,42 @@
         <!-- Landing Page Script -->
         <script>
             $(document).ready(function () {
-                // Check if already logged in -> allow direct access
-                if (window.AppState && window.AppState.isLoggedIn()) {
-                    console.log('User already logged in:', window.AppState.getAuthUser());
+                // Auto-detect logged-in user and update CTA buttons
+                function updateLandingAuthUI() {
+                    if (window.AppState && window.AppState.isLoggedIn()) {
+                        const user = window.AppState.getAuthUser();
+                        const dest = (user && user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        
+                        $('#landing-auth-btns').html(`
+                            <a href="${dest}" class="btn rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none"
+                               style="background-color: #FBFA86; color: #2B2118; border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118; font-size: 0.95rem;">
+                                <i class="fas fa-shopping-basket me-2 text-success"></i>Go to Store (${user.name || 'Account'})
+                            </a>
+                        `);
+
+                        $('.btn-open-auth-modal').replaceWith(`
+                            <a href="${dest}" class="btn rounded-pill px-5 py-3 fw-bold fs-5 text-dark text-decoration-none"
+                               style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 4px 4px 0px #2B2118; display: inline-block;">
+                                Enter Store Front <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        `);
+                    }
                 }
+                updateLandingAuthUI();
 
                 // Video Toggle Handler
                 const video = document.getElementById('heroBgVideo');
-                $('#btn-toggle-video').on('click', function () {
-                    if (video.paused) {
-                        video.play();
-                        $(this).html('<i class="fas fa-pause text-dark fs-5"></i>');
-                    } else {
-                        video.pause();
-                        $(this).html('<i class="fas fa-play text-dark fs-5"></i>');
-                    }
-                });
+                if (video) {
+                    $('#btn-toggle-video').on('click', function () {
+                        if (video.paused) {
+                            video.play();
+                            $(this).html('<i class="fas fa-pause text-dark fs-5"></i>');
+                        } else {
+                            video.pause();
+                            $(this).html('<i class="fas fa-play text-dark fs-5"></i>');
+                        }
+                    });
+                }
 
                 // Helper function to safely show modal
                 function showAuthModal(tab) {
@@ -362,13 +383,25 @@
                     }
                 }
 
-                // Open Auth Modal Handlers
-                $('#btn-open-login, .btn-open-auth-modal').on('click', function (e) {
+                // Open Auth Modal Handlers (Bypasses if already logged in)
+                $(document).on('click', '#btn-open-login, .btn-open-auth-modal', function (e) {
+                    if (window.AppState && window.AppState.isLoggedIn()) {
+                        e.preventDefault();
+                        const user = window.AppState.getAuthUser();
+                        window.location.href = (user && user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        return;
+                    }
                     e.preventDefault();
                     showAuthModal('login');
                 });
 
-                $('#btn-open-register').on('click', function (e) {
+                $(document).on('click', '#btn-open-register', function (e) {
+                    if (window.AppState && window.AppState.isLoggedIn()) {
+                        e.preventDefault();
+                        const user = window.AppState.getAuthUser();
+                        window.location.href = (user && user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        return;
+                    }
                     e.preventDefault();
                     showAuthModal('register');
                 });
