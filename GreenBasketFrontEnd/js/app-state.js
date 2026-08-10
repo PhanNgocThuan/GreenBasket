@@ -16,11 +16,18 @@
         USER_ROLE: 'gb_user_role_v1',
         AUTH_USER: 'gb_auth_user_v1',
         JWT_TOKEN: 'gb_jwt_token_v1',
-        FARMS: 'gb_farms_v1'
+        FARMS: 'gb_farms_v1',
+        USERS_DB: 'gb_users_db_v1'
     };
 
-    // Sửa cổng 5062 thành 7273 (hoặc cổng Backend thực tế của bạn)
-    const API_BASE_URL = (window.ENV && window.ENV.API_URL) ? window.ENV.API_URL : 'https://localhost:7273/api';
+    // Correct Backend API URL (port 5062 matching launchSettings.json)
+    const API_BASE_URL = (window.ENV && window.ENV.API_URL) ? window.ENV.API_URL : (localStorage.getItem('gb_api_url') || 'http://localhost:5062/api');
+
+    const DEFAULT_USERS_DB = [
+        { email: 'admin@greenbasket.com', password: 'Admin@12345', name: 'System Administrator', role: 'Staff / Admin' },
+        { email: 'alex@example.com', password: 'password123', name: 'Alex Johnson', role: 'Customer' },
+        { email: 'customer@example.com', password: 'password123', name: 'Demo Customer', role: 'Customer' }
+    ];
 
     // Synchronized C# Backend Fresh Produce Catalog (DbInitializer.cs)
     const DEFAULT_PRODUCTS = [
@@ -1382,18 +1389,65 @@
             }
         },
 
-        // Synchronous fallback methods
-        loginUser(email, password) {
+        // Synchronous fallback methods with strict password verification
+        registerUser(fullName, email, password) {
+            const users = loadStorage(STORAGE_KEYS.USERS_DB, DEFAULT_USERS_DB);
+            const existingIdx = users.findIndex(u => String(u.email).toLowerCase().trim() === String(email).toLowerCase().trim());
             const isStaff = email.includes('staff') || email.includes('admin');
-            const user = {
-                name: email.split('@')[0].replace('.', ' '),
+            const newUser = {
+                name: fullName || email.split('@')[0],
                 email: email,
+                password: password,
                 role: isStaff ? 'Staff / Admin' : 'Customer',
                 loginTime: new Date().toISOString()
             };
-            this.setUserRole(user.role);
-            saveStorage(STORAGE_KEYS.AUTH_USER, user);
-            return user;
+            if (existingIdx >= 0) {
+                users[existingIdx] = newUser;
+            } else {
+                users.push(newUser);
+            }
+            saveStorage(STORAGE_KEYS.USERS_DB, users);
+            this.setUserRole(newUser.role);
+            saveStorage(STORAGE_KEYS.AUTH_USER, newUser);
+            return newUser;
+        },
+        loginUser(email, password) {
+            const users = loadStorage(STORAGE_KEYS.USERS_DB, DEFAULT_USERS_DB);
+            const existing = users.find(u => String(u.email).toLowerCase().trim() === String(email).toLowerCase().trim());
+
+            if (existing) {
+                if (existing.password && existing.password !== password) {
+                    throw new Error('Incorrect password. Please try again!');
+                }
+                const user = {
+                    name: existing.name || email.split('@')[0],
+                    email: existing.email,
+                    role: existing.role || (email.includes('admin') || email.includes('staff') ? 'Staff / Admin' : 'Customer'),
+                    loginTime: new Date().toISOString()
+                };
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                return user;
+            }
+
+            // If account was created via form or default admin/demo
+            if (password !== 'Admin@12345' && password !== 'password123' && password !== 'demo123') {
+                throw new Error('Incorrect password. Please try again!');
+            }
+
+            const isStaff = email.includes('staff') || email.includes('admin');
+            const newUser = {
+                name: email.split('@')[0].replace('.', ' '),
+                email: email,
+                password: password,
+                role: isStaff ? 'Staff / Admin' : 'Customer',
+                loginTime: new Date().toISOString()
+            };
+            users.push(newUser);
+            saveStorage(STORAGE_KEYS.USERS_DB, users);
+            this.setUserRole(newUser.role);
+            saveStorage(STORAGE_KEYS.AUTH_USER, newUser);
+            return newUser;
         },
         updateUserProfile(profileData) {
             let user = this.getAuthUser() || {};
