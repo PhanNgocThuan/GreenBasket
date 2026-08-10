@@ -8,6 +8,7 @@ namespace GreenBasket.Application.Interfaces
     {
         Task<OrderDto> CreateOrderAsync(CreateOrderDto dto);
         Task<List<OrderDto>> GetUserOrdersAsync(string userId);
+        Task<List<OrderDto>> GetAllOrdersAsync();
         Task<decimal> CalculateTotalCostAsync(CalculateCostDto dto);
         Task<bool> CancelOrderAsync(int orderId, string userId);
         Task<bool> UpdateOrderStatusAsync(int orderId, string status);

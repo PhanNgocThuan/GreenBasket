@@ -392,13 +392,13 @@
             }
 
             // Quick Reorder Event Handler (FR-1.3)
-            $(document).on('click', '.btn-reorder', function () {
+            $(document).on('click', '.btn-reorder', async function () {
                 const id = $(this).data('id');
                 const order = window.AppState.getOrderById(id);
                 if (order) {
-                    order.items.forEach(item => {
-                        window.AppState.addToCart(item.productId, item.qty);
-                    });
+                    for (const item of order.items) {
+                        await window.AppState.addToCartAsync(item.productId, item.qty);
+                    }
                     window.GB.showToast(`Reordered ${order.items.length} items from #${order.id}! Added to cart.`, 'success');
                     setTimeout(() => {
                         window.location.href = 'cart.html';

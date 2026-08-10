@@ -52,12 +52,21 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. Cấu hình CORS cho Front-End (Cho phép file:// và mọi Origin local)
+// 4. Configure CORS for Frontend (allow local dev servers and GitHub Pages)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+        policy.WithOrigins(
+            "http://127.0.0.1:5500",
+            "http://localhost:5500",
+            "http://127.0.0.1:8085",
+            "http://localhost:8085",
+            "http://127.0.0.1:3000",
+            "http://localhost:3000",
+            "https://phanngocthuan.github.io",
+            "null" // Allow file:// requests from browser
+        )
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -156,7 +165,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Đã xảy ra lỗi khi khởi tạo dữ liệu Seeding: {ex.Message}");
+        Console.WriteLine($"An error occurred during data seeding: {ex.Message}");
     }
 }
 
@@ -167,12 +176,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// UseCors must come before UseAuthentication/UseAuthorization
+app.UseCors("AllowFrontend");
+
 app.UseHttpsRedirection();
 
-// Phục vụ file tĩnh (ảnh sản phẩm upload qua UploadsController) từ wwwroot/uploads/...
+// Serve static files (product images uploaded via UploadsController) from wwwroot/uploads/
 app.UseStaticFiles();
-
-app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

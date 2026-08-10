@@ -23,337 +23,13 @@
     // Correct Backend API URL (port 5062 matching launchSettings.json)
     const API_BASE_URL = (window.ENV && window.ENV.API_URL) ? window.ENV.API_URL : (localStorage.getItem('gb_api_url') || 'http://localhost:5062/api');
 
-    const DEFAULT_USERS_DB = [
-        { email: 'admin@greenbasket.com', password: 'Admin@12345', name: 'System Administrator', role: 'Staff / Admin' },
-        { email: 'alex@example.com', password: 'password123', name: 'Alex Johnson', role: 'Customer' },
-        { email: 'customer@example.com', password: 'password123', name: 'Demo Customer', role: 'Customer' }
-    ];
+    // 🔴 DEFAULT_USERS_DB has been completely removed to ensure all auth is via API.
 
-    // Synchronized C# Backend Fresh Produce Catalog (DbInitializer.cs)
-    const DEFAULT_PRODUCTS = [
-        {
-            id: '1',
-            name: 'Crystal Lettuce',
-            category: 'leafy-greens',
-            categoryName: 'Leafy Greens',
-            price: 1.50,
-            unit: 'kg',
-            image: 'img/lettuce.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-05',
-            stockStatus: 'In Stock',
-            stockQuantity: 120,
-            rating: 4.9,
-            organic: true,
-            description: 'Crisp hydroponic lettuce freshly harvested from Dalat greenhouses.'
-        },
-        {
-            id: '2',
-            name: 'Green Broccoli',
-            category: 'leafy-greens',
-            categoryName: 'Leafy Greens',
-            price: 1.70,
-            unit: 'kg',
-            image: 'img/broccoli.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-06',
-            stockStatus: 'In Stock',
-            stockQuantity: 85,
-            rating: 4.8,
-            organic: true,
-            description: 'Freshly cut organic broccoli crowns, harvested same-day.'
-        },
-        {
-            id: '3',
-            name: 'Celery Stalks',
-            category: 'leafy-greens',
-            categoryName: 'Leafy Greens',
-            price: 1.20,
-            unit: 'kg',
-            image: 'img/celery.jpg',
-            farmOrigin: 'Sunrise Organic Farm, Hanoi',
-            harvestDate: '2026-08-04',
-            stockStatus: 'In Stock',
-            stockQuantity: 60,
-            rating: 4.7,
-            organic: true,
-            description: 'Thick, crisp organic celery stalks, ideal for juicing and cooking.'
-        },
-        {
-            id: '4',
-            name: 'Purple Cabbage',
-            category: 'leafy-greens',
-            categoryName: 'Leafy Greens',
-            price: 1.30,
-            unit: 'kg',
-            image: 'img/purple-cabbage.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-05',
-            stockStatus: 'In Stock',
-            stockQuantity: 90,
-            rating: 4.8,
-            organic: true,
-            description: 'Crunchy purple cabbage heads packed with vitamins and antioxidants.'
-        },
-        {
-            id: '5',
-            name: 'Straw Mushroom',
-            category: 'leafy-greens',
-            categoryName: 'Leafy Greens',
-            price: 3.80,
-            unit: 'kg',
-            image: 'img/mushroom.jpg',
-            farmOrigin: 'Mekong Orchard, Can Tho',
-            harvestDate: '2026-08-06',
-            stockStatus: 'In Stock',
-            stockQuantity: 45,
-            rating: 4.9,
-            organic: true,
-            description: 'Freshly picked organic straw mushrooms from humid Delta farm houses.'
-        },
-        {
-            id: '6',
-            name: 'Baby Carrot',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 1.10,
-            unit: 'kg',
-            image: 'img/carrot.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-03',
-            stockStatus: 'In Stock',
-            stockQuantity: 110,
-            rating: 4.7,
-            organic: false,
-            description: 'Naturally sweet and crunchy Dalat baby carrots.'
-        },
-        {
-            id: '7',
-            name: 'Golden Potato',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 0.90,
-            unit: 'kg',
-            image: 'img/potato.jpg',
-            farmOrigin: 'Sunrise Organic Farm, Hanoi',
-            harvestDate: '2026-08-02',
-            stockStatus: 'In Stock',
-            stockQuantity: 150,
-            rating: 4.6,
-            organic: false,
-            description: 'Soft golden potatoes perfect for stews, soups, and roasting.'
-        },
-        {
-            id: '8',
-            name: 'Honey Sweet Potato',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 1.50,
-            unit: 'kg',
-            image: 'img/sweet-potato.jpg',
-            farmOrigin: 'Mekong Orchard, Can Tho',
-            harvestDate: '2026-08-04',
-            stockStatus: 'In Stock',
-            stockQuantity: 70,
-            rating: 4.9,
-            organic: true,
-            description: 'Rich, honey-infused sweet potatoes grown in fertile Mekong soil.'
-        },
-        {
-            id: '9',
-            name: 'Cherry Tomato',
-            category: 'root-veggies',
-            categoryName: 'Root Vegetables',
-            price: 2.00,
-            unit: 'kg',
-            image: 'img/cherry-tomato.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-05',
-            stockStatus: 'In Stock',
-            stockQuantity: 65,
-            rating: 4.8,
-            organic: true,
-            description: 'Juicy, bite-sized cherry tomatoes with vibrant red color.'
-        },
-        {
-            id: '10',
-            name: 'Ri6 Durian',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
-            price: 6.50,
-            unit: 'kg',
-            image: 'img/durian.jpg',
-            farmOrigin: 'Mekong Orchard, Can Tho',
-            harvestDate: '2026-08-06',
-            stockStatus: 'In Stock',
-            stockQuantity: 40,
-            rating: 5.0,
-            organic: false,
-            description: 'Creamy Ri6 durian with small seeds and rich golden flesh.'
-        },
-        {
-            id: '11',
-            name: '034 Avocado',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
-            price: 2.80,
-            unit: 'kg',
-            image: 'img/avocado.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-05',
-            stockStatus: 'In Stock',
-            stockQuantity: 55,
-            rating: 4.9,
-            organic: true,
-            description: 'Rich and buttery 034 Dalat avocado with thin skin.'
-        },
-        {
-            id: '12',
-            name: 'Laba Banana',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
-            price: 1.10,
-            unit: 'bunch',
-            image: 'img/banana.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-04',
-            stockStatus: 'In Stock',
-            stockQuantity: 80,
-            rating: 4.8,
-            organic: true,
-            description: 'Sweet, fragrant Dalat Laba bananas harvested at ideal ripeness.'
-        },
-        {
-            id: '13',
-            name: 'Royal Cantaloupe',
-            category: 'tropical-fruit',
-            categoryName: 'Tropical Fruit',
-            price: 3.50,
-            unit: 'each',
-            image: 'img/cantaloupe.jpg',
-            farmOrigin: 'Sunrise Organic Farm, Hanoi',
-            harvestDate: '2026-08-03',
-            stockStatus: 'In Stock',
-            stockQuantity: 30,
-            rating: 4.7,
-            organic: true,
-            description: 'Orange-fleshed cantaloupe melon with rich natural sweetness.'
-        },
-        {
-            id: '14',
-            name: 'New Zealand Strawberry',
-            category: 'seasonal-fruit',
-            categoryName: 'Seasonal Fruit',
-            price: 10.50,
-            unit: 'kg',
-            image: 'img/strawberry.jpg',
-            farmOrigin: 'Green Valley Farm, Dalat',
-            harvestDate: '2026-08-06',
-            stockStatus: 'In Stock',
-            stockQuantity: 25,
-            rating: 5.0,
-            organic: true,
-            description: 'Large, mildly sweet New Zealand variety strawberries grown in Dalat.'
-        },
-        {
-            id: '15',
-            name: 'Vinh Long Orange',
-            category: 'seasonal-fruit',
-            categoryName: 'Seasonal Fruit',
-            price: 1.50,
-            unit: 'kg',
-            image: 'img/orange.jpg',
-            farmOrigin: 'Mekong Orchard, Can Tho',
-            harvestDate: '2026-08-05',
-            stockStatus: 'In Stock',
-            stockQuantity: 95,
-            rating: 4.8,
-            organic: false,
-            description: 'Juicy Vinh Long king oranges, perfect for fresh morning juice.'
-        },
-        {
-            id: '16',
-            name: 'Ha Giang Rock Apple',
-            category: 'seasonal-fruit',
-            categoryName: 'Seasonal Fruit',
-            price: 1.90,
-            unit: 'kg',
-            image: 'img/apple.jpg',
-            farmOrigin: 'Sunrise Organic Farm, Hanoi',
-            harvestDate: '2026-08-04',
-            stockStatus: 'In Stock',
-            stockQuantity: 75,
-            rating: 4.9,
-            organic: true,
-            description: 'Crisp, sweet highland rock apples with deep red skin.'
-        }
-    ];
+    // 🔴 DEFAULT_PRODUCTS has been completely removed to ensure data is strictly fetched from the DB.
 
     // Seed Orders (FR-5.1, FR-5.3)
-    const DEFAULT_ORDERS = [
-        {
-            id: 'ORD-9821',
-            date: '2026-08-03 09:15',
-            customerName: 'Alex Johnson',
-            email: 'alex@example.com',
-            phone: '0901234567',
-            deliveryAddress: '123 High Street, District 1, HCMC',
-            deliverySlot: 'Today (Aug 03): 14:00 - 16:00',
-            paymentMethod: 'Credit Card / Online',
-            items: [
-                { id: 'gb-001', name: 'Organic Dalat Spinach', price: 3.50, qty: 2, unit: 'kg', image: 'img/fruite-item-5.jpg' },
-                { id: 'gb-005', name: 'Highland Green Grapes', price: 6.99, qty: 1, unit: 'kg', image: 'img/fruite-item-5.jpg' }
-            ],
-            subtotal: 13.99,
-            deliveryFee: 2.00,
-            total: 15.99,
-            status: 'Processing',
-            qualityReport: null
-        },
-        {
-            id: 'ORD-9784',
-            date: '2026-08-02 15:30',
-            customerName: 'Sarah Miller',
-            email: 'sarah@example.com',
-            phone: '0987654321',
-            deliveryAddress: '45 Green Park Avenue, District 2, HCMC',
-            deliverySlot: 'Aug 02: 16:00 - 18:00',
-            paymentMethod: 'Cash on Delivery (COD)',
-            items: [
-                { id: 'gb-003', name: 'Organic Sweet Carrots', price: 4.20, qty: 1, unit: 'kg', image: 'img/fruite-item-4.jpg' },
-                { id: 'gb-007', name: 'Mekong Golden Mango', price: 4.50, qty: 2, unit: 'kg', image: 'img/fruite-item-1.jpg' }
-            ],
-            subtotal: 13.20,
-            deliveryFee: 2.00,
-            total: 15.20,
-            status: 'Out for Delivery',
-            qualityReport: null
-        },
-        {
-            id: 'ORD-9650',
-            date: '2026-08-01 11:00',
-            customerName: 'Alex Johnson',
-            email: 'alex@example.com',
-            phone: '0901234567',
-            deliveryAddress: '123 High Street, District 1, HCMC',
-            deliverySlot: 'Aug 01: 14:00 - 16:00',
-            paymentMethod: 'MoMo E-Wallet',
-            items: [
-                { id: 'gb-006', name: 'Fresh Red Raspberries', price: 8.50, qty: 1, unit: '500g', image: 'img/fruite-item-2.jpg' }
-            ],
-            subtotal: 8.50,
-            deliveryFee: 2.00,
-            total: 10.50,
-            status: 'Delivered',
-            qualityReport: {
-                ticketId: 'TKT-102',
-                issueType: 'Damaged during transit',
-                comments: 'Two raspberries were bruised upon arrival.',
-                date: '2026-08-01 16:45',
-                status: 'Refund Approved'
-            }
-        }
-    ];
+    const DEFAULT_ORDERS = [];
+
 
     const DEFAULT_ADDRESSES = [
         {
@@ -400,24 +76,8 @@
 
         // --- Catalog & Stock (FR-2.1 to FR-2.4, FR-6.1, FR-6.2) ---
         getProducts() {
-            const products = loadStorage(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
-            let modified = false;
-            const seedMap = {};
-            DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
-
-            products.forEach(p => {
-                const numPrice = parseFloat(p.price);
-                if (isNaN(numPrice) || numPrice <= 0) {
-                    const seed = seedMap[String(p.id)] || seedMap[p.name];
-                    p.price = (seed && seed.price > 0) ? seed.price : 1.50;
-                    modified = true;
-                }
-            });
-
-            if (modified) {
-                saveStorage(STORAGE_KEYS.PRODUCTS, products);
-            }
-            return products;
+            // Strictly fetch what is saved in local storage (populated by API)
+            return loadStorage(STORAGE_KEYS.PRODUCTS, []);
         },
         getProductById(id) {
             const products = this.getProducts();
@@ -435,11 +95,21 @@
             saveStorage(STORAGE_KEYS.PRODUCTS, products);
             return products;
         },
-        deleteProduct(id) {
-            let products = this.getProducts();
-            products = products.filter(p => String(p.id) !== String(id));
-            saveStorage(STORAGE_KEYS.PRODUCTS, products);
-            return products;
+        async deleteProductAsync(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) throw new Error('Failed to delete product from server');
+                // Re-fetch products from server to sync the change
+                if (this.fetchProductsFromBackend) {
+                    await this.fetchProductsFromBackend();
+                }
+                return true;
+            } catch (error) {
+                console.error("Error deleting product:", error);
+                return false;
+            }
         },
         async fetchProductsFromBackend() {
             const controller = new AbortController();
@@ -795,109 +465,123 @@
         // --- Shopping Cart (FR-3.1) ---
         getCartKey() {
             const authUser = this.getAuthUser();
-            if (authUser && (authUser.email || authUser.id)) {
-                const identifier = String(authUser.email || authUser.id).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+            if (authUser && (authUser.id || authUser.email)) {
+                const identifier = String(authUser.id || authUser.email).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
                 return `gb_cart_user_${identifier}`;
             }
             return 'gb_cart_guest';
         },
         getCart() {
-            const key = this.getCartKey();
-            let cart = loadStorage(key, null);
-
-            // Migration from legacy global cart for guest or first time user
-            if (cart === null) {
-                cart = loadStorage(STORAGE_KEYS.CART, []);
-                saveStorage(key, cart);
-            }
-
-            let modified = false;
-            const products = this.getProducts();
-            const seedMap = {};
-            DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
-
-            cart.forEach(item => {
-                let numPrice = parseFloat(item.price);
-                if (isNaN(numPrice) || numPrice <= 0) {
-                    const prod = products.find(p => String(p.id) === String(item.productId));
-                    const seed = seedMap[String(item.productId)] || seedMap[item.name];
-                    if (prod && parseFloat(prod.price) > 0) {
-                        item.price = parseFloat(prod.price);
-                        modified = true;
-                    } else if (seed && seed.price > 0) {
-                        item.price = seed.price;
-                        modified = true;
-                    } else {
-                        item.price = 1.50;
-                        modified = true;
-                    }
-                }
-                if (!item.name || !item.image || !item.unit) {
-                    const prod = products.find(p => String(p.id) === String(item.productId));
-                    const seed = seedMap[String(item.productId)];
-                    const ref = prod || seed;
-                    if (ref) {
-                        if (!item.name) item.name = ref.name;
-                        if (!item.image) item.image = ref.image;
-                        if (!item.unit) item.unit = ref.unit;
-                        modified = true;
-                    }
-                }
-            });
-
-            if (modified) {
-                saveStorage(key, cart);
-            }
-            return cart;
+            // Read-only local cache of the cart for synchronous UI rendering
+            return loadStorage(this.getCartKey(), []);
         },
-        addToCart(productId, qty = 1) {
-            const product = this.getProductById(productId);
-            if (!product) return false;
-            
-            let cart = this.getCart();
-            const existingItem = cart.find(item => String(item.productId) === String(productId));
-            const numQty = parseInt(qty, 10) || 1;
-            const numPrice = parseFloat(product.price) || 0;
 
-            if (existingItem) {
-                existingItem.qty = (parseInt(existingItem.qty, 10) || 0) + numQty;
-                existingItem.price = numPrice;
-                existingItem.name = product.name;
-                existingItem.image = product.image;
-                existingItem.unit = product.unit;
-            } else {
-                cart.push({
-                    productId: product.id,
-                    name: product.name,
-                    price: numPrice,
-                    unit: product.unit || 'kg',
-                    image: product.image || 'img/vegetable-item-2.jpg',
-                    farmOrigin: product.farmOrigin || 'Certified Farm',
-                    qty: numQty
+        async syncCartFromBackendAsync() {
+            const user = this.getAuthUser();
+            if (!user) {
+                saveStorage(this.getCartKey(), []);
+                return [];
+            }
+            try {
+                const identifier = user.id || user.email;
+                const response = await fetch(`${API_BASE_URL}/Cart/${encodeURIComponent(identifier)}`);
+                if (!response.ok) throw new Error('Failed to fetch cart');
+                const cartDto = await response.json();
+                
+                // Map backend DTO to frontend format
+                const products = this.getProducts();
+                const mappedItems = (cartDto.items || []).map(item => {
+                    const product = products.find(p => String(p.id) === String(item.productId)) || {};
+                    return {
+                        cartItemId: item.id,
+                        productId: String(item.productId),
+                        name: item.productName || product.name || 'Produce',
+                        qty: item.quantity,
+                        price: item.unitPrice,
+                        image: product.image || 'img/vegetable-item-1.jpg',
+                        unit: product.unit || 'kg',
+                        farmOrigin: product.farmOrigin || 'Local Farm'
+                    };
                 });
-            }
-            saveStorage(this.getCartKey(), cart);
-            return true;
-        },
-        updateCartQty(productId, qty) {
-            let cart = this.getCart();
-            const item = cart.find(i => String(i.productId) === String(productId));
-            if (item) {
-                item.qty = Math.max(1, parseInt(qty, 10) || 1);
-                saveStorage(this.getCartKey(), cart);
+                
+                saveStorage(this.getCartKey(), mappedItems);
+                return mappedItems;
+            } catch (err) {
+                console.error("Cart sync error:", err);
+                return this.getCart();
             }
         },
-        removeFromCart(productId) {
-            let cart = this.getCart();
-            cart = cart.filter(i => String(i.productId) !== String(productId));
-            saveStorage(this.getCartKey(), cart);
+        async addToCartAsync(productId, qty = 1) {
+            const user = this.getAuthUser();
+            if (!user) return false;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/Cart/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appUserId: user.id || user.email,
+                        productId: parseInt(productId, 10),
+                        quantity: parseFloat(qty)
+                    })
+                });
+                if (!response.ok) throw new Error('Failed to add to cart');
+                await this.syncCartFromBackendAsync();
+                return true;
+            } catch (err) {
+                console.error("Add to cart error:", err);
+                return false;
+            }
+        },
+        async updateCartQtyAsync(productId, newQty) {
+            const user = this.getAuthUser();
+            if (!user) return false;
+            
+            // Find the cartItemId from our mapped local cart
+            const item = this.getCart().find(i => String(i.productId) === String(productId));
+            if (!item || !item.cartItemId) return false;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Cart/update-item/${item.cartItemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: parseFloat(newQty) })
+                });
+                if (!response.ok) throw new Error('Failed to update cart qty');
+                await this.syncCartFromBackendAsync();
+                return true;
+            } catch (err) {
+                console.error("Update cart error:", err);
+                return false;
+            }
+        },
+        async removeFromCartAsync(productId) {
+            const user = this.getAuthUser();
+            if (!user) return false;
+            
+            const item = this.getCart().find(i => String(i.productId) === String(productId));
+            if (!item || !item.cartItemId) return false;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Cart/remove-item/${item.cartItemId}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error('Failed to remove cart item');
+                await this.syncCartFromBackendAsync();
+                return true;
+            } catch (err) {
+                console.error("Remove cart error:", err);
+                return false;
+            }
         },
         clearCart() {
+            // Called mostly after checkout. Since backend Order creation doesn't clear the cart API automatically?
+            // Actually, we'll just clear the local cache. The backend cart will be abandoned or should be cleared explicitly.
             saveStorage(this.getCartKey(), []);
         },
         getCartCount() {
             const cart = this.getCart();
-            return cart.reduce((sum, item) => sum + (parseInt(item.qty, 10) || 0), 0);
+            return cart.reduce((sum, item) => sum + (item.qty || 0), 0);
         },
         getCartSubtotal() {
             const cart = this.getCart();
@@ -953,6 +637,63 @@
             }
             return orders;
         },
+        // Admin-only: collect ALL orders from ALL users stored in localStorage
+        getAllOrdersForAdmin() {
+            // We are strictly using the API now. Do not return legacy localStorage fake orders.
+            return [];
+        },
+        async getAllOrdersForAdminAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return [];
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await fetch(`${API_BASE_URL}/Order/all?_t=${Date.now()}`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Cache-Control': 'no-cache'
+                    },
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.isSuccess && result.data) {
+                        const apiOrders = result.data.map(o => ({
+                            id: `ORD-${o.id}`,
+                            rawId: o.id,
+                            date: o.createdAt || new Date().toISOString(),
+                            customerName: o.appUserId,
+                            email: o.appUserId,
+                            deliveryAddress: 'N/A (API)',
+                            paymentMethod: 'N/A (API)',
+                            items: (o.items || []).map(i => ({
+                                id: i.productId,
+                                productId: i.productId,
+                                name: `Product ID: ${i.productId}`,
+                                price: i.unitPrice,
+                                qty: i.quantity,
+                                unit: 'item'
+                            })),
+                            subtotal: o.totalCost - o.discountAmount,
+                            deliveryFee: 0,
+                            total: o.totalCost,
+                            status: o.status,
+                            qualityReport: null
+                        }));
+                        apiOrders.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                        return apiOrders;
+                    }
+                }
+            } catch (err) {
+                console.error("API failed to get all orders.", err);
+            }
+            return [];
+        },
         async getOrdersAsync() {
             const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             const authUser = this.getAuthUser();
@@ -963,11 +704,13 @@
 
             try {
                 const userId = authUser.id || authUser.email;
-                const response = await fetch(`${API_BASE_URL}/Order/my-orders?userId=${encodeURIComponent(userId)}`, {
+                const response = await fetch(`${API_BASE_URL}/Order/my-orders?userId=${encodeURIComponent(userId)}&_t=${Date.now()}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
                     },
+                    cache: 'no-store',
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
@@ -1058,51 +801,48 @@
             return newOrder;
         },
         async placeOrderAsync(checkoutDetails) {
-            const localOrder = this.placeOrder(checkoutDetails);
             const authUser = this.getAuthUser();
             const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
 
-            if (token && authUser && localOrder) {
+            if (token && authUser) {
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 4000);
-
                     const dto = {
-                        userId: authUser.id || authUser.email,
-                        items: (localOrder.items || []).map(item => ({
-                            productId: parseInt(item.productId, 10) || 1,
-                            quantity: item.qty
-                        })),
-                        deliveryAddress: checkoutDetails.address || '',
-                        deliverySlotId: 1
+                        appUserId: authUser.id || authUser.email
                     };
 
-                    await fetch(`${API_BASE_URL}/Order/create`, {
+                    const response = await fetch(`${API_BASE_URL}/Order/create`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify(dto),
-                        signal: controller.signal
+                        body: JSON.stringify(dto)
                     });
-                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const apiOrder = await response.json();
+                        // Clear local cart since API cleared backend cart
+                        saveStorage(this.getCartKey(), []);
+                        return apiOrder;
+                    }
                 } catch (err) {
-                    // Fallback to local storage order
+                    console.error("Order creation failed", err);
                 }
             }
-            return localOrder;
+            return null;
         },
-        updateOrderStatus(orderId, newStatus) {
-            const orders = this.getOrders();
+        async updateOrderStatusAsync(orderId, newStatus) {
             const targetId = String(orderId).replace(/^ORD-/, '');
-            const order = orders.find(o => String(o.id).replace(/^ORD-/, '') === targetId);
-            if (order) {
-                order.status = newStatus;
-                saveStorage(this.getOrdersKey(), orders);
+            try {
+                const response = await fetch(`${API_BASE_URL}/Order/update-status/${targetId}?status=${encodeURIComponent(newStatus)}`, {
+                    method: 'PUT'
+                });
+                if (!response.ok) throw new Error('Failed to update order status');
                 return true;
+            } catch (error) {
+                console.error("Error updating order status:", error);
+                return false;
             }
-            return false;
         },
         cancelOrder(orderId) {
             const orders = this.getOrders();
@@ -1177,7 +917,10 @@
 
         // --- Analytics Helper (FR-6.4) ---
         getAnalytics() {
-            const orders = this.getOrders();
+            // Use all orders across all users for admin analytics
+            const orders = this.getAllOrdersForAdmin
+                ? this.getAllOrdersForAdmin()
+                : this.getOrders();
             const products = this.getProducts();
 
             const completedOrders = orders.filter(o => o.status === 'Delivered');
@@ -1188,7 +931,26 @@
                 totalRevenue: totalRevenue.toFixed(2),
                 totalOrders: totalOrders,
                 deliveredCount: completedOrders.length,
-                pendingCount: orders.filter(o => o.status === 'Processing').length,
+                pendingCount: orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length,
+                activeProducts: products.length,
+                lowStockCount: products.filter(p => p.stockStatus === 'Low Stock' || p.stockQuantity < 10).length
+            };
+        },
+        async getAnalyticsAsync() {
+            const orders = this.getAllOrdersForAdminAsync
+                ? await this.getAllOrdersForAdminAsync()
+                : this.getOrders();
+            const products = this.getProducts();
+
+            const completedOrders = orders.filter(o => o.status === 'Delivered');
+            const totalRevenue = completedOrders.reduce((sum, o) => sum + o.total, 0);
+            const totalOrders = orders.length;
+
+            return {
+                totalRevenue: totalRevenue.toFixed(2),
+                totalOrders: totalOrders,
+                deliveredCount: completedOrders.length,
+                pendingCount: orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length,
                 activeProducts: products.length,
                 lowStockCount: products.filter(p => p.stockStatus === 'Low Stock' || p.stockQuantity < 10).length
             };
@@ -1261,6 +1023,7 @@
                 const role = this.extractRoleFromToken(token);
 
                 const user = {
+                    id: data.userId || data.UserId || email,
                     name: data.fullName || data.FullName || email.split('@')[0],
                     email: data.email || data.Email || email,
                     role: role,
@@ -1270,14 +1033,14 @@
                 saveStorage(STORAGE_KEYS.JWT_TOKEN, token);
                 this.setUserRole(user.role);
                 saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                if (this.syncCartFromBackendAsync) {
+                    await this.syncCartFromBackendAsync();
+                }
                 return user;
             } catch (err) {
                 clearTimeout(timeoutId);
                 console.warn('API Login Notice:', err.message);
-                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch') || err.message.includes('aborted')) {
-                    console.info('Backend API server offline/unreachable. Falling back to local authentication...');
-                    return this.loginUser(email, password);
-                }
+                console.warn('API Login Error:', err.message);
                 throw err;
             }
         },
@@ -1366,6 +1129,7 @@
                 const role = token ? this.extractRoleFromToken(token) : 'Customer';
 
                 const user = {
+                    id: data.userId || data.UserId || email,
                     name: data.fullName || data.FullName || fullName,
                     email: data.email || data.Email || email,
                     role: role,
@@ -1377,77 +1141,25 @@
                 }
                 this.setUserRole(user.role);
                 saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                if (this.syncCartFromBackendAsync) {
+                    await this.syncCartFromBackendAsync();
+                }
                 return user;
             } catch (err) {
                 clearTimeout(timeoutId);
-                console.warn('API Register Notice:', err.message);
-                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch') || err.message.includes('aborted')) {
-                    console.info('Backend API server offline/unreachable. Falling back to local registration...');
-                    return this.registerUser(fullName, email, password);
-                }
+                console.warn('API Register Error:', err.message);
                 throw err;
             }
         },
 
-        // Synchronous fallback methods with strict password verification
-        registerUser(fullName, email, password) {
-            const users = loadStorage(STORAGE_KEYS.USERS_DB, DEFAULT_USERS_DB);
-            const existingIdx = users.findIndex(u => String(u.email).toLowerCase().trim() === String(email).toLowerCase().trim());
-            const isStaff = email.includes('staff') || email.includes('admin');
-            const newUser = {
-                name: fullName || email.split('@')[0],
-                email: email,
-                password: password,
-                role: isStaff ? 'Staff / Admin' : 'Customer',
-                loginTime: new Date().toISOString()
-            };
-            if (existingIdx >= 0) {
-                users[existingIdx] = newUser;
-            } else {
-                users.push(newUser);
-            }
-            saveStorage(STORAGE_KEYS.USERS_DB, users);
-            this.setUserRole(newUser.role);
-            saveStorage(STORAGE_KEYS.AUTH_USER, newUser);
-            return newUser;
+        // --- Legacy Authentication (FR-1.1, FR-1.2, FR-7.1) ---
+        registerUser(userData) {
+            console.error("Local registration is disabled. Use registerUserAsync.");
+            return false;
         },
         loginUser(email, password) {
-            const users = loadStorage(STORAGE_KEYS.USERS_DB, DEFAULT_USERS_DB);
-            const existing = users.find(u => String(u.email).toLowerCase().trim() === String(email).toLowerCase().trim());
-
-            if (existing) {
-                if (existing.password && existing.password !== password) {
-                    throw new Error('Incorrect password. Please try again!');
-                }
-                const user = {
-                    name: existing.name || email.split('@')[0],
-                    email: existing.email,
-                    role: existing.role || (email.includes('admin') || email.includes('staff') ? 'Staff / Admin' : 'Customer'),
-                    loginTime: new Date().toISOString()
-                };
-                this.setUserRole(user.role);
-                saveStorage(STORAGE_KEYS.AUTH_USER, user);
-                return user;
-            }
-
-            // If account was created via form or default admin/demo
-            if (password !== 'Admin@12345' && password !== 'password123' && password !== 'demo123') {
-                throw new Error('Incorrect password. Please try again!');
-            }
-
-            const isStaff = email.includes('staff') || email.includes('admin');
-            const newUser = {
-                name: email.split('@')[0].replace('.', ' '),
-                email: email,
-                password: password,
-                role: isStaff ? 'Staff / Admin' : 'Customer',
-                loginTime: new Date().toISOString()
-            };
-            users.push(newUser);
-            saveStorage(STORAGE_KEYS.USERS_DB, users);
-            this.setUserRole(newUser.role);
-            saveStorage(STORAGE_KEYS.AUTH_USER, newUser);
-            return newUser;
+            console.error("Local login is disabled. Use loginUserAsync.");
+            return { success: false, message: "Local login disabled." };
         },
         updateUserProfile(profileData) {
             let user = this.getAuthUser() || {};

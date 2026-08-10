@@ -386,7 +386,11 @@
             }
 
             // Event Handlers for Quantity Change and Remove
-            $(document).on('click', '.btn-change-qty', function () {
+            $(document).on('click', '.btn-change-qty', async function () {
+                if (!window.AppState.getAuthUser()) {
+                    window.GB.showToast("Please login to use the cart.", "warning");
+                    return;
+                }
                 const id = $(this).data('id');
                 const delta = parseInt($(this).data('delta'), 10);
                 const cart = window.AppState.getCart();
@@ -394,18 +398,22 @@
                 if (item) {
                     const newQty = item.qty + delta;
                     if (newQty > 0) {
-                        window.AppState.updateCartQty(id, newQty);
+                        await window.AppState.updateCartQtyAsync(id, newQty);
                     } else {
-                        window.AppState.removeFromCart(id);
+                        await window.AppState.removeFromCartAsync(id);
                     }
                     renderCartPage();
                     if (window.updateHeaderUI) window.updateHeaderUI();
                 }
             });
 
-            $(document).on('click', '.btn-remove-item', function () {
+            $(document).on('click', '.btn-remove-item', async function () {
+                if (!window.AppState.getAuthUser()) {
+                    window.GB.showToast("Please login to use the cart.", "warning");
+                    return;
+                }
                 const id = $(this).data('id');
-                window.AppState.removeFromCart(id);
+                await window.AppState.removeFromCartAsync(id);
                 window.GB.showToast('Item removed from cart', 'info');
                 renderCartPage();
             });

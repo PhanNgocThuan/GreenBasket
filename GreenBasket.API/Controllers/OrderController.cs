@@ -43,6 +43,13 @@ namespace GreenBasket.API.Controllers
             return Ok(new { isSuccess = true, data = orders });
         }
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(new { isSuccess = true, data = orders });
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
         {
@@ -53,7 +60,8 @@ namespace GreenBasket.API.Controllers
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return BadRequest(new { message = msg });
             }
         }
 

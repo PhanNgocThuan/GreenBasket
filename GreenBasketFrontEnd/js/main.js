@@ -440,8 +440,15 @@
         });
 
         // Global delegate for 'Add to Cart' buttons
-        $(document).on('click', '.btn-add-cart', function (e) {
+        $(document).on('click', '.btn-add-cart', async function (e) {
             e.preventDefault();
+            if (!window.AppState || !window.AppState.getAuthUser()) {
+                window.GB.showToast("Please login to use the cart.", "warning");
+                // Optional: redirect to login
+                // window.location.href = 'admin.html';
+                return;
+            }
+            
             const productId = $(this).data('product-id');
             const qty = parseInt($(this).data('qty') || 1, 10);
             if (productId !== undefined && productId !== null && window.AppState) {
@@ -450,10 +457,12 @@
                     window.GB.showToast(`Sorry, ${product.name} is currently out of stock!`, 'danger');
                     return;
                 }
-                const success = window.AppState.addToCart(productId, qty);
+                const success = await window.AppState.addToCartAsync(productId, qty);
                 if (success && product) {
                     window.GB.showToast(`Added <strong>${product.name}</strong> to your cart!`, 'success');
                     updateHeaderUI();
+                } else {
+                    window.GB.showToast('Failed to add item to cart.', 'danger');
                 }
             }
         });

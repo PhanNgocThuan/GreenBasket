@@ -82,7 +82,7 @@ namespace GreenBasket.Application.Services
                 DiscountAmount = discountAmount,
                 DiscountCodeId = discount?.Id,
                 DeliverySlotId = dto.DeliverySlotId,
-                Status = "Pending"
+                Status = "Processing"
             };
 
             foreach (var item in cart.CartItems)
@@ -129,6 +129,31 @@ namespace GreenBasket.Application.Services
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Where(o => o.AppUserId == userId)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            return orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                AppUserId = o.AppUserId,
+                TotalCost = o.TotalCost,
+                DiscountAmount = o.DiscountAmount,
+                Status = o.Status,
+                Items = o.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    ProductId = oi.ProductId,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList()
+            }).ToList();
+        }
+
+        public async Task<System.Collections.Generic.List<OrderDto>> GetAllOrdersAsync()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 

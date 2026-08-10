@@ -557,7 +557,14 @@
                 }
             });
 
-            // Initial Filter Run
+            // Listen for API products loaded
+            window.addEventListener('gb_state_change', function (e) {
+                if (e.detail && e.detail.key === 'gb_products_v5') {
+                    applyFiltersAndRender();
+                }
+            });
+
+            // Initial render (will be empty until API returns, then gb_state_change fires)
             applyFiltersAndRender();
         });
     </script>

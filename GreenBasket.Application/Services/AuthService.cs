@@ -49,6 +49,7 @@ namespace GreenBasket.Application.Services
             return new AuthResponseDTO
             {
                 Token = token,
+                UserId = user.Id,
                 Email = user.Email!,
                 FullName = user.FullName
             };
@@ -73,6 +74,7 @@ namespace GreenBasket.Application.Services
             return new AuthResponseDTO
             {
                 Token = token,
+                UserId = user.Id,
                 Email = user.Email!,
                 FullName = user.FullName
             };

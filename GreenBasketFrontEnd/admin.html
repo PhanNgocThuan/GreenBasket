@@ -370,19 +370,19 @@
                 <li class="nav-item">
                     <button class="nav-link active fw-bold fs-5 text-primary" id="orders-tab" data-bs-toggle="tab"
                         data-bs-target="#orders-pane">
-                        <i class="fas fa-dolly me-2"></i>Order Fulfillment Queue (FR-6.3)
+                        <i class="fas fa-dolly me-2"></i>Order Fulfillment Queue
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link fw-bold fs-5 text-primary" id="catalog-tab" data-bs-toggle="tab"
                         data-bs-target="#catalog-pane">
-                        <i class="fas fa-boxes me-2"></i>Produce Catalog & Sourcing (FR-6.1, FR-6.2)
+                        <i class="fas fa-boxes me-2"></i>Produce Catalog &amp; Sourcing
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link fw-bold fs-5 text-primary" id="farms-tab" data-bs-toggle="tab"
                         data-bs-target="#farms-pane">
-                        <i class="fas fa-tractor me-2"></i>Farm Origins &amp; Traceability (FR-6.2)
+                        <i class="fas fa-tractor me-2"></i>Farm Origins &amp; Traceability
                     </button>
                 </li>
                 <li class="nav-item">
@@ -701,16 +701,18 @@
                 }
             }
 
-            function renderAdminDashboard() {
-                // 1. Render Analytics (FR-6.4)
-                const analytics = window.AppState.getAnalytics();
+            async function renderAdminDashboard() {
+                // 1. Render Analytics
+                const analytics = window.AppState.getAnalyticsAsync ? await window.AppState.getAnalyticsAsync() : window.AppState.getAnalytics();
                 $('#statRevenue').text('$' + analytics.totalRevenue);
                 $('#statTotalOrders').text(analytics.totalOrders);
                 $('#statPendingOrders').text(analytics.pendingCount);
                 $('#statActiveProducts').text(analytics.activeProducts);
 
-                // 2. Render Order Fulfillment Queue (FR-6.3)
-                let orders = window.AppState.getOrders();
+                // 2. Render Order Fulfillment Queue — reads ALL orders from API
+                let orders = window.AppState.getAllOrdersForAdminAsync
+                    ? await window.AppState.getAllOrdersForAdminAsync()
+                    : window.AppState.getAllOrdersForAdmin();
                 
                 const filterIssues = $('#filterQualityIssues').is(':checked');
                 if (filterIssues) {
@@ -845,12 +847,15 @@
             }
 
             // Order Status Advancement Handler
-            $(document).on('click', '.btn-set-status', function () {
+            $(document).on('click', '.btn-set-status', async function () {
                 const id = $(this).data('id');
                 const status = $(this).data('status');
-                if (window.AppState.updateOrderStatus(id, status)) {
+                const success = await window.AppState.updateOrderStatusAsync(id, status);
+                if (success) {
                     window.GB.showToast(`Order #${id} status updated to <strong>${status}</strong>!`, 'success');
                     renderAdminDashboard();
+                } else {
+                    window.GB.showToast(`Failed to update order #${id}.`, 'danger');
                 }
             });
 
@@ -1007,10 +1012,16 @@
             // Delete Product Handler
             $(document).on('click', '.btn-delete-prod', function () {
                 const id = $(this).data('id');
-                window.GB.confirm('Delete this produce item from catalog?', function () {
-                    window.AppState.deleteProduct(id);
-                    window.GB.showToast('Product deleted.', 'info');
-                    renderAdminDashboard();
+                window.GB.confirm('Delete this produce item from catalog?', async function () {
+                    const success = await window.AppState.deleteProductAsync(id);
+                    if (success) {
+                        window.GB.showToast('Product deleted from server.', 'info');
+                        // No need to manually renderAdminDashboard since fetchProductsFromBackend will trigger gb_state_change
+                        // which currently does NOT auto-render admin. Wait, admin.html might not auto-render on gb_products.
+                        renderAdminDashboard();
+                    } else {
+                        window.GB.showToast('Error deleting product.', 'danger');
+                    }
                 }, 'Delete Item');
             });
 
