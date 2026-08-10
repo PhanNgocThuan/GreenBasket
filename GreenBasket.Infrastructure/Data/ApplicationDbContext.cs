@@ -52,6 +52,13 @@ namespace GreenBasket.Infrastructure.Data
                 .WithMany(f => f.Batches)
                 .HasForeignKey(b => b.FarmId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // --- Cart 1-1 User ---
+            builder.Entity<Cart>()
+                .HasOne(c => c.AppUser)
+                .WithOne(u => u.Cart)
+                .HasForeignKey<Cart>(c => c.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

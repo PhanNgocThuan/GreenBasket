@@ -2,11 +2,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GreenBasket.Application.DTOs;
 using GreenBasket.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace GreenBasket.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -16,27 +19,23 @@ namespace GreenBasket.API.Controllers
             _orderService = orderService;
         }
 
+        private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+
         [HttpPost("calculate-cost")]
         public async Task<IActionResult> CalculateCost([FromBody] CalculateCostDto dto)
         {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            dto.AppUserId = userId;
+
             var total = await _orderService.CalculateTotalCostAsync(dto);
             return Ok(new { TotalCost = total });
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserOrders(string userId)
-        {
-            var orders = await _orderService.GetUserOrdersAsync(userId);
-            return Ok(new { isSuccess = true, data = orders });
-        }
-
         [HttpGet("my-orders")]
-        public async Task<IActionResult> GetMyOrders([FromQuery] string userId)
+        public async Task<IActionResult> GetMyOrders()
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
-            }
+            var userId = GetUserId();
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var orders = await _orderService.GetUserOrdersAsync(userId);
@@ -44,6 +43,7 @@ namespace GreenBasket.API.Controllers
         }
 
         [HttpGet("all")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetAllOrders()
         {
             var orders = await _orderService.GetAllOrdersAsync();
@@ -55,6 +55,10 @@ namespace GreenBasket.API.Controllers
         {
             try
             {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                dto.AppUserId = userId;
+
                 var order = await _orderService.CreateOrderAsync(dto);
                 return Ok(order);
             }
@@ -66,14 +70,18 @@ namespace GreenBasket.API.Controllers
         }
 
         [HttpPost("cancel/{orderId}")]
-        public async Task<IActionResult> CancelOrder(int orderId, [FromQuery] string userId)
+        public async Task<IActionResult> CancelOrder(int orderId)
         {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
             var result = await _orderService.CancelOrderAsync(orderId, userId);
             if (!result) return BadRequest(new { message = "Order cannot be cancelled or not found." });
             return Ok(new { message = "Order cancelled successfully." });
         }
 
         [HttpPut("update-status/{orderId}")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> UpdateStatus(int orderId, [FromQuery] string status)
         {
             var result = await _orderService.UpdateOrderStatusAsync(orderId, status);

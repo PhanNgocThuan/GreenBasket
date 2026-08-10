@@ -919,8 +919,7 @@
 
                 await populateFarmDropdown();
 
-                const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
-                modal.show();
+                $('#editProductModal').modal('show');
             });
 
             // Edit Product Modal Opener
@@ -950,8 +949,7 @@
 
                     await populateFarmDropdown(product.farmOrigin);
 
-                    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
-                    modal.show();
+                    $('#editProductModal').modal('show');
                 }
             });
 
@@ -1005,7 +1003,7 @@
                     }
                 }
                 window.GB.showToast(`Produce item <strong>${productData.name}</strong> saved to catalog!`, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                $('#editProductModal').modal('hide');
                 renderAdminDashboard();
             });
 
@@ -1026,10 +1024,8 @@
             });
 
             // 4. Render Farm Origins Table (FR-6.2)
-            async function renderFarms() {
-                const farms = (window.AppState.loadFarmsAsync)
-                    ? await window.AppState.loadFarmsAsync()
-                    : [];
+            function renderFarms() {
+                const farms = window.AppState.getFarms();
                 const $farmsTbody = $('#gb-admin-farms-tbody');
                 $farmsTbody.empty();
 
@@ -1294,8 +1290,7 @@
                 $('#viewBatchesModalTitle').html(`<i class="fas fa-list-alt me-2"></i>Batch History - ${name}`);
                 $tbody.html('<tr><td colspan="5" class="text-center p-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading batches...</td></tr>');
 
-                const modal = new bootstrap.Modal(document.getElementById('viewBatchesModal'));
-                modal.show();
+                $('#viewBatchesModal').modal('show');
 
                 try {
                     const batches = await window.AppState.getProductBatchesAsync(id);
@@ -1331,11 +1326,21 @@
             // Initial render
             renderAdminDashboard();
             renderFarms();
+            
+            // Trigger background fetches
+            if (window.AppState.loadFarmsAsync) {
+                window.AppState.loadFarmsAsync();
+            }
 
             // State sync
-            window.addEventListener('gb_state_change', function () {
-                renderAdminDashboard();
-                renderFarms();
+            window.addEventListener('gb_state_change', function (e) {
+                if (e && e.detail && e.detail.key) {
+                    if (e.detail.key === 'gb_products') renderAdminDashboard();
+                    if (e.detail.key === 'gb_farms') renderFarms();
+                } else {
+                    renderAdminDashboard();
+                    renderFarms();
+                }
             });
         });
     </script>

@@ -33,6 +33,12 @@ namespace GreenBasket.Domain.Entities
         [MaxLength(50)]
         public string Status { get; set; } = "Pending"; // Pending, Processing, Shipped, Delivered, Cancelled, Refunded
 
+        [MaxLength(50)]
+        public string? PaymentMethod { get; set; } // e.g., "COD", "MoMo", "CreditCard"
+
+        [MaxLength(50)]
+        public string? PaymentStatus { get; set; } // e.g., "Pending", "Paid", "Failed"
+
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

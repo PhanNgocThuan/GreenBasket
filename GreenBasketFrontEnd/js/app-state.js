@@ -43,24 +43,29 @@
         }
     ];
 
-    // Helper functions for LocalStorage load & save
+    function getStorageArea(key) {
+        const sessionKeys = [STORAGE_KEYS.JWT_TOKEN, STORAGE_KEYS.AUTH_USER, STORAGE_KEYS.USER_ROLE];
+        return sessionKeys.includes(key) ? sessionStorage : localStorage;
+    }
+
+    // Helper functions for Storage load & save
     function loadStorage(key, fallback) {
         try {
-            const data = localStorage.getItem(key);
+            const data = getStorageArea(key).getItem(key);
             return data ? JSON.parse(data) : fallback;
         } catch (e) {
-            console.error('Error reading localStorage key: ' + key, e);
+            console.error('Error reading storage key: ' + key, e);
             return fallback;
         }
     }
 
     function saveStorage(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            getStorageArea(key).setItem(key, JSON.stringify(value));
             // Trigger global change event for cross-component reactivity
             window.dispatchEvent(new CustomEvent('gb_state_change', { detail: { key, value } }));
         } catch (e) {
-            console.error('Error saving localStorage key: ' + key, e);
+            console.error('Error saving storage key: ' + key, e);
         }
     }
 
@@ -97,8 +102,10 @@
         },
         async deleteProductAsync(id) {
             try {
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
                 const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
                     method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to delete product from server');
                 // Re-fetch products from server to sync the change
@@ -225,6 +232,34 @@
                 { id: 4, name: 'Dalat Organic Farm', location: 'Dalat, Lam Dong', contactInfo: '+84 908 765 432' }
             ];
             return loadStorage(STORAGE_KEYS.FARMS, DEFAULT_FARMS);
+        },
+        async loadFarmsAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return this.getFarms();
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/farms`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (res.ok) {
+                    const data = await res.json();
+                    saveStorage(STORAGE_KEYS.FARMS, data);
+                    return data;
+                }
+                return this.getFarms();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.warn('Backend /admin/farms unavailable, fallback to local', err);
+                return this.getFarms();
+            }
         },
         saveFarmLocal(farmData) {
             let farms = this.getFarms();
@@ -1295,7 +1330,7 @@
             }
 
             // Sync backend API delete if logged in
-            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             if (token && !isNaN(parseInt(addressId, 10))) {
                 fetch(`${API_BASE_URL}/Address/${addressId}`, {
                     method: 'DELETE',
@@ -1321,7 +1356,7 @@
 
         // Async C# API Address Methods with 2s Timeout & Local Fallback
         async getUserAddressesAsync() {
-            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             if (!token) return this.getUserAddresses();
 
             const controller = new AbortController();
@@ -1352,7 +1387,7 @@
         },
 
         async createAddressAsync(addressData) {
-            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             if (!token) return this.addAddress(addressData);
 
             const controller = new AbortController();

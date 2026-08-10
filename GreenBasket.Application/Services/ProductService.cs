@@ -1,4 +1,4 @@
-﻿using GreenBasket.Application.DTOs.Products;
+using GreenBasket.Application.DTOs.Products;
 using GreenBasket.Application.Interfaces;
 using GreenBasket.Domain.Entities;
 using GreenBasket.Infrastructure.Data;
@@ -223,6 +223,7 @@ namespace GreenBasket.Application.Services
             {
                 Id = p.Id,
                 Name = p.Name,
+                Description = p.Description,
                 Category = p.Category.ToString(),
                 Price = p.Price,
                 Unit = p.Unit,

@@ -31,6 +31,7 @@ namespace GreenBasket.Domain.Entities
 
         public string? Description { get; set; }
 
+        [MaxLength(50)]
         public string Unit { get; set; } = "kg";       // kg / 500g / pack
 
         [Required]

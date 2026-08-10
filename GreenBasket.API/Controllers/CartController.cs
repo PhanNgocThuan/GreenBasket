@@ -2,11 +2,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GreenBasket.Application.DTOs;
 using GreenBasket.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace GreenBasket.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -16,9 +19,14 @@ namespace GreenBasket.API.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCart(string userId)
+        private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+
+        [HttpGet]
+        public async Task<IActionResult> GetCart()
         {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
             var cart = await _cartService.GetCartAsync(userId);
             return Ok(cart);
         }
@@ -29,6 +37,11 @@ namespace GreenBasket.API.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                
+                dto.AppUserId = userId; // Ghi đè userId từ token để ngăn chặn IDOR
+                
                 var cart = await _cartService.AddToCartAsync(dto);
                 return Ok(cart);
             }

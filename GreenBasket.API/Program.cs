@@ -53,22 +53,25 @@ builder.Services.AddAuthentication(options =>
 });
 
 // 4. Configure CORS for Frontend (allow local dev servers and GitHub Pages)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-            "http://127.0.0.1:5500",
-            "http://localhost:5500",
-            "http://127.0.0.1:8085",
-            "http://localhost:8085",
-            "http://127.0.0.1:3000",
-            "http://localhost:3000",
-            "https://phanngocthuan.github.io",
-            "null" // Allow file:// requests from browser
-        )
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            // Trong môi trường Dev (khi code ở máy cá nhân), mở cửa hoàn toàn để team dễ test
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            // Khi deploy lên server thật (Production), siết chặt bảo mật bằng appsettings.json
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
@@ -160,8 +163,8 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
-        // Seed Farms/Products/Batches cho module Product & Admin
-        await DbInitializer.SeedAsync(dbContext);
+        // Dữ liệu sẽ do Admin tự thêm qua API, không dùng file mồi nữa.
+        // await DbInitializer.SeedAsync(dbContext);
     }
     catch (Exception ex)
     {
