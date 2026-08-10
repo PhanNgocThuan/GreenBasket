@@ -437,10 +437,12 @@
             $('#address').val(fullStr);
         }
 
-        function renderSavedAddresses() {
+        async function renderSavedAddresses() {
             if (!window.AppState || !window.AppState.getUserAddresses) return;
 
-            let addresses = window.AppState.getUserAddresses();
+            let addresses = (window.AppState.getUserAddressesAsync)
+                ? await window.AppState.getUserAddressesAsync()
+                : window.AppState.getUserAddresses();
 
             // 🛠️ TỰ ĐỘNG DỌN SẠCH CÁC ĐỊA CHỈ RÁC "UNDEFINED" BỊ KẸT
             addresses = addresses.filter(a => a && a.receiverName && a.receiverName !== 'undefined');
@@ -498,6 +500,7 @@
                 selectAddress(defaultSelectedAddr);
             }
         }
+        window.renderSavedAddresses = renderSavedAddresses;
 
         function fillUserProfile() {
             const authUser = window.AppState ? window.AppState.getAuthUser() : null;

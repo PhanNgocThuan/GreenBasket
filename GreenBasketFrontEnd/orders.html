@@ -239,8 +239,10 @@
 
     <script>
         $(document).ready(function () {
-            function renderOrders() {
-                const orders = window.AppState.getOrders();
+            async function renderOrders() {
+                const orders = (window.AppState && window.AppState.getOrdersAsync) 
+                    ? await window.AppState.getOrdersAsync() 
+                    : (window.AppState ? window.AppState.getOrders() : []);
                 const $list = $('#gb-orders-list');
                 $list.empty();
 
@@ -437,6 +439,8 @@
                     renderOrders();
                 }
             });
+
+            window.renderOrders = renderOrders;
 
             // Initial render
             renderOrders();

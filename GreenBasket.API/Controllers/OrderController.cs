@@ -23,6 +23,26 @@ namespace GreenBasket.API.Controllers
             return Ok(new { TotalCost = total });
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserOrders(string userId)
+        {
+            var orders = await _orderService.GetUserOrdersAsync(userId);
+            return Ok(new { isSuccess = true, data = orders });
+        }
+
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrders([FromQuery] string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+            }
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var orders = await _orderService.GetUserOrdersAsync(userId);
+            return Ok(new { isSuccess = true, data = orders });
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
         {

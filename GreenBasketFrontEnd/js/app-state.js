@@ -778,8 +778,98 @@
         },
 
         // --- Orders & Tracking (FR-3.2, FR-3.3, FR-4.1, FR-5.1) ---
+        getOrdersKey() {
+            const authUser = this.getAuthUser();
+            if (authUser && (authUser.email || authUser.id)) {
+                const identifier = String(authUser.email || authUser.id).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+                return `gb_orders_user_${identifier}`;
+            }
+            return 'gb_orders_guest';
+        },
         getOrders() {
-            return loadStorage(STORAGE_KEYS.ORDERS, DEFAULT_ORDERS);
+            const key = this.getOrdersKey();
+            let orders = loadStorage(key, null);
+
+            if (orders === null) {
+                const allOrders = loadStorage(STORAGE_KEYS.ORDERS, DEFAULT_ORDERS);
+                const authUser = this.getAuthUser();
+                if (authUser && authUser.email) {
+                    orders = allOrders.filter(o => o.email && o.email.toLowerCase() === authUser.email.toLowerCase());
+                } else {
+                    orders = allOrders;
+                }
+                saveStorage(key, orders);
+            }
+            return orders;
+        },
+        async getOrdersAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            const authUser = this.getAuthUser();
+            if (!token || !authUser) return this.getOrders();
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+            try {
+                const userId = authUser.id || authUser.email;
+                const response = await fetch(`${API_BASE_URL}/Order/my-orders?userId=${encodeURIComponent(userId)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) return this.getOrders();
+                const resData = await response.json();
+                if (resData && resData.isSuccess && Array.isArray(resData.data)) {
+                    const products = this.getProducts();
+                    const prodMap = {};
+                    products.forEach(p => prodMap[String(p.id)] = p);
+
+                    const apiOrders = resData.data.map(o => {
+                        const items = (o.items || []).map(i => {
+                            const prod = prodMap[String(i.productId)] || {};
+                            return {
+                                id: String(i.productId),
+                                productId: i.productId,
+                                name: prod.name || `Produce #${i.productId}`,
+                                price: i.unitPrice || prod.price || 1.50,
+                                qty: i.quantity || 1,
+                                unit: prod.unit || 'kg',
+                                image: prod.image || 'img/vegetable-item-2.jpg'
+                            };
+                        });
+                        const subtotal = items.reduce((s, it) => s + (it.price * it.qty), 0);
+                        return {
+                            id: 'ORD-' + o.id,
+                            date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                            customerName: authUser.name || 'Customer',
+                            email: authUser.email || '',
+                            phone: authUser.phone || '',
+                            deliveryAddress: o.deliveryAddress || 'Saved Delivery Location',
+                            deliverySlot: 'Standard Window',
+                            paymentMethod: 'Credit Card / Online',
+                            items: items,
+                            subtotal: subtotal,
+                            deliveryFee: subtotal >= 30 ? 0.00 : 2.00,
+                            total: subtotal + (subtotal >= 30 ? 0.00 : 2.00),
+                            status: o.status || 'Processing',
+                            qualityReport: null
+                        };
+                    });
+
+                    if (apiOrders.length > 0) {
+                        saveStorage(this.getOrdersKey(), apiOrders);
+                        return apiOrders;
+                    }
+                }
+                return this.getOrders();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                return this.getOrders();
+            }
         },
         getOrderById(orderId) {
             const orders = this.getOrders();
@@ -812,7 +902,7 @@
 
             const orders = this.getOrders();
             orders.unshift(newOrder);
-            saveStorage(STORAGE_KEYS.ORDERS, orders);
+            saveStorage(this.getOrdersKey(), orders);
             this.clearCart();
             return newOrder;
         },
@@ -1146,9 +1236,17 @@
         // =========================================================
         // Multi-Address Management Methods (FR-1.2 Address Selector)
         // =========================================================
-    // Sử dụng localStorage gốc của trình duyệt và ép kiểu JSON
-    getUserAddresses() {
-            let addresses = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDRESSES) || 'null');
+        getAddressKey() {
+            const authUser = this.getAuthUser();
+            if (authUser && (authUser.email || authUser.id)) {
+                const identifier = String(authUser.email || authUser.id).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+                return `gb_addresses_user_${identifier}`;
+            }
+            return 'gb_addresses_guest';
+        },
+        getUserAddresses() {
+            const key = this.getAddressKey();
+            let addresses = JSON.parse(localStorage.getItem(key) || 'null');
             
             if (!addresses || !Array.isArray(addresses)) {
                 const authUser = this.getAuthUser() || {};
@@ -1157,7 +1255,7 @@
                         id: 1,
                         receiverName: authUser.name || 'Alex Johnson',
                         phoneNumber: authUser.phone || '+84 901 234 567',
-                        email: authUser.email || '', // Đã bổ sung Email
+                        email: authUser.email || '',
                         streetAddress: authUser.address ? authUser.address.split(',')[0] : '123 High Street',
                         city: 'Ho Chi Minh City',
                         district: 'District 1',
@@ -1165,7 +1263,7 @@
                         isDefault: true
                     }
                 ];
-                localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+                localStorage.setItem(key, JSON.stringify(addresses));
             }
             return addresses;
         },
@@ -1185,7 +1283,7 @@
                 id: Date.now(),
                 receiverName: addressData.receiverName || addressData.fullName || 'Recipient',
                 phoneNumber: addressData.phoneNumber || addressData.phone || '',
-                email: addressData.email || '', // Đã bổ sung Email
+                email: addressData.email || '',
                 streetAddress: addressData.streetAddress || addressData.address || '',
                 city: addressData.city || 'Ho Chi Minh City',
                 district: addressData.district || 'District 1',
@@ -1194,7 +1292,7 @@
             };
             addresses.unshift(newAddress);
             
-            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+            localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
 
             if (newAddress.isDefault) {
                 this.updateUserProfile({
@@ -1204,7 +1302,6 @@
                 });
             }
             
-            // Phát sự kiện cập nhật UI thay vì F5 cục súc
             window.dispatchEvent(new Event('addressDataChanged'));
             return newAddress;
         },
@@ -1221,7 +1318,7 @@
                 }
             });
             
-            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+            localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
             
             if (selected) {
                 this.updateUserProfile({
@@ -1231,7 +1328,6 @@
                 });
             }
             
-            // Phát sự kiện cập nhật UI
             window.dispatchEvent(new Event('addressDataChanged'));
             return selected;
         },
@@ -1243,9 +1339,8 @@
                 addresses[0].isDefault = true;
             }
             
-            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+            localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
             
-            // Phát sự kiện cập nhật UI
             window.dispatchEvent(new Event('addressDataChanged'));
             return addresses;
         },
@@ -1370,9 +1465,13 @@
         logoutUser() {
             saveStorage(STORAGE_KEYS.JWT_TOKEN, null);
             saveStorage(STORAGE_KEYS.AUTH_USER, null);
+            window.dispatchEvent(new Event('addressDataChanged'));
+            window.dispatchEvent(new CustomEvent('gb_state_change'));
             if (window.updateHeaderUI) window.updateHeaderUI();
             if (window.renderCartPage) window.renderCartPage();
             if (window.renderCheckoutSummary) window.renderCheckoutSummary();
+            if (window.renderOrders) window.renderOrders();
+            if (window.renderSavedAddresses) window.renderSavedAddresses();
         },
         clearAllUsersKeepAdmin() {
             const adminUser = {
