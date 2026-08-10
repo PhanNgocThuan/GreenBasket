@@ -57,15 +57,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-            "http://127.0.0.1:5500",
-            "http://localhost:5500",
-            "http://localhost:8085",
-            "http://127.0.0.1:8085",
-            "https://phanngocthuan.github.io"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod();
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -123,14 +117,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        try
-        {
-            await dbContext.Database.MigrateAsync();
-        }
-        catch (Exception)
-        {
-            // Table already exists or migration history mismatch - safely ignore and continue
-        }
+        await dbContext.Database.MigrateAsync();
 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
@@ -164,19 +151,12 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
-        // Xóa tất cả các tài khoản phụ (Customer/Staff khác) để chỉ giữ lại 1 tài khoản Admin duy nhất
-        var existingNonAdmins = userManager.Users.Where(u => u.Email != adminEmail).ToList();
-        foreach (var user in existingNonAdmins)
-        {
-            await userManager.DeleteAsync(user);
-        }
-
         // Seed Farms/Products/Batches cho module Product & Admin
         await DbInitializer.SeedAsync(dbContext);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"An error occurred during Seeding initialization: {ex.Message}");
+        Console.WriteLine($"Đã xảy ra lỗi khi khởi tạo dữ liệu Seeding: {ex.Message}");
     }
 }
 
@@ -189,6 +169,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Phục vụ file tĩnh (ảnh sản phẩm upload qua UploadsController) từ wwwroot/uploads/...
+app.UseStaticFiles();
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
@@ -197,7 +180,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
-// Cho phép Project Test truy cập
-public partial class Program { }

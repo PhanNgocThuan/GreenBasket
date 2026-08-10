@@ -24,4 +24,9 @@
     <ProjectReference Include="..\GreenBasket.Infrastructure\GreenBasket.Infrastructure.csproj" />
   </ItemGroup>
 
+    <ItemGroup>
+	    <!-- Ngăn không cho tính năng Watch khởi động lại server khi có ảnh mới -->
+	    <Watch Remove="wwwroot\uploads\**\*" />
+    </ItemGroup>
+
 </Project>

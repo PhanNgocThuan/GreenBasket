@@ -18,7 +18,8 @@
         JWT_TOKEN: 'gb_jwt_token_v1'
     };
 
-    const API_BASE_URL = localStorage.getItem('gb_api_url') || 'http://localhost:5062/api';
+    // Sửa cổng 5062 thành 7273 (hoặc cổng Backend thực tế của bạn)
+    const API_BASE_URL = (window.ENV && window.ENV.API_URL) ? window.ENV.API_URL : 'https://localhost:7273/api';
 
     // Synchronized C# Backend Fresh Produce Catalog (DbInitializer.cs)
     const DEFAULT_PRODUCTS = [
@@ -447,76 +448,120 @@
 
                 if (items && items.length > 0) {
                     const categoryMap = {
-                        'LeafyGreens': 'leafy-greens',
-                        'RootVeggies': 'root-veggies',
-                        'TropicalFruit': 'tropical-fruit',
-                        'SeasonalFruit': 'seasonal-fruit',
-                        '0': 'leafy-greens',
-                        '1': 'root-veggies',
-                        '2': 'tropical-fruit',
-                        '3': 'seasonal-fruit'
+                        'LeafyGreens': 'leafy-greens', 'RootVeggies': 'root-veggies', 
+                        'TropicalFruit': 'tropical-fruit', 'SeasonalFruit': 'seasonal-fruit',
+                        '0': 'leafy-greens', '1': 'root-veggies', '2': 'tropical-fruit', '3': 'seasonal-fruit'
                     };
-                    const categoryNameMap = {
-                        'LeafyGreens': 'Leafy Greens',
-                        'RootVeggies': 'Root Vegetables',
-                        'TropicalFruit': 'Tropical Fruit',
-                        'SeasonalFruit': 'Seasonal Fruit',
-                        '0': 'Leafy Greens',
-                        '1': 'Root Vegetables',
-                        '2': 'Tropical Fruit',
-                        '3': 'Seasonal Fruit'
-                    };
-
-                    const seedMap = {};
-                    DEFAULT_PRODUCTS.forEach(dp => { seedMap[String(dp.id)] = dp; seedMap[dp.name] = dp; });
+                    
+                    // 🔴 LẤY DỮ LIỆU LOCAL HIỆN TẠI ĐỂ ĐỐI CHIẾU
+                    const localProducts = loadStorage(STORAGE_KEYS.PRODUCTS, []);
+                    const localMap = {};
+                    localProducts.forEach(p => localMap[String(p.id)] = p);
 
                     const syncedProducts = items.map((p, idx) => {
                         const pid = String(p.id !== undefined ? p.id : (p.Id !== undefined ? p.Id : (idx + 1)));
                         const pName = p.name || p.Name || 'Produce';
-                        const seed = seedMap[pid] || seedMap[pName] || {};
+                        
+                        // Đối chiếu với data Local xem Admin có đang đè trạng thái Stock không
+                        const localItem = localMap[pid] || {};
 
-                        let rawPrice = p.price !== undefined && p.price !== null ? p.price : (p.Price !== undefined && p.Price !== null ? p.Price : null);
-                        let numPrice = parseFloat(rawPrice);
-                        if (isNaN(numPrice) || numPrice <= 0) {
-                            numPrice = seed.price || 1.50;
-                        }
+                        let rawPrice = p.price !== undefined && p.price !== null ? p.price : p.Price;
+                        let numPrice = parseFloat(rawPrice) || localItem.price || 1.50;
 
-                        let rawStock = p.stockQty !== undefined && p.stockQty !== null ? p.stockQty : (p.StockQty !== undefined && p.StockQty !== null ? p.StockQty : null);
+                        let rawStock = p.stockQty !== undefined && p.stockQty !== null ? p.stockQty : p.StockQty;
                         let stockVal = parseInt(rawStock, 10);
-                        if (isNaN(stockVal)) stockVal = seed.stockQuantity || 50;
+                        if (isNaN(stockVal)) stockVal = 50;
 
                         return {
                             id: pid,
                             name: pName,
-                            category: categoryMap[p.category] || categoryMap[p.Category] || seed.category || 'leafy-greens',
-                            categoryName: categoryNameMap[p.category] || categoryNameMap[p.Category] || seed.categoryName || 'Leafy Greens',
+                            category: categoryMap[p.category] || categoryMap[p.Category] || localItem.category || 'leafy-greens',
+                            categoryName: localItem.categoryName || 'Produce',
                             price: numPrice,
-                            unit: p.unit || p.Unit || seed.unit || 'kg',
-                            image: (p.imageUrl || p.ImageUrl || seed.image || 'img/vegetable-item-2.jpg').replace(/^\//, ''),
-                            farmOrigin: p.farmOrigin || p.FarmOrigin || seed.farmOrigin || 'Green Valley Farm, Dalat',
-                            harvestDate: p.harvestDate ? String(p.harvestDate).substring(0, 10) : (p.HarvestDate ? String(p.HarvestDate).substring(0, 10) : '2026-08-05'),
-                            stockStatus: (stockVal > 0) ? 'In Stock' : (p.stockStatus || p.StockStatus || 'In Stock'),
-                            stockQuantity: stockVal,
-                            rating: seed.rating || 4.8,
-                            organic: p.organic !== undefined ? !!p.organic : (p.Organic !== undefined ? !!p.Organic : (seed.organic !== undefined ? seed.organic : true)),
-                            description: p.description || p.Description || seed.description || `${pName} sourced fresh from certified farms.`
+                            unit: p.unit || p.Unit || localItem.unit || 'kg',
+                            image: (function() {
+                                let img = p.imageUrl || p.ImageUrl || localItem.image || 'img/vegetable-item-2.jpg';
+                                return img.startsWith('/uploads') ? API_BASE_URL.replace('/api', '') + img : img.replace(/^\//, '');
+                            })(),
+                            farmOrigin: p.farmOrigin || p.FarmOrigin || localItem.farmOrigin || 'Green Valley Farm, Dalat',
+                            harvestDate: p.harvestDate ? String(p.harvestDate).substring(0, 10) : '2026-08-05',
+                            
+                            // 🔴 ĐÂY LÀ CHÌA KHÓA: Ưu tiên lấy trạng thái Stock của LocalStorage nếu đã bị sửa
+                            stockStatus: localItem.stockStatus || ((stockVal > 0) ? 'In Stock' : 'Out of Stock'),
+                            stockQuantity: localItem.stockQuantity !== undefined ? localItem.stockQuantity : stockVal,
+                            
+                            rating: localItem.rating || 4.8,
+                            organic: p.organic !== undefined ? !!p.organic : (p.Organic !== undefined ? !!p.Organic : true),
+                            description: p.description || p.Description || localItem.description || ''
                         };
                     });
 
                     saveStorage(STORAGE_KEYS.PRODUCTS, syncedProducts);
-                    if (window.renderCheckoutSummary) window.renderCheckoutSummary();
-                    if (window.renderCartPage) window.renderCartPage();
-                    if (window.updateHeaderUI) window.updateHeaderUI();
+                    if (window.renderAdminDashboard) window.renderAdminDashboard();
                     return syncedProducts;
                 }
             } catch (err) {
                 clearTimeout(timeoutId);
-                console.info('Backend API server offline. Using synchronized produce seed catalog.');
             }
             return this.getProducts();
         },
+        async uploadProductImageAsync(file) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return null;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/uploads/image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                        // KHÔNG set 'Content-Type' — để browser tự sinh multipart boundary
+                    },
+                    body: formData,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    console.error('Image upload failed with status', response.status);
+                    return null;
+                }
+                const data = await response.json();
+                return data.url || null;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.error('Image upload failed', err);
+                return null;
+            }
+        },
+        async loadFarmsAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return [];
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/farms`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!response.ok) return [];
+                return await response.json();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.error('Failed to load farms', err);
+                return [];
+            }
+        },
         async createProductAsync(productData) {
-            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             if (!token) return this.saveProduct(productData);
 
             const categoryToBackendMap = {
@@ -530,6 +575,7 @@
             const timeoutId = setTimeout(() => controller.abort(), 2000);
 
             try {
+                // Bước 1: tạo Product (chỉ chứa thông tin catalog, không có farm/stock)
                 const response = await fetch(`${API_BASE_URL}/admin/products`, {
                     method: 'POST',
                     headers: {
@@ -550,9 +596,45 @@
                 clearTimeout(timeoutId);
 
                 if (!response.ok) return this.saveProduct(productData);
-                const resData = await response.json();
+                const newProduct = await response.json();
+
+                // Bước 2: nhập lô hàng đầu tiên (farm + harvest date + số lượng)
+                // nếu admin có chọn farm và nhập số lượng trên form
+              
+                // SỬA LỖI Ở ĐÂY: Lấy ID chuẩn xác dù Backend trả về chữ thường (id) hay chữ hoa (Id)
+                const productId = newProduct.id !== undefined ? newProduct.id : newProduct.Id;
+
+                // Bước 2: nhập lô hàng đầu tiên (farm + harvest date + số lượng)
+                if (productData.farmId && productData.stockQuantity && productId) {
+                    const batchController = new AbortController();
+                    const batchTimeoutId = setTimeout(() => batchController.abort(), 2000);
+                    try {
+                        // Gọi đúng ID của sản phẩm để thêm lô hàng
+                        await fetch(`${API_BASE_URL}/admin/products/${productId}/batches`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                farmId: parseInt(productData.farmId, 10),
+                                harvestDate: productData.harvestDate,
+                                quantity: parseInt(productData.stockQuantity, 10),
+                                costPrice: (productData.costPrice != null && productData.costPrice !== '')
+                                    ? parseFloat(productData.costPrice)
+                                    : (parseFloat(productData.price) || 0) * 0.6
+                            }),
+                            signal: batchController.signal
+                        });
+                        clearTimeout(batchTimeoutId);
+                    } catch (batchErr) {
+                        clearTimeout(batchTimeoutId);
+                        console.error('Product created but failed to add initial batch:', batchErr);
+                    }
+                }
+
                 this.fetchProductsFromBackend();
-                return resData;
+                return newProduct;
             } catch (err) {
                 clearTimeout(timeoutId);
                 return this.saveProduct(productData);
@@ -928,6 +1010,60 @@
             }
         },
 
+        async updateProductAsync(productData) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            
+            // Lưu tạm giao diện ngay lập tức
+            this.saveProduct(productData);
+
+            if (!token || isNaN(parseInt(productData.id, 10))) return productData;
+
+            const categoryToBackendMap = {
+                'leafy-greens': 0, 'root-veggies': 1, 'tropical-fruit': 2, 'seasonal-fruit': 3
+            };
+
+            try {
+                // 1. Chỉ gửi ĐÚNG các trường cơ bản giống lúc Create (Tránh lỗi 400 từ C#)
+                await fetch(`${API_BASE_URL}/admin/products/${productData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: productData.name,
+                        category: categoryToBackendMap[productData.category] ?? 0,
+                        description: productData.description || '',
+                        unit: productData.unit || 'kg',
+                        price: parseFloat(productData.price) || 0,
+                        imageUrl: productData.image || 'img/vegetable-item-2.jpg',
+                        organic: !!productData.organic
+                    })
+                });
+
+                // 2. Cập nhật lô hàng nếu có nhập số lượng
+                if (productData.farmId && productData.stockQuantity > 0) {
+                    try {
+                        await fetch(`${API_BASE_URL}/admin/products/${productData.id}/batches`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                farmId: parseInt(productData.farmId, 10),
+                                harvestDate: productData.harvestDate,
+                                quantity: parseInt(productData.stockQuantity, 10),
+                                costPrice: parseFloat(productData.costPrice) || (parseFloat(productData.price) * 0.6)
+                            })
+                        });
+                    } catch (e) {}
+                }
+
+                // 🔴 Đã gỡ bỏ hàm this.fetchProductsFromBackend() ở đây để tránh bị đè data sau 0.5s
+                return productData;
+            } catch (err) {
+                return productData;
+            }
+        },
+
         // Async Registration API Integration with 2s Timeout
         async registerUserAsync(fullName, email, password) {
             const controller = new AbortController();
@@ -1010,8 +1146,10 @@
         // =========================================================
         // Multi-Address Management Methods (FR-1.2 Address Selector)
         // =========================================================
-        getUserAddresses() {
-            let addresses = getStorage(STORAGE_KEYS.ADDRESSES);
+    // Sử dụng localStorage gốc của trình duyệt và ép kiểu JSON
+    getUserAddresses() {
+            let addresses = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDRESSES) || 'null');
+            
             if (!addresses || !Array.isArray(addresses)) {
                 const authUser = this.getAuthUser() || {};
                 addresses = [
@@ -1019,6 +1157,7 @@
                         id: 1,
                         receiverName: authUser.name || 'Alex Johnson',
                         phoneNumber: authUser.phone || '+84 901 234 567',
+                        email: authUser.email || '', // Đã bổ sung Email
                         streetAddress: authUser.address ? authUser.address.split(',')[0] : '123 High Street',
                         city: 'Ho Chi Minh City',
                         district: 'District 1',
@@ -1026,14 +1165,16 @@
                         isDefault: true
                     }
                 ];
-                saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+                localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
             }
             return addresses;
         },
+
         getAddressById(id) {
             const addresses = this.getUserAddresses();
             return addresses.find(a => a.id == id) || null;
         },
+
         addAddress(addressData) {
             const addresses = this.getUserAddresses();
             if (addressData.isDefault || addresses.length === 0) {
@@ -1044,6 +1185,7 @@
                 id: Date.now(),
                 receiverName: addressData.receiverName || addressData.fullName || 'Recipient',
                 phoneNumber: addressData.phoneNumber || addressData.phone || '',
+                email: addressData.email || '', // Đã bổ sung Email
                 streetAddress: addressData.streetAddress || addressData.address || '',
                 city: addressData.city || 'Ho Chi Minh City',
                 district: addressData.district || 'District 1',
@@ -1051,7 +1193,8 @@
                 isDefault: !!addressData.isDefault
             };
             addresses.unshift(newAddress);
-            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+            
+            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
 
             if (newAddress.isDefault) {
                 this.updateUserProfile({
@@ -1060,10 +1203,12 @@
                     address: `${newAddress.streetAddress}, ${newAddress.ward}, ${newAddress.district}, ${newAddress.city}`
                 });
             }
-
-            notifyStateChange();
+            
+            // Phát sự kiện cập nhật UI thay vì F5 cục súc
+            window.dispatchEvent(new Event('addressDataChanged'));
             return newAddress;
         },
+
         setDefaultAddress(addressId) {
             const addresses = this.getUserAddresses();
             let selected = null;
@@ -1075,7 +1220,9 @@
                     a.isDefault = false;
                 }
             });
-            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
+            
+            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+            
             if (selected) {
                 this.updateUserProfile({
                     fullName: selected.receiverName,
@@ -1083,23 +1230,29 @@
                     address: `${selected.streetAddress}, ${selected.ward}, ${selected.district}, ${selected.city}`
                 });
             }
-            notifyStateChange();
+            
+            // Phát sự kiện cập nhật UI
+            window.dispatchEvent(new Event('addressDataChanged'));
             return selected;
         },
+
         deleteAddress(addressId) {
             let addresses = this.getUserAddresses();
             addresses = addresses.filter(a => a.id != addressId);
             if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
                 addresses[0].isDefault = true;
             }
-            saveStorage(STORAGE_KEYS.ADDRESSES, addresses);
-            notifyStateChange();
+            
+            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+            
+            // Phát sự kiện cập nhật UI
+            window.dispatchEvent(new Event('addressDataChanged'));
             return addresses;
         },
 
         // Async C# API Address Methods with 2s Timeout & Local Fallback
         async getUserAddressesAsync() {
-            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
             if (!token) return this.getUserAddresses();
 
             const controller = new AbortController();
@@ -1119,7 +1272,7 @@
                 if (!response.ok) return this.getUserAddresses();
                 const resData = await response.json();
                 if (resData && resData.isSuccess && Array.isArray(resData.data)) {
-                    saveStorage(STORAGE_KEYS.ADDRESSES, resData.data);
+                    localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(resData.data));
                     return resData.data;
                 }
                 return this.getUserAddresses();
@@ -1128,8 +1281,9 @@
                 return this.getUserAddresses();
             }
         },
+
         async createAddressAsync(addressData) {
-            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
             if (!token) return this.addAddress(addressData);
 
             const controller = new AbortController();
@@ -1145,6 +1299,7 @@
                     body: JSON.stringify({
                         receiverName: addressData.receiverName || addressData.fullName,
                         phoneNumber: addressData.phoneNumber || addressData.phone,
+                        email: addressData.email || '', // Đã bổ sung Email
                         streetAddress: addressData.streetAddress || addressData.address,
                         city: addressData.city || 'Ho Chi Minh City',
                         district: addressData.district || 'District 1',
@@ -1159,12 +1314,46 @@
                 const resData = await response.json();
                 if (resData && resData.isSuccess && resData.data) {
                     this.getUserAddressesAsync();
+                    
+                    // Phát sự kiện cập nhật UI
+                    window.dispatchEvent(new Event('addressDataChanged'));
                     return resData.data;
                 }
                 return this.addAddress(addressData);
             } catch (err) {
                 clearTimeout(timeoutId);
                 return this.addAddress(addressData);
+            }
+        },
+
+      deleteAddress(addressId) {
+            // 1. Lấy danh sách hiện tại
+            let addresses = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDRESSES) || '[]');
+
+            // 2. Lọc bỏ cái địa chỉ có ID cần xóa (Dùng != để ép kiểu linh hoạt tránh lệch chuỗi/số)
+            addresses = addresses.filter(addr => addr.id != addressId);
+
+            // Đảm bảo nếu xóa hết mà vẫn còn mảng thì chỉnh lại mặc định
+            if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
+                addresses[0].isDefault = true;
+            }
+
+            // 3. Lưu lại mảng mới vào localStorage
+            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
+
+            // 4. Phát sự kiện thông báo dữ liệu đã thay đổi để UI tự cập nhật mượt mà
+            window.dispatchEvent(new Event('addressDataChanged'));
+
+            // 5. Gọi trực tiếp hàm vẽ lại giao diện nếu đang ở trang checkout
+            if (typeof renderSavedAddresses === 'function') {
+                renderSavedAddresses();
+            }
+
+            // Có thể bỏ alert đi hoặc thay bằng Toast thông báo cho đẹp mắt, tùy bạn chọn
+            if (window.GB && window.GB.showToast) {
+                window.GB.showToast('Address deleted successfully!', 'success');
+            } else {
+                alert('Delete address successfully!');
             }
         },
         registerUser(name, email, password) {

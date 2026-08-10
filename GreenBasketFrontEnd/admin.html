@@ -134,8 +134,9 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Farm Origin Traceability<sup>*</sup></label>
-                                <input type="text" id="pEditFarm" class="form-control p-3" required
-                                    placeholder="e.g. Green Valley Farm, Dalat">
+                                <select id="pEditFarm" class="form-select p-3" required>
+                                    <option value="">Select a farm...</option>
+                                </select>
                             </div>
 
                             <div class="col-md-6">
@@ -147,6 +148,13 @@
                                 <label class="form-label fw-bold">Price ($)<sup>*</sup></label>
                                 <input type="number" step="0.01" id="pEditPrice" class="form-control p-3" required
                                     placeholder="3.50">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Cost Price ($)<sup>*</sup></label>
+                                <input type="number" step="0.01" id="pEditCostPrice" class="form-control p-3" required
+                                    placeholder="2.00">
+                                <div class="form-text">Price paid to the farm for this batch.</div>
                             </div>
 
                             <div class="col-md-4">
@@ -180,6 +188,15 @@
                                         VietGAP Certified Organic
                                     </label>
                                 </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Product Image</label>
+                                <input type="file" id="pEditImageFile" class="form-control p-3"
+                                    accept=".jpg,.jpeg,.png,.webp">
+                                <div class="form-text">JPG, PNG or WEBP, max 5MB. Leave empty to keep the current photo.</div>
+                                <img id="pEditImagePreview" src="" alt="Preview"
+                                    style="display:none; max-height:120px; margin-top:8px; border-radius:8px;">
                             </div>
 
                             <div class="col-md-12">
@@ -397,6 +414,7 @@
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- App State Engine & Script -->
+    <script src="js/config.js"></script>
     <script src="js/app-state.js"></script>
     <script src="js/main.js"></script>
 
@@ -560,27 +578,62 @@
                 }, 'Process Refund & Cancel');
             });
 
+            // Helper: load farm list vào dropdown #pEditFarm, trả về danh sách farm đã load
+            async function populateFarmDropdown(selectedFarmName) {
+                const $select = $('#pEditFarm');
+                $select.empty().append('<option value="">Loading farms...</option>');
+
+                const farms = (window.AppState.loadFarmsAsync)
+                    ? await window.AppState.loadFarmsAsync()
+                    : [];
+
+                $select.empty().append('<option value="">Select a farm...</option>');
+                farms.forEach(f => {
+                    const label = f.location ? `${f.name} (${f.location})` : f.name;
+                    $select.append(`<option value="${f.id}">${label}</option>`);
+                });
+
+                if (selectedFarmName) {
+                    const match = farms.find(f => f.name === selectedFarmName);
+                    if (match) $select.val(match.id);
+                }
+            }
+
+            // Preview ảnh ngay khi admin chọn file
+            $('#pEditImageFile').on('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => $('#pEditImagePreview').attr('src', e.target.result).show();
+                    reader.readAsDataURL(file);
+                }
+            });
+
             // Add Product Modal Opener
-            $('#btnAddNewProduct').on('click', function () {
+            $('#btnAddNewProduct').on('click', async function () {
                 $('#editProductModalTitle').html('<i class="fas fa-plus me-2"></i>Add New Produce Item');
                 $('#pEditId').val('');
                 $('#pEditName').val('');
                 $('#pEditCategory').val('leafy-greens');
-                $('#pEditFarm').val('Green Valley Farm, Dalat');
                 $('#pEditHarvest').val(new Date().toISOString().substring(0, 10));
                 $('#pEditPrice').val('3.50');
+                $('#pEditCostPrice').val('2.00');
                 $('#pEditUnit').val('kg');
                 $('#pEditStockQty').val('50');
                 $('#pEditStockStatus').val('In Stock');
                 $('#pEditOrganic').prop('checked', true);
                 $('#pEditDesc').val('');
+                $('#pEditImageFile').val('');
+                $('#pEditImagePreview').hide().removeAttr('src').removeData('existing-url');
+
+                await populateFarmDropdown();
 
                 const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
                 modal.show();
             });
 
             // Edit Product Modal Opener
-            $(document).on('click', '.btn-edit-prod', function () {
+            $(document).on('click', '.btn-edit-prod', async function () {
                 const id = $(this).data('id');
                 const product = window.AppState.getProductById(id);
                 if (product) {
@@ -588,14 +641,23 @@
                     $('#pEditId').val(product.id);
                     $('#pEditName').val(product.name);
                     $('#pEditCategory').val(product.category);
-                    $('#pEditFarm').val(product.farmOrigin);
                     $('#pEditHarvest').val(product.harvestDate);
                     $('#pEditPrice').val(product.price);
+                    $('#pEditCostPrice').val(product.costPrice || (product.price * 0.6).toFixed(2));
                     $('#pEditUnit').val(product.unit);
-                    $('#pEditStockQty').val(product.stockQuantity);
+                    $('#pEditStockQty').val(0);
+                    $('#pEditStockQty').data('current-stock', product.stockQuantity);
                     $('#pEditStockStatus').val(product.stockStatus);
                     $('#pEditOrganic').prop('checked', product.organic);
                     $('#pEditDesc').val(product.description);
+                    $('#pEditImageFile').val('');
+                    if (product.image) {
+                        $('#pEditImagePreview').attr('src', product.image).show().data('existing-url', product.image);
+                    } else {
+                        $('#pEditImagePreview').hide().removeAttr('src').removeData('existing-url');
+                    }
+
+                    await populateFarmDropdown(product.farmOrigin);
 
                     const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
                     modal.show();
@@ -603,32 +665,54 @@
             });
 
             // Save Product Form Handler
-            $('#editProductForm').on('submit', function (e) {
+            $('#editProductForm').on('submit', async function (e) {
                 e.preventDefault();
                 const isNew = !$('#pEditId').val();
+
+                // Upload ảnh thật trước (nếu admin có chọn file mới), lấy URL trả về từ server
+                let imageUrl = $('#pEditImagePreview').data('existing-url') || 'img/vegetable-item-2.jpg';
+                const fileInput = document.getElementById('pEditImageFile');
+                if (fileInput.files && fileInput.files[0]) {
+                    const uploadedUrl = await window.AppState.uploadProductImageAsync(fileInput.files[0]);
+                    if (uploadedUrl) {
+                        imageUrl = uploadedUrl;
+                    } else {
+                        window.GB.showToast('Image upload failed — saved product without changing the photo.', 'warning');
+                    }
+                }
+
+                let qty = parseInt($('#pEditStockQty').val(), 10) || 0;
+                const status = $('#pEditStockStatus').val();
+
                 const productData = {
                     id: $('#pEditId').val() || undefined,
                     name: $('#pEditName').val().trim(),
                     category: $('#pEditCategory').val(),
                     categoryName: $('#pEditCategory option:selected').text(),
-                    farmOrigin: $('#pEditFarm').val().trim(),
+                    farmId: $('#pEditFarm').val(),
+                    farmOrigin: $('#pEditFarm option:selected').text(),
                     harvestDate: $('#pEditHarvest').val(),
                     price: parseFloat($('#pEditPrice').val()),
+                    costPrice: parseFloat($('#pEditCostPrice').val()),
                     unit: $('#pEditUnit').val(),
-                    stockQuantity: parseInt($('#pEditStockQty').val(), 10),
+                    stockQuantity: qty,
                     stockStatus: $('#pEditStockStatus').val(),
                     organic: $('#pEditOrganic').is(':checked'),
                     description: $('#pEditDesc').val().trim(),
-                    image: 'img/vegetable-item-2.jpg',
+                    image: imageUrl,
                     rating: 4.8
                 };
 
                 if (isNew && window.AppState.createProductAsync) {
-                    window.AppState.createProductAsync(productData);
+                    await window.AppState.createProductAsync(productData);
                 } else {
-                    window.AppState.saveProduct(productData);
+                    // 🔴 GỌI HÀM UPDATE API VỪA TẠO THAY VÌ CHỈ LƯU LOCALSTORAGE
+                    if (window.AppState.updateProductAsync) {
+                        await window.AppState.updateProductAsync(productData);
+                    } else {
+                        window.AppState.saveProduct(productData);
+                    }
                 }
-
                 window.GB.showToast(`Produce item <strong>${productData.name}</strong> saved to catalog!`, 'success');
                 bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
                 renderAdminDashboard();
