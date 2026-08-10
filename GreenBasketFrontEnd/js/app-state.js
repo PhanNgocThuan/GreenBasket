@@ -15,7 +15,8 @@
         REPORTS: 'gb_quality_reports_v1',
         USER_ROLE: 'gb_user_role_v1',
         AUTH_USER: 'gb_auth_user_v1',
-        JWT_TOKEN: 'gb_jwt_token_v1'
+        JWT_TOKEN: 'gb_jwt_token_v1',
+        FARMS: 'gb_farms_v1'
     };
 
     // Sửa cổng 5062 thành 7273 (hoặc cổng Backend thực tế của bạn)
@@ -539,9 +540,36 @@
                 return null;
             }
         },
+        getFarms() {
+            const DEFAULT_FARMS = [
+                { id: 1, name: 'Green Valley Farm, Dalat', location: 'Dalat, Lam Dong', contactInfo: '+84 901 234 567' },
+                { id: 2, name: 'Sunrise Organic Farm, Hanoi', location: 'Dong Anh, Hanoi', contactInfo: '+84 912 345 678' },
+                { id: 3, name: 'Mekong Organic Cooperative', location: 'Can Tho, Mekong Delta', contactInfo: '+84 903 456 789' },
+                { id: 4, name: 'Dalat Organic Farm', location: 'Dalat, Lam Dong', contactInfo: '+84 908 765 432' }
+            ];
+            return loadStorage(STORAGE_KEYS.FARMS, DEFAULT_FARMS);
+        },
+        saveFarmLocal(farmData) {
+            let farms = this.getFarms();
+            if (farmData.id) {
+                const idx = farms.findIndex(f => f.id == farmData.id);
+                if (idx >= 0) farms[idx] = { ...farms[idx], ...farmData };
+            } else {
+                farmData.id = Date.now();
+                farms.push(farmData);
+            }
+            saveStorage(STORAGE_KEYS.FARMS, farms);
+            return farmData;
+        },
+        deleteFarmLocal(id) {
+            let farms = this.getFarms();
+            farms = farms.filter(f => f.id != id);
+            saveStorage(STORAGE_KEYS.FARMS, farms);
+            return true;
+        },
         async loadFarmsAsync() {
             const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            if (!token) return [];
+            if (!token) return this.getFarms();
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
@@ -552,12 +580,128 @@
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
-                if (!response.ok) return [];
-                return await response.json();
+                if (!response.ok) return this.getFarms();
+                const resData = await response.json();
+                if (Array.isArray(resData)) {
+                    saveStorage(STORAGE_KEYS.FARMS, resData);
+                    return resData;
+                }
+                return this.getFarms();
             } catch (err) {
                 clearTimeout(timeoutId);
-                console.error('Failed to load farms', err);
-                return [];
+                return this.getFarms();
+            }
+        },
+        async createFarmAsync(farmData) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return this.saveFarmLocal(farmData);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/farms`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: farmData.name,
+                        location: farmData.location,
+                        contactInfo: farmData.contactInfo || ''
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    const msg = (errData && errData.message) ? errData.message : 'Failed to create farm.';
+                    throw new Error(msg);
+                }
+
+                const createdFarm = await response.json();
+                await this.loadFarmsAsync();
+                return createdFarm;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.warn('API create farm notice:', err.message);
+                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch')) {
+                    return this.saveFarmLocal(farmData);
+                }
+                throw err;
+            }
+        },
+        async updateFarmAsync(id, farmData) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token || isNaN(parseInt(id, 10))) return this.saveFarmLocal({ ...farmData, id: id });
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/farms/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: farmData.name,
+                        location: farmData.location,
+                        contactInfo: farmData.contactInfo || ''
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    const msg = (errData && errData.message) ? errData.message : 'Failed to update farm.';
+                    throw new Error(msg);
+                }
+
+                await this.loadFarmsAsync();
+                return farmData;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.warn('API update farm notice:', err.message);
+                if (err.name === 'AbortError' || err.name === 'TypeError' || err.message.includes('fetch')) {
+                    return this.saveFarmLocal({ ...farmData, id: id });
+                }
+                throw err;
+            }
+        },
+        async deleteFarmAsync(id) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token || isNaN(parseInt(id, 10))) return this.deleteFarmLocal(id);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/farms/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    const msg = (errData && errData.message) ? errData.message : (errData && errData.Message ? errData.Message : 'Cannot delete farm.');
+                    throw new Error(msg);
+                }
+
+                await this.loadFarmsAsync();
+                return true;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                if (err.message && err.message.includes('batch history')) {
+                    throw err; // Re-throw Conflict error for UI toast
+                }
+                return this.deleteFarmLocal(id);
             }
         },
         async createProductAsync(productData) {
@@ -1525,6 +1669,107 @@
             if (window.renderCartPage) window.renderCartPage();
             if (window.renderCheckoutSummary) window.renderCheckoutSummary();
             return adminUser;
+        },
+        async assignRoleAsync(email, roleName) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required. Please log in as Admin.");
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Admin/assign-role`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        roleName: roleName
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                const data = await response.json().catch(() => null);
+
+                if (!response.ok) {
+                    const msg = (data && data.message) ? data.message : 'Failed to assign role.';
+                    throw new Error(msg);
+                }
+
+                return data;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.warn('API assignRole notice:', err.message);
+                throw err;
+            }
+        },
+
+        async getProductBatchesAsync(productId) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/products/${productId}/batches`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error('Failed to load batch history.');
+                }
+                return response.json();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                throw err;
+            }
+        },
+
+        // --- Reporting API Methods ---
+        async getLowStockReportAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/admin/reports/low-stock`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to load low stock report.");
+            return response.json();
+        },
+
+        async getRevenueReportAsync(from, to, groupBy = 'day') {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/admin/reports/revenue?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&groupBy=${encodeURIComponent(groupBy)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to load revenue report.");
+            return response.json();
+        },
+
+        async getInventoryTurnoverAsync(from, to) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/admin/reports/inventory-turnover?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to load inventory turnover report.");
+            return response.json();
+        },
+
+        async getBestSellersAsync(from, to, top = 10) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/admin/reports/best-sellers?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&top=${top}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to load best sellers report.");
+            return response.json();
         }
     };
 

@@ -34,6 +34,9 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Chart.js for Advanced Analytics (FR-6.4) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -219,6 +222,85 @@
     </div>
 
 
+    <!-- Farm Add/Edit Modal (FR-6.2) -->
+    <div class="modal fade" id="editFarmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white fw-bold" id="editFarmModalTitle"><i
+                            class="fas fa-tractor me-2"></i>Add / Edit Farm Origin</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editFarmForm">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="fEditId">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Farm Name<sup>*</sup></label>
+                            <input type="text" id="fEditName" class="form-control p-3" required
+                                placeholder="e.g. Dalat Organic Produce Farm">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Location / Region<sup>*</sup></label>
+                            <input type="text" id="fEditLocation" class="form-control p-3" required
+                                placeholder="e.g. Ward 3, Dalat City, Lam Dong">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Contact Info (Phone / Email)</label>
+                            <input type="text" id="fEditContact" class="form-control p-3"
+                                placeholder="e.g. +84 901 234 567 / contact@dalatfarm.vn">
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 text-white fw-bold">
+                            <i class="fas fa-save me-1"></i>Save Farm Origin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- View Batches Modal (FR-6.1) -->
+    <div class="modal fade" id="viewBatchesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white fw-bold" id="viewBatchesModalTitle"><i class="fas fa-list-alt me-2"></i>Batch History</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Farm Origin</th>
+                                    <th>Quantity Received</th>
+                                    <th>Harvest Date</th>
+                                    <th>Expiration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gb-admin-batches-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Operations Container Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
@@ -283,7 +365,7 @@
             </div>
 
 
-            <!-- Section 2: Tab Navigation for Staff Fulfillment / Catalog / Tickets -->
+            <!-- Section 2: Tab Navigation for Staff Fulfillment / Catalog / Farms -->
             <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active fw-bold fs-5 text-primary" id="orders-tab" data-bs-toggle="tab"
@@ -295,6 +377,24 @@
                     <button class="nav-link fw-bold fs-5 text-primary" id="catalog-tab" data-bs-toggle="tab"
                         data-bs-target="#catalog-pane">
                         <i class="fas fa-boxes me-2"></i>Produce Catalog & Sourcing (FR-6.1, FR-6.2)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-bold fs-5 text-primary" id="farms-tab" data-bs-toggle="tab"
+                        data-bs-target="#farms-pane">
+                        <i class="fas fa-tractor me-2"></i>Farm Origins &amp; Traceability (FR-6.2)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-bold fs-5 text-primary" id="roles-tab" data-bs-toggle="tab"
+                        data-bs-target="#roles-pane">
+                        <i class="fas fa-user-shield me-2"></i>Roles &amp; Permissions
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-bold fs-5 text-primary" id="reports-tab" data-bs-toggle="tab"
+                        data-bs-target="#reports-pane">
+                        <i class="fas fa-chart-line me-2"></i>Reports &amp; Analytics
                     </button>
                 </li>
             </ul>
@@ -309,7 +409,13 @@
                             class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
                             <h5 class="card-title text-white mb-0"><i class="fas fa-list-ol me-2"></i>Incoming Orders &
                                 Status Progression</h5>
-                            <span class="badge bg-white text-primary fw-bold" id="orderCountBadge">0 Orders</span>
+                            <div>
+                                <div class="form-check form-switch d-inline-block me-3">
+                                    <input class="form-check-input" type="checkbox" id="filterQualityIssues">
+                                    <label class="form-check-label text-white fw-bold" for="filterQualityIssues">Quality Tickets Only</label>
+                                </div>
+                                <span class="badge bg-white text-primary fw-bold" id="orderCountBadge">0 Orders</span>
+                            </div>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
@@ -367,6 +473,166 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tab Pane 3: Partner Farm Origin Management (FR-6.2) -->
+                <div class="tab-pane fade" id="farms-pane">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div
+                            class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title text-white mb-0"><i class="fas fa-tractor me-2"></i>Partner Farm Origins &amp; Traceability</h5>
+                            <button id="btnAddNewFarm" class="btn btn-light rounded-pill px-4 text-primary fw-bold">
+                                <i class="fas fa-plus me-1"></i>Add New Farm Origin
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Farm ID</th>
+                                            <th>Farm Name</th>
+                                            <th>Location / Region</th>
+                                            <th>Contact Information</th>
+                                            <th class="text-end">Manage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gb-admin-farms-tbody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Pane 4: Roles & Permissions -->
+                <div class="tab-pane fade" id="roles-pane">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h5 class="card-title text-white mb-0"><i class="fas fa-user-shield me-2"></i>Assign User Roles</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <p class="text-muted mb-4">Elevate a user's privileges by assigning them a specific role (e.g., Staff or Admin).</p>
+                            
+                            <form id="assignRoleForm" class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label for="assignRoleEmail" class="form-label fw-bold">User Email Address</label>
+                                    <input type="email" class="form-control p-3" id="assignRoleEmail" placeholder="e.g. customer@example.com" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="assignRoleName" class="form-label fw-bold">Target Role</label>
+                                    <select id="assignRoleName" class="form-select p-3" required>
+                                        <option value="" selected disabled>Select Role...</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="Staff">Staff</option>
+                                        <option value="Customer">Customer</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary w-100 p-3 rounded-pill text-white fw-bold">
+                                        <i class="fas fa-check-circle me-1"></i>Assign Role
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Pane 5: Reports & Analytics -->
+                <div class="tab-pane fade" id="reports-pane">
+                    
+                    <!-- Date Filter Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Start Date</label>
+                            <input type="date" class="form-control p-3" id="repStartDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">End Date</label>
+                            <input type="date" class="form-control p-3" id="repEndDate">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button id="btnGenerateReport" class="btn btn-primary w-100 p-3 rounded-pill text-white fw-bold">
+                                <i class="fas fa-sync-alt me-2"></i>Generate Reports
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Revenue Chart -->
+                        <div class="col-12 col-xl-8">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-header bg-primary text-white py-3">
+                                    <h5 class="card-title text-white mb-0"><i class="fas fa-chart-bar me-2"></i>Revenue Trend</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <canvas id="revenueChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top 10 Best Sellers -->
+                        <div class="col-12 col-xl-4">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-header bg-success text-white py-3">
+                                    <h5 class="card-title text-white mb-0"><i class="fas fa-trophy me-2"></i>Top Best Sellers</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush" id="bestSellersList">
+                                        <!-- Dynamically populated -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Turnover -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-header bg-info text-white py-3">
+                                    <h5 class="card-title text-white mb-0"><i class="fas fa-exchange-alt me-2"></i>Inventory Turnover</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Total Sold</th>
+                                                <th>Turnover Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventoryTurnoverTbody">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Low Stock Warnings -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-header bg-warning text-dark py-3">
+                                    <h5 class="card-title text-dark mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Farm Origin</th>
+                                                <th>Current Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="lowStockTbody">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -444,13 +710,19 @@
                 $('#statActiveProducts').text(analytics.activeProducts);
 
                 // 2. Render Order Fulfillment Queue (FR-6.3)
-                const orders = window.AppState.getOrders();
+                let orders = window.AppState.getOrders();
+                
+                const filterIssues = $('#filterQualityIssues').is(':checked');
+                if (filterIssues) {
+                    orders = orders.filter(o => o.status === 'Issue Reported');
+                }
+
                 const $ordersTbody = $('#gb-admin-orders-tbody');
                 $ordersTbody.empty();
                 $('#orderCountBadge').text(orders.length + ' Orders');
 
                 if (orders.length === 0) {
-                    $ordersTbody.html('<tr><td colspan="7" class="text-center py-4 text-muted">No orders in queue.</td></tr>');
+                    $ordersTbody.html('<tr><td colspan="7" class="text-center py-4 text-muted">No orders match the current filter.</td></tr>');
                 } else {
                     orders.forEach(o => {
                         let statusBadge = '';
@@ -458,6 +730,8 @@
                         else if (o.status === 'Out for Delivery') statusBadge = '<span class="badge bg-info text-dark">Out for Delivery</span>';
                         else if (o.status === 'Delivered') statusBadge = '<span class="badge bg-success">Delivered</span>';
                         else if (o.status === 'Cancelled') statusBadge = '<span class="badge bg-danger">Cancelled</span>';
+                        else if (o.status === 'Issue Reported') statusBadge = '<span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i>Quality Issue</span>';
+                        else if (o.status === 'Resolved') statusBadge = '<span class="badge bg-success">Resolved</span>';
 
                         // Action Buttons based on status
                         let actionButtons = '';
@@ -474,6 +748,15 @@
                             actionButtons = `
                                 <button class="btn btn-sm btn-success rounded-pill px-3 btn-set-status text-white" data-id="${o.id}" data-status="Delivered">
                                     <i class="fas fa-check-circle me-1"></i>Mark Delivered
+                                </button>
+                            `;
+                        } else if (o.status === 'Issue Reported') {
+                            actionButtons = `
+                                <button class="btn btn-sm btn-outline-success rounded-pill px-3 btn-set-status" data-id="${o.id}" data-status="Resolved">
+                                    <i class="fas fa-check me-1"></i>Resolve
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-2 btn-admin-refund" data-id="${o.id}">
+                                    Refund
                                 </button>
                             `;
                         } else {
@@ -546,10 +829,13 @@
                             <td class="fw-bold">${p.stockQuantity} ${p.unit}</td>
                             <td>${stockBadge}</td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-prod" data-id="${p.id}">
+                                <button class="btn btn-sm btn-outline-info rounded-circle me-1 btn-view-batches" data-id="${p.id}" data-name="${p.name}" title="View Batch History">
+                                    <i class="fas fa-list-alt"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-prod" data-id="${p.id}" title="Edit Product">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-prod" data-id="${p.id}">
+                                <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-prod" data-id="${p.id}" title="Delete Product">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -728,11 +1014,318 @@
                 }, 'Delete Item');
             });
 
+            // 4. Render Farm Origins Table (FR-6.2)
+            async function renderFarms() {
+                const farms = (window.AppState.loadFarmsAsync)
+                    ? await window.AppState.loadFarmsAsync()
+                    : [];
+                const $farmsTbody = $('#gb-admin-farms-tbody');
+                $farmsTbody.empty();
+
+                if (farms.length === 0) {
+                    $farmsTbody.html('<tr><td colspan="5" class="text-center py-4 text-muted">No partner farm origins recorded.</td></tr>');
+                    return;
+                }
+
+                farms.forEach(f => {
+                    $farmsTbody.append(`
+                        <tr>
+                            <td class="fw-bold text-muted">#${f.id}</td>
+                            <td>
+                                <strong class="text-dark fs-6 d-block">${f.name}</strong>
+                                <small class="text-success"><i class="fas fa-check-circle me-1"></i>Verified Sourcing Partner</small>
+                            </td>
+                            <td><i class="fas fa-map-marker-alt text-danger me-1"></i>${f.location || 'N/A'}</td>
+                            <td><small class="text-muted"><i class="fas fa-phone-alt me-1 text-primary"></i>${f.contactInfo || 'N/A'}</small></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-farm" data-id="${f.id}" data-name="${f.name}" data-location="${f.location}" data-contact="${f.contactInfo || ''}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-farm" data-id="${f.id}" data-name="${f.name}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // Add Farm Modal Opener
+            $('#btnAddNewFarm').on('click', function () {
+                $('#editFarmModalTitle').html('<i class="fas fa-plus me-2"></i>Add New Farm Origin');
+                $('#fEditId').val('');
+                $('#fEditName').val('');
+                $('#fEditLocation').val('');
+                $('#fEditContact').val('');
+
+                const modal = new bootstrap.Modal(document.getElementById('editFarmModal'));
+                modal.show();
+            });
+
+            // Edit Farm Modal Opener
+            $(document).on('click', '.btn-edit-farm', function () {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const location = $(this).data('location');
+                const contact = $(this).data('contact');
+
+                $('#editFarmModalTitle').html('<i class="fas fa-edit me-2"></i>Edit Farm Origin');
+                $('#fEditId').val(id);
+                $('#fEditName').val(name);
+                $('#fEditLocation').val(location);
+                $('#fEditContact').val(contact);
+
+                const modal = new bootstrap.Modal(document.getElementById('editFarmModal'));
+                modal.show();
+            });
+
+            // Save Farm Form Handler
+            $('#editFarmForm').on('submit', async function (e) {
+                e.preventDefault();
+                const id = $('#fEditId').val();
+                const farmData = {
+                    name: $('#fEditName').val().trim(),
+                    location: $('#fEditLocation').val().trim(),
+                    contactInfo: $('#fEditContact').val().trim()
+                };
+
+                try {
+                    if (id) {
+                        await window.AppState.updateFarmAsync(id, farmData);
+                        window.GB.showToast(`Farm <strong>${farmData.name}</strong> updated successfully!`, 'success');
+                    } else {
+                        await window.AppState.createFarmAsync(farmData);
+                        window.GB.showToast(`New Farm <strong>${farmData.name}</strong> added successfully!`, 'success');
+                    }
+                    bootstrap.Modal.getInstance(document.getElementById('editFarmModal')).hide();
+                    renderFarms();
+                } catch (err) {
+                    window.GB.showToast(`Failed to save farm: ${err.message}`, 'danger');
+                }
+            });
+
+            // Delete Farm Handler (handles 409 Conflict if farm has batch history)
+            $(document).on('click', '.btn-delete-farm', function () {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+
+                window.GB.confirm(`Delete farm origin <strong>${name}</strong>?`, async function () {
+                    try {
+                        await window.AppState.deleteFarmAsync(id);
+                        window.GB.showToast(`Farm origin <strong>${name}</strong> deleted.`, 'info');
+                        renderFarms();
+                    } catch (err) {
+                        window.GB.showToast(`<strong>Cannot Delete Farm:</strong> ${err.message}`, 'warning');
+                    }
+                }, 'Delete Farm Origin');
+            });
+
+            // Assign Role Form Handler
+            $('#assignRoleForm').on('submit', async function (e) {
+                e.preventDefault();
+                const email = $('#assignRoleEmail').val().trim();
+                const roleName = $('#assignRoleName').val();
+
+                const $btn = $(this).find('button[type="submit"]');
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin me-1"></i>Assigning...').prop('disabled', true);
+
+                try {
+                    const result = await window.AppState.assignRoleAsync(email, roleName);
+                    window.GB.showToast(result.message || `Successfully assigned role <strong>${roleName}</strong> to <strong>${email}</strong>!`, 'success');
+                    $('#assignRoleEmail').val('');
+                    $('#assignRoleName').val('');
+                } catch (err) {
+                    window.GB.showToast(`<strong>Error:</strong> ${err.message}`, 'danger');
+                } finally {
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            });
+
+            // --- Reports & Analytics Logic ---
+            let revenueChartInstance = null;
+
+            async function generateReports() {
+                const $btn = $('#btnGenerateReport');
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Loading...').prop('disabled', true);
+
+                try {
+                    const from = $('#repStartDate').val() + 'T00:00:00Z';
+                    const to = $('#repEndDate').val() + 'T23:59:59Z';
+                    
+                    if (!$('#repStartDate').val() || !$('#repEndDate').val()) {
+                        throw new Error("Please select both start and end dates.");
+                    }
+
+                    // 1. Fetch Revenue
+                    if (window.AppState.getRevenueReportAsync) {
+                        const revData = await window.AppState.getRevenueReportAsync(from, to, 'day');
+                        const labels = revData.map(r => r.period);
+                        const data = revData.map(r => r.totalRevenue);
+
+                        const ctx = document.getElementById('revenueChart').getContext('2d');
+                        if (revenueChartInstance) {
+                            revenueChartInstance.destroy();
+                        }
+                        revenueChartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Revenue ($)',
+                                    data: data,
+                                    backgroundColor: 'rgba(52, 173, 84, 0.7)',
+                                    borderColor: 'rgba(52, 173, 84, 1)',
+                                    borderWidth: 1,
+                                    borderRadius: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: { beginAtZero: true }
+                                }
+                            }
+                        });
+                    }
+
+                    // 2. Fetch Best Sellers
+                    if (window.AppState.getBestSellersAsync) {
+                        const bestSellers = await window.AppState.getBestSellersAsync(from, to, 10);
+                        const $bsList = $('#bestSellersList');
+                        $bsList.empty();
+                        if (bestSellers.length === 0) {
+                            $bsList.append('<li class="list-group-item text-muted p-4 text-center">No sales data for this period.</li>');
+                        } else {
+                            bestSellers.forEach((item, index) => {
+                                $bsList.append(`
+                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                        <div>
+                                            <span class="badge bg-secondary rounded-pill me-2">#${index + 1}</span>
+                                            <span class="fw-bold">${item.productName}</span>
+                                        </div>
+                                        <span class="text-success fw-bold">${item.totalQuantitySold} unit(s)</span>
+                                    </li>
+                                `);
+                            });
+                        }
+                    }
+
+                    // 3. Fetch Inventory Turnover
+                    if (window.AppState.getInventoryTurnoverAsync) {
+                        const turnover = await window.AppState.getInventoryTurnoverAsync(from, to);
+                        const $turnoverTbody = $('#inventoryTurnoverTbody');
+                        $turnoverTbody.empty();
+                        if (turnover.length === 0) {
+                            $turnoverTbody.html('<tr><td colspan="3" class="text-center text-muted p-4">No turnover data found.</td></tr>');
+                        } else {
+                            turnover.forEach(item => {
+                                $turnoverTbody.append(`
+                                    <tr>
+                                        <td class="fw-bold">${item.productName}</td>
+                                        <td>${item.totalQuantitySold}</td>
+                                        <td><span class="badge bg-info">${item.turnoverRate.toFixed(2)}</span></td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+
+                    // 4. Fetch Low Stock
+                    if (window.AppState.getLowStockReportAsync) {
+                        const lowStock = await window.AppState.getLowStockReportAsync();
+                        const $lsTbody = $('#lowStockTbody');
+                        $lsTbody.empty();
+                        if (lowStock.length === 0) {
+                            $lsTbody.html('<tr><td colspan="3" class="text-center text-muted p-4">Stock levels are healthy.</td></tr>');
+                        } else {
+                            lowStock.forEach(item => {
+                                $lsTbody.append(`
+                                    <tr>
+                                        <td class="fw-bold text-danger">${item.productName}</td>
+                                        <td>${item.farmName}</td>
+                                        <td><span class="badge bg-danger rounded-pill px-3">${item.currentStockQuantity}</span></td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+
+                } catch (err) {
+                    window.GB.showToast(`Error generating reports: ${err.message}`, 'danger');
+                } finally {
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            }
+
+            $('#btnGenerateReport').on('click', generateReports);
+
+            // Set default dates and generate if on tab
+            $('#reports-tab').on('shown.bs.tab', function () {
+                if (!$('#repStartDate').val()) {
+                    const to = new Date();
+                    const from = new Date();
+                    from.setDate(from.getDate() - 30);
+                    $('#repStartDate').val(from.toISOString().split('T')[0]);
+                    $('#repEndDate').val(to.toISOString().split('T')[0]);
+                    generateReports();
+                }
+            });
+
+            // View Batches Modal Opener
+            $(document).on('click', '.btn-view-batches', async function () {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const $tbody = $('#gb-admin-batches-tbody');
+
+                $('#viewBatchesModalTitle').html(`<i class="fas fa-list-alt me-2"></i>Batch History - ${name}`);
+                $tbody.html('<tr><td colspan="5" class="text-center p-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading batches...</td></tr>');
+
+                const modal = new bootstrap.Modal(document.getElementById('viewBatchesModal'));
+                modal.show();
+
+                try {
+                    const batches = await window.AppState.getProductBatchesAsync(id);
+                    $tbody.empty();
+
+                    if (batches.length === 0) {
+                        $tbody.html('<tr><td colspan="5" class="text-center p-4 text-muted">No batch history found for this product.</td></tr>');
+                    } else {
+                        batches.forEach(b => {
+                            const expDate = b.expirationDate ? new Date(b.expirationDate).toLocaleDateString() : 'N/A';
+                            const harvestDate = b.harvestDate ? new Date(b.harvestDate).toLocaleDateString() : 'N/A';
+                            $tbody.append(`
+                                <tr>
+                                    <td class="fw-bold text-muted">#${b.id}</td>
+                                    <td><i class="fas fa-tractor text-success me-1"></i>${b.farmName}</td>
+                                    <td class="fw-bold">${b.quantityReceived}</td>
+                                    <td>${harvestDate}</td>
+                                    <td>${expDate}</td>
+                                </tr>
+                            `);
+                        });
+                    }
+                } catch (err) {
+                    $tbody.html(`<tr><td colspan="5" class="text-center p-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error loading batches: ${err.message}</td></tr>`);
+                }
+            });
+
+            // Filter Checkbox Listener
+            $('#filterQualityIssues').on('change', function() {
+                renderAdminDashboard();
+            });
+
             // Initial render
             renderAdminDashboard();
+            renderFarms();
 
             // State sync
-            window.addEventListener('gb_state_change', renderAdminDashboard);
+            window.addEventListener('gb_state_change', function () {
+                renderAdminDashboard();
+                renderFarms();
+            });
         });
     </script>
 </body>
