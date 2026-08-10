@@ -909,7 +909,7 @@
         async placeOrderAsync(checkoutDetails) {
             const localOrder = this.placeOrder(checkoutDetails);
             const authUser = this.getAuthUser();
-            const token = getStorage(STORAGE_KEYS.JWT_TOKEN);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
 
             if (token && authUser && localOrder) {
                 try {
@@ -944,29 +944,59 @@
         },
         updateOrderStatus(orderId, newStatus) {
             const orders = this.getOrders();
-            const order = orders.find(o => o.id === orderId);
+            const targetId = String(orderId).replace(/^ORD-/, '');
+            const order = orders.find(o => String(o.id).replace(/^ORD-/, '') === targetId);
             if (order) {
                 order.status = newStatus;
-                saveStorage(STORAGE_KEYS.ORDERS, orders);
+                saveStorage(this.getOrdersKey(), orders);
                 return true;
             }
             return false;
         },
         cancelOrder(orderId) {
             const orders = this.getOrders();
-            const order = orders.find(o => o.id === orderId);
-            if (order && order.status === 'Processing') {
+            const targetId = String(orderId).replace(/^ORD-/, '');
+            const order = orders.find(o => String(o.id).replace(/^ORD-/, '') === targetId);
+            if (order && (order.status === 'Processing' || order.status === 'Pending' || order.status === 'Out for Delivery')) {
                 order.status = 'Cancelled';
-                saveStorage(STORAGE_KEYS.ORDERS, orders);
+                saveStorage(this.getOrdersKey(), orders);
                 return true;
             }
             return false;
+        },
+        async cancelOrderAsync(orderId) {
+            const result = this.cancelOrder(orderId);
+            const authUser = this.getAuthUser();
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+
+            if (token && authUser) {
+                try {
+                    const rawId = String(orderId).replace(/^ORD-/, '');
+                    const userId = authUser.id || authUser.email;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                    await fetch(`${API_BASE_URL}/Order/cancel/${rawId}?userId=${encodeURIComponent(userId)}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (err) {
+                    // Local fallback already completed
+                }
+            }
+            return result;
         },
 
         // --- Quality Issue Reports (FR-5.3, FR-6.3) ---
         submitQualityReport(orderId, issueType, comments) {
             const orders = this.getOrders();
-            const order = orders.find(o => o.id === orderId);
+            const targetId = String(orderId).replace(/^ORD-/, '');
+            const order = orders.find(o => String(o.id).replace(/^ORD-/, '') === targetId);
             if (!order) return false;
 
             const ticket = {
@@ -979,15 +1009,16 @@
             };
 
             order.qualityReport = ticket;
-            saveStorage(STORAGE_KEYS.ORDERS, orders);
+            saveStorage(this.getOrdersKey(), orders);
             return ticket;
         },
         resolveQualityReport(orderId, resolutionStatus) {
             const orders = this.getOrders();
-            const order = orders.find(o => o.id === orderId);
+            const targetId = String(orderId).replace(/^ORD-/, '');
+            const order = orders.find(o => String(o.id).replace(/^ORD-/, '') === targetId);
             if (order && order.qualityReport) {
                 order.qualityReport.status = resolutionStatus;
-                saveStorage(STORAGE_KEYS.ORDERS, orders);
+                saveStorage(this.getOrdersKey(), orders);
                 return true;
             }
             return false;

@@ -409,10 +409,16 @@
             // Cancel Order Handler
             $(document).on('click', '.btn-cancel-order', function () {
                 const id = $(this).data('id');
-                window.GB.confirm(`Are you sure you want to cancel Order <strong>#${id}</strong>?`, function () {
-                    window.AppState.cancelOrder(id);
+                window.GB.confirm(`Are you sure you want to cancel Order <strong>#${id}</strong>?`, async function () {
+                    if (window.AppState && window.AppState.cancelOrderAsync) {
+                        await window.AppState.cancelOrderAsync(id);
+                    } else if (window.AppState) {
+                        window.AppState.cancelOrder(id);
+                    }
                     window.GB.showToast(`Order #${id} has been cancelled.`, 'info');
-                    renderOrders();
+                    if (typeof renderOrders === 'function') {
+                        await renderOrders();
+                    }
                 }, 'Cancel Order Request');
             });
 
