@@ -1364,16 +1364,49 @@
         },
 
         deleteAddress(addressId) {
-            let addresses = this.getUserAddresses();
-            addresses = addresses.filter(a => a.id != addressId);
-            if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
-                addresses[0].isDefault = true;
+            const userKey = this.getAddressKey();
+            let userAddresses = JSON.parse(localStorage.getItem(userKey) || 'null');
+            if (!userAddresses || !Array.isArray(userAddresses)) {
+                userAddresses = this.getUserAddresses();
             }
-            
-            localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
-            
+            userAddresses = userAddresses.filter(a => a.id != addressId);
+            if (userAddresses.length > 0 && !userAddresses.some(a => a.isDefault)) {
+                userAddresses[0].isDefault = true;
+            }
+            localStorage.setItem(userKey, JSON.stringify(userAddresses));
+
+            let globalAddresses = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDRESSES) || 'null');
+            if (Array.isArray(globalAddresses)) {
+                globalAddresses = globalAddresses.filter(a => a.id != addressId);
+                if (globalAddresses.length > 0 && !globalAddresses.some(a => a.isDefault)) {
+                    globalAddresses[0].isDefault = true;
+                }
+                localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(globalAddresses));
+            }
+
+            // Sync backend API delete if logged in
+            const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+            if (token && !isNaN(parseInt(addressId, 10))) {
+                fetch(`${API_BASE_URL}/Address/${addressId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }).catch(err => console.warn('Address API delete error:', err));
+            }
+
             window.dispatchEvent(new Event('addressDataChanged'));
-            return addresses;
+
+            if (typeof renderSavedAddresses === 'function') {
+                renderSavedAddresses();
+            }
+
+            if (window.GB && window.GB.showToast) {
+                window.GB.showToast('Address deleted successfully!', 'success');
+            }
+
+            return userAddresses;
         },
 
         // Async C# API Address Methods with 2s Timeout & Local Fallback
@@ -1425,7 +1458,7 @@
                     body: JSON.stringify({
                         receiverName: addressData.receiverName || addressData.fullName,
                         phoneNumber: addressData.phoneNumber || addressData.phone,
-                        email: addressData.email || '', // Đã bổ sung Email
+                        email: addressData.email || '',
                         streetAddress: addressData.streetAddress || addressData.address,
                         city: addressData.city || 'Ho Chi Minh City',
                         district: addressData.district || 'District 1',
@@ -1441,7 +1474,6 @@
                 if (resData && resData.isSuccess && resData.data) {
                     this.getUserAddressesAsync();
                     
-                    // Phát sự kiện cập nhật UI
                     window.dispatchEvent(new Event('addressDataChanged'));
                     return resData.data;
                 }
@@ -1449,37 +1481,6 @@
             } catch (err) {
                 clearTimeout(timeoutId);
                 return this.addAddress(addressData);
-            }
-        },
-
-      deleteAddress(addressId) {
-            // 1. Lấy danh sách hiện tại
-            let addresses = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDRESSES) || '[]');
-
-            // 2. Lọc bỏ cái địa chỉ có ID cần xóa (Dùng != để ép kiểu linh hoạt tránh lệch chuỗi/số)
-            addresses = addresses.filter(addr => addr.id != addressId);
-
-            // Đảm bảo nếu xóa hết mà vẫn còn mảng thì chỉnh lại mặc định
-            if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
-                addresses[0].isDefault = true;
-            }
-
-            // 3. Lưu lại mảng mới vào localStorage
-            localStorage.setItem(STORAGE_KEYS.ADDRESSES, JSON.stringify(addresses));
-
-            // 4. Phát sự kiện thông báo dữ liệu đã thay đổi để UI tự cập nhật mượt mà
-            window.dispatchEvent(new Event('addressDataChanged'));
-
-            // 5. Gọi trực tiếp hàm vẽ lại giao diện nếu đang ở trang checkout
-            if (typeof renderSavedAddresses === 'function') {
-                renderSavedAddresses();
-            }
-
-            // Có thể bỏ alert đi hoặc thay bằng Toast thông báo cho đẹp mắt, tùy bạn chọn
-            if (window.GB && window.GB.showToast) {
-                window.GB.showToast('Address deleted successfully!', 'success');
-            } else {
-                alert('Delete address successfully!');
             }
         },
         registerUser(name, email, password) {
