@@ -39,6 +39,9 @@ namespace GreenBasket.Domain.Entities
         [MaxLength(50)]
         public string? PaymentStatus { get; set; } // e.g., "Pending", "Paid", "Failed"
 
+        [MaxLength(255)]
+        public string? DeliveryAddress { get; set; }
+
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

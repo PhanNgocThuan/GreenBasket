@@ -815,8 +815,8 @@
                             email: authUser.email || '',
                             phone: authUser.phone || '',
                             deliveryAddress: o.deliveryAddress || 'Saved Delivery Location',
-                            deliverySlot: 'Standard Window',
-                            paymentMethod: 'Credit Card / Online',
+                            deliverySlot: o.deliverySlot || 'Standard Window',
+                            paymentMethod: o.paymentMethod || 'Credit Card / Online',
                             items: items,
                             subtotal: subtotal,
                             deliveryFee: subtotal >= 30 ? 0.00 : 2.00,
@@ -880,7 +880,9 @@
             if (token && authUser) {
                 try {
                     const dto = {
-                        appUserId: authUser.id || authUser.email
+                        appUserId: authUser.id || authUser.email,
+                        deliveryAddress: checkoutDetails.address || 'Saved Delivery Location',
+                        paymentMethod: checkoutDetails.paymentMethod || 'Credit Card / Online'
                     };
 
                     const response = await fetch(`${API_BASE_URL}/Order/create`, {
@@ -1095,7 +1097,7 @@
         // Async Login API Integration with 2s Timeout & Clean Exception Handling
         async loginUserAsync(email, password) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
 
             try {
                 const response = await fetch(`${API_BASE_URL}/Auth/login`, {
@@ -1142,6 +1144,28 @@
                 console.warn('API Login Error:', err.message);
                 throw err;
             }
+        },
+
+        async forgotPasswordAsync(email) {
+            const response = await fetch(`${API_BASE_URL}/Auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) throw new Error(resData?.message || 'Failed to send OTP.');
+            return resData;
+        },
+
+        async resetPasswordAsync(email, otp, newPassword) {
+            const response = await fetch(`${API_BASE_URL}/Auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, newPassword })
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) throw new Error(resData?.message || 'Failed to reset password.');
+            return resData;
         },
 
         async updateProductAsync(productData) {
@@ -1198,10 +1222,10 @@
             }
         },
 
-        // Async Registration API Integration with 2s Timeout
+        // Async Registration API Integration with 10s Timeout
         async registerUserAsync(fullName, email, password) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
 
             try {
                 const response = await fetch(`${API_BASE_URL}/Auth/register`, {
@@ -1225,6 +1249,10 @@
 
                 const data = resData && resData.data ? resData.data : resData;
                 const token = data.token || data.Token;
+                if (token === "PendingVerification") {
+                    return { pendingVerification: true, email: email };
+                }
+
                 const role = token ? this.extractRoleFromToken(token) : 'Customer';
 
                 const user = {
@@ -1249,6 +1277,57 @@
                 console.warn('API Register Error:', err.message);
                 throw err;
             }
+        },
+
+        async verifyEmailAsync(email, otp) {
+            const response = await fetch(`${API_BASE_URL}/Auth/verify-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, newPassword: 'dummy123' }) // newPassword required by DTO but ignored
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) throw new Error(resData?.message || 'Invalid OTP.');
+            return resData;
+        },
+
+        async resendOtpAsync(email) {
+            const response = await fetch(`${API_BASE_URL}/Auth/resend-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password: 'dummy' })
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) throw new Error(resData?.message || 'Failed to resend OTP.');
+            return resData;
+        },
+
+        async forgotPasswordAsync(email) {
+            const response = await fetch(`${API_BASE_URL}/Auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password: 'dummy' })
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) throw new Error(resData?.message || 'Failed to send reset code.');
+            return resData;
+        },
+
+        async resetPasswordAsync(email, otp, newPassword) {
+            const response = await fetch(`${API_BASE_URL}/Auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, newPassword })
+            });
+            const resData = await response.json().catch(() => null);
+            if (!response.ok) {
+                let errMsg = resData?.message || 'Failed to reset password.';
+                if (resData && resData.errors) {
+                    const errList = Object.values(resData.errors).flat().join(', ');
+                    if (errList) errMsg = errList;
+                }
+                throw new Error(errMsg);
+            }
+            return resData;
         },
 
         // --- Legacy Authentication (FR-1.1, FR-1.2, FR-7.1) ---

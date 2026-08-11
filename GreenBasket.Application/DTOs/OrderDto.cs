@@ -11,6 +11,10 @@ namespace GreenBasket.Application.DTOs
         public decimal TotalCost { get; set; }
         public decimal DiscountAmount { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string DeliveryAddress { get; set; } = string.Empty;
+        public string? DeliverySlot { get; set; }
+        public string? PaymentMethod { get; set; }
+        public string? PaymentStatus { get; set; }
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 
@@ -28,6 +32,8 @@ namespace GreenBasket.Application.DTOs
         public string AppUserId { get; set; } = string.Empty;
         public int? DiscountCodeId { get; set; }
         public int? DeliverySlotId { get; set; }
+        public string? DeliveryAddress { get; set; }
+        public string? PaymentMethod { get; set; }
     }
 
     public class CalculateCostDto

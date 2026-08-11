@@ -195,8 +195,11 @@
                                         placeholder="alex@example.com"
                                         style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <label class="form-label fw-bold text-dark mb-0">Password</label>
+                                    <a href="#" id="link-forgot-password" class="text-success small fw-bold text-decoration-none">Forgot Password?</a>
+                                </div>
                                 <div class="mb-4">
-                                    <label class="form-label fw-bold text-dark">Password</label>
                                     <input type="password" id="login-password" class="form-control p-3" required
                                         placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
                                 </div>
@@ -243,85 +246,84 @@
                             </form>
                         </div>
 
+                        <!-- Verify Email Form (Hidden initially) -->
+                        <div class="tab-pane fade" id="pane-verify-email">
+                            <form id="form-verify-email">
+                                <div class="text-center mb-3">
+                                    <i class="fas fa-envelope-open-text fa-3x text-success mb-2"></i>
+                                    <h5 class="fw-bold">Verify Your Email</h5>
+                                    <p class="small text-muted">We've sent a 6-digit code to <strong id="verify-email-display">your email</strong>. Please enter it below.</p>
+                                </div>
+                                <div id="verify-error-alert" class="alert alert-danger py-2 px-3 rounded-3 small fw-bold mb-3 d-none" style="border: 2px solid #2B2118; background-color: #FFC4C4; color: #2B2118;">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i><span class="err-txt">Invalid OTP.</span>
+                                </div>
+                                <div class="mb-4 text-center">
+                                    <input type="text" id="verify-otp" class="form-control p-3 text-center fs-4 fw-bold letter-spacing-2" required placeholder="------" maxlength="6" style="border: 2px solid #2B2118; border-radius: 14px; letter-spacing: 0.5rem;">
+                                </div>
+                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6 mb-3" style="background-color: #91EFD2; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
+                                    Verify & Continue <i class="fas fa-check ms-2"></i>
+                                </button>
+                                <div class="text-center">
+                                    <button type="button" id="btn-resend-otp" class="btn btn-link text-success fw-bold text-decoration-none p-0 small">Resend Code</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Forgot Password Form (Hidden initially) -->
+                        <div class="tab-pane fade" id="pane-forgot-password">
+                            <form id="form-forgot-password">
+                                <div class="text-center mb-3">
+                                    <i class="fas fa-lock fa-3x text-warning mb-2"></i>
+                                    <h5 class="fw-bold">Reset Password</h5>
+                                    <p class="small text-muted">Enter your email to receive a password reset code.</p>
+                                </div>
+                                <div id="forgot-error-alert" class="alert alert-danger py-2 px-3 rounded-3 small fw-bold mb-3 d-none" style="border: 2px solid #2B2118; background-color: #FFC4C4; color: #2B2118;">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i><span class="err-txt">Error.</span>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Email Address</label>
+                                    <input type="email" id="forgot-email" class="form-control p-3" required placeholder="alex@example.com" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                </div>
+                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6 mb-3" style="background-color: #FBFA86; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
+                                    Send Reset Code <i class="fas fa-paper-plane ms-2"></i>
+                                </button>
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none p-0 small btn-back-login"><i class="fas fa-arrow-left me-1"></i> Back to Login</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Reset Password Form (Hidden initially) -->
+                        <div class="tab-pane fade" id="pane-reset-password">
+                            <form id="form-reset-password">
+                                <div class="text-center mb-3">
+                                    <h5 class="fw-bold">Create New Password</h5>
+                                    <p class="small text-muted">Enter the 6-digit code and your new password.</p>
+                                </div>
+                                <div id="reset-error-alert" class="alert alert-danger py-2 px-3 rounded-3 small fw-bold mb-3 d-none" style="border: 2px solid #2B2118; background-color: #FFC4C4; color: #2B2118;">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i><span class="err-txt">Error.</span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-dark">6-Digit Code</label>
+                                    <input type="text" id="reset-otp" class="form-control p-3 text-center fw-bold" required placeholder="------" maxlength="6" style="border: 2px solid #2B2118; border-radius: 14px; letter-spacing: 0.5rem;">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">New Password</label>
+                                    <input type="password" id="reset-password" class="form-control p-3" required placeholder="••••••••" style="border: 2px solid #2B2118; border-radius: 14px;">
+                                </div>
+                                <button type="submit" class="btn w-100 py-3 rounded-pill fw-bold fs-6 mb-3" style="background-color: #91EFD2; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
+                                    Save New Password <i class="fas fa-save ms-2"></i>
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
 
             </div>
         </div>
-        <!-- Footer Start -->
-        <div class="container-fluid footer pt-5 mt-5">
-            <div class="container py-5">
-                <div class="pb-4 mb-4" style="border-bottom: 2px solid #FBFA86;">
-                    <div class="row g-4 align-items-center">
-                        <div class="col-lg-3">
-                            <a href="landing.html">
-                                <h2 class="fw-bold mb-0" style="color: #FBFA86;"><i
-                                        class="fas fa-leaf text-success me-2"></i>GreenBasket</h2>
-                                <p class="small mb-0" style="color: #F9EDDE;">Fresh Produce Platform</p>
-                            </a>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="position-relative mx-auto">
-                                <input class="form-control py-3 px-4 rounded-pill" type="email"
-                                    placeholder="Your Email for Fresh Deals">
-                                <button type="submit" class="btn btn-subscribe py-3 px-4 position-absolute rounded-pill"
-                                    style="top: 0; right: 0;">Subscribe</button>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="d-flex justify-content-end">
-                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="https://twitter.com/GreenBasket"><i
-                                        class="fab fa-twitter"></i></a>
-                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="https://facebook.com/GreenBasket"><i
-                                        class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="https://youtube.com/GreenBasket"><i
-                                        class="fab fa-youtube"></i></a>
-                                <a class="btn btn-outline-secondary btn-md-square rounded-circle" href="https://linkedin.com/company/GreenBasket"><i
-                                        class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-5">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-item">
-                            <h4 class="mb-3">Why People Trust Us?</h4>
-                            <p class="mb-4">GreenBasket connects urban households directly with certified organic and
-                                VietGAP produce farms. 100% freshness guarantee with real-time order tracking.</p>
-                            <button class="btn btn-subscribe py-2 px-4 rounded-pill btn-open-auth-modal"
-                                data-bs-toggle="modal" data-bs-target="#authModal">Get Started</button>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-item">
-                            <h4 class="mb-3">Quick Navigation</h4>
-                            <a class="btn-link d-block mb-2" href="index.html"><i
-                                    class="fas fa-chevron-right me-1 small text-warning"></i>Storefront Home</a>
-                            <a class="btn-link d-block mb-2" href="shop.html"><i
-                                    class="fas fa-chevron-right me-1 small text-warning"></i>Browse Produce Catalog</a>
-                            <a class="btn-link d-block mb-2" href="cart.html"><i
-                                    class="fas fa-chevron-right me-1 small text-warning"></i>Shopping Cart</a>
-                            <a class="btn-link d-block mb-2" href="orders.html"><i
-                                    class="fas fa-chevron-right me-1 small text-warning"></i>Track Order Status</a>
-                            <a class="btn-link d-block mb-2" href="admin.html"><i
-                                    class="fas fa-chevron-right me-1 small text-warning"></i>Staff Operations</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-item">
-                            <h4 class="mb-3">Contact Support</h4>
-                            <p class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>Dalat Organic
-                                Agriculture Hub & HCMC Distribution Center</p>
-                            <p class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>support@greenbasket.com</p>
-                            <p class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+84 901 234 567</p>
-                            <p class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Operating Hours: 06:00 AM -
-                                20:00 PM (Daily)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Footer End -->
+    </div>
+        <!-- Footer Removed per user request -->
 
 
         <!-- JavaScript Libraries -->
@@ -332,9 +334,9 @@
         <!-- App State Engine & Script -->
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-        <script src="js/config.js"></script>
-        <script src="js/app-state.js"></script>
-        <script src="js/main.js"></script>
+    <script src="js/config.js?v=2"></script>
+    <script src="js/app-state.js?v=2"></script>
+    <script src="js/main.js?v=2"></script>
 
         <!-- Landing Page Script -->
         <script>
@@ -422,6 +424,9 @@
                     showAuthModal('register');
                 });
 
+                let currentAuthEmail = '';
+                let tempPassword = '';
+
                 // Sign In Submit Form (Async API Call)
                 $('#form-login').on('submit', async function (e) {
                     e.preventDefault();
@@ -437,6 +442,19 @@
                         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Signing in...');
 
                         const user = await window.AppState.loginUserAsync(email, pwd);
+                        
+                        if (user.pendingVerification) {
+                            $btn.prop('disabled', false).html(origBtnText);
+                            currentAuthEmail = user.email;
+                            tempPassword = pwd;
+                            $('#verify-email-display').text(user.email);
+                            
+                            // Hide tabs, show verify pane
+                            $('#authTabs').addClass('d-none');
+                            $('.tab-pane').removeClass('show active');
+                            $('#pane-verify-email').addClass('show active');
+                            return;
+                        }
 
                         if (window.GB && window.GB.showToast) {
                             window.GB.showToast(`Welcome back, <strong>${user.name}</strong>! Redirecting...`, 'success');
@@ -447,10 +465,29 @@
                     } catch (err) {
                         $btn.prop('disabled', false).html(origBtnText);
                         const errMsg = err.message || 'Login failed. Please check your credentials!';
-                        $('#login-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
-                        if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(errMsg, 'danger');
+                        
+                        // Handle unverified email error explicitly
+                        if (errMsg.toLowerCase().includes('verify your email')) {
+                            currentAuthEmail = email;
+                            tempPassword = pwd;
+                            
+                            // Ask to resend OTP
+                            $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Resending OTP...');
+                            try {
+                                await window.AppState.resendOtpAsync(email);
+                                $btn.html(origBtnText);
+                                $('#verify-email-display').text(email);
+                                $('#authTabs').addClass('d-none');
+                                $('.tab-pane').removeClass('show active');
+                                $('#pane-verify-email').addClass('show active');
+                            } catch(resendErr) {
+                                $btn.html(origBtnText);
+                                $('#login-error-alert').removeClass('d-none').find('.err-txt').text('Email not verified. Failed to resend OTP.');
+                            }
+                            return;
                         }
+
+                        $('#login-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
                     }
                 });
 
@@ -470,6 +507,19 @@
                         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Creating account...');
 
                         const user = await window.AppState.registerUserAsync(name, email, pwd);
+                        
+                        if (user.pendingVerification) {
+                            $btn.prop('disabled', false).html(origBtnText);
+                            currentAuthEmail = user.email;
+                            tempPassword = pwd;
+                            $('#verify-email-display').text(user.email);
+                            
+                            // Hide tabs, show verify pane
+                            $('#authTabs').addClass('d-none');
+                            $('.tab-pane').removeClass('show active');
+                            $('#pane-verify-email').addClass('show active');
+                            return;
+                        }
 
                         if (window.GB && window.GB.showToast) {
                             window.GB.showToast(`Account created successfully! Welcome <strong>${user.name}</strong> to GreenBasket!`, 'success');
@@ -481,9 +531,132 @@
                         $btn.prop('disabled', false).html(origBtnText);
                         const errMsg = err.message || 'Registration failed. Please try again!';
                         $('#reg-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
+                    }
+                });
+
+                // Verify Email Submit Form
+                $('#form-verify-email').on('submit', async function (e) {
+                    e.preventDefault();
+                    $('#verify-error-alert').addClass('d-none');
+                    const otp = $('#verify-otp').val().trim();
+                    const $btn = $(this).find('button[type="submit"]');
+                    const origBtnText = $btn.html();
+
+                    if (!otp || !currentAuthEmail) return;
+
+                    try {
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Verifying...');
+                        await window.AppState.verifyEmailAsync(currentAuthEmail, otp);
+                        
+                        // Successfully verified! Now we can actually log them in to get the JWT token.
+                        $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Signing in...');
+                        const user = await window.AppState.loginUserAsync(currentAuthEmail, tempPassword);
+                        
                         if (window.GB && window.GB.showToast) {
-                            window.GB.showToast(errMsg, 'danger');
+                            window.GB.showToast(`Email verified! Welcome, <strong>${user.name}</strong>!`, 'success');
                         }
+                        setTimeout(() => {
+                            window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        }, 500);
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origBtnText);
+                        const errMsg = err.message || 'Invalid code.';
+                        $('#verify-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
+                    }
+                });
+
+                // Resend OTP
+                $('#btn-resend-otp').on('click', async function (e) {
+                    e.preventDefault();
+                    const $btn = $(this);
+                    const origText = $btn.html();
+                    try {
+                        $btn.prop('disabled', true).text('Sending...');
+                        await window.AppState.resendOtpAsync(currentAuthEmail);
+                        $btn.text('Code Sent!');
+                        setTimeout(() => { $btn.prop('disabled', false).html(origText); }, 3000);
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origText);
+                        $('#verify-error-alert').removeClass('d-none').find('.err-txt').text(err.message || 'Failed to resend');
+                    }
+                });
+
+                // Forgot Password Navigation
+                $('#link-forgot-password').on('click', function(e) {
+                    e.preventDefault();
+                    $('#authTabs').addClass('d-none');
+                    $('.tab-pane').removeClass('show active');
+                    $('#pane-forgot-password').addClass('show active');
+                });
+                
+                // Back to Login Navigation
+                $('.btn-back-login').on('click', function(e) {
+                    e.preventDefault();
+                    $('#authTabs').removeClass('d-none');
+                    $('.tab-pane').removeClass('show active');
+                    $('#authTabs .nav-link').removeClass('active');
+                    $('#tab-login').addClass('active');
+                    $('#pane-login').addClass('show active');
+                });
+
+                // Forgot Password Submit (Send OTP)
+                $('#form-forgot-password').on('submit', async function (e) {
+                    e.preventDefault();
+                    $('#forgot-error-alert').addClass('d-none');
+                    const email = $('#forgot-email').val().trim();
+                    const $btn = $(this).find('button[type="submit"]');
+                    const origBtnText = $btn.html();
+
+                    if (!email) return;
+
+                    try {
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Sending...');
+                        await window.AppState.forgotPasswordAsync(email);
+                        currentAuthEmail = email; // Store for the next step
+                        
+                        $btn.prop('disabled', false).html(origBtnText);
+                        $('.tab-pane').removeClass('show active');
+                        $('#pane-reset-password').addClass('show active');
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origBtnText);
+                        const errMsg = err.message || 'Failed to request password reset.';
+                        $('#forgot-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
+                    }
+                });
+
+                // Reset Password Submit (Use OTP + New Password)
+                $('#form-reset-password').on('submit', async function (e) {
+                    e.preventDefault();
+                    $('#reset-error-alert').addClass('d-none');
+                    const otp = $('#reset-otp').val().trim();
+                    const newPassword = $('#reset-password').val().trim();
+                    const $btn = $(this).find('button[type="submit"]');
+                    const origBtnText = $btn.html();
+
+                    if (!otp || !newPassword || !currentAuthEmail) return;
+
+                    try {
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Saving...');
+                        await window.AppState.resetPasswordAsync(currentAuthEmail, otp, newPassword);
+                        
+                        if (window.GB && window.GB.showToast) {
+                            window.GB.showToast(`Password reset successfully! Please sign in.`, 'success');
+                        }
+                        
+                        $btn.prop('disabled', false).html(origBtnText);
+                        
+                        // Go back to login tab
+                        $('#form-login')[0].reset();
+                        $('#login-email').val(currentAuthEmail);
+                        $('#authTabs').removeClass('d-none');
+                        $('.tab-pane').removeClass('show active');
+                        $('#authTabs .nav-link').removeClass('active');
+                        $('#tab-login').addClass('active');
+                        $('#pane-login').addClass('show active');
+                    } catch (err) {
+                        $btn.prop('disabled', false).html(origBtnText);
+                        const errMsg = err.message || 'Failed to reset password.';
+                        $('#reset-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
                     }
                 });
             });

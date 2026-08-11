@@ -17,11 +17,13 @@ namespace GreenBasket.Application.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IEmailService emailService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         public async Task<AuthResponseDTO> RegisterAsync(RegisterDTO model)
@@ -44,11 +46,21 @@ namespace GreenBasket.Application.Services
             // Assign default Customer role to newly registered account
             await _userManager.AddToRoleAsync(user, "Customer");
 
-            var token = await GenerateJwtToken(user);
+            // Generate OTP (6-digit by default using our EmailTokenProvider)
+            var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            
+            // Send Email
+            string emailBody = $@"
+                <h2>Welcome to Green Basket!</h2>
+                <p>Your OTP for email verification is: <strong>{otp}</strong></p>
+                <p>Please enter this code in the application to verify your account.</p>
+            ";
+            await _emailService.SendEmailAsync(user.Email, "Green Basket - Verify Your Email", emailBody);
 
+            // Return success without JWT token since email is not verified yet
             return new AuthResponseDTO
             {
-                Token = token,
+                Token = "PendingVerification", // Indicate to frontend that OTP is needed
                 UserId = user.Id,
                 Email = user.Email!,
                 FullName = user.FullName
@@ -59,15 +71,13 @@ namespace GreenBasket.Application.Services
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
-            {
-                throw new Exception("Email does not exist in the system.");
-            }
+                throw new Exception("Invalid email or password.");
 
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
-            if (!isPasswordValid)
-            {
-                throw new Exception("Incorrect password.");
-            }
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+                throw new Exception("Please verify your email before logging in.");
+
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                throw new Exception("Invalid email or password.");
 
             var token = await GenerateJwtToken(user);
 
@@ -106,6 +116,74 @@ namespace GreenBasket.Application.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public async Task<bool> VerifyEmailAsync(string email, string otp)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) throw new Exception("User not found.");
+
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", otp);
+            if (isValid)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> ResendOtpAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) throw new Exception("User not found.");
+            if (user.EmailConfirmed) throw new Exception("Email is already verified.");
+
+            var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            
+            string emailBody = $@"
+                <h2>Green Basket</h2>
+                <p>Your new OTP for email verification is: <strong>{otp}</strong></p>
+            ";
+            await _emailService.SendEmailAsync(user.Email!, "Green Basket - Your new OTP", emailBody);
+
+            return true;
+        }
+
+        public async Task<bool> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return true; // Don't reveal user existence
+
+            var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            
+            string emailBody = $@"
+                <h2>Green Basket - Password Reset</h2>
+                <p>You requested a password reset. Your OTP is: <strong>{otp}</strong></p>
+                <p>If you didn't request this, you can safely ignore this email.</p>
+            ";
+            await _emailService.SendEmailAsync(user.Email!, "Green Basket - Password Reset OTP", emailBody);
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) throw new Exception("Invalid request.");
+
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", model.Otp);
+            if (!isValid) throw new Exception("Invalid or expired OTP.");
+
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, resetToken, model.NewPassword);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Password reset failed: {errors}");
+            }
+            
+            return true;
         }
     }
 }

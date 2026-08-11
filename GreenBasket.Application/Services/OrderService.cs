@@ -82,6 +82,9 @@ namespace GreenBasket.Application.Services
                 DiscountAmount = discountAmount,
                 DiscountCodeId = discount?.Id,
                 DeliverySlotId = dto.DeliverySlotId,
+                DeliveryAddress = dto.DeliveryAddress ?? "Saved Delivery Location",
+                PaymentMethod = dto.PaymentMethod ?? "Credit Card / Online",
+                PaymentStatus = "Pending",
                 Status = "Processing"
             };
 
@@ -98,9 +101,10 @@ namespace GreenBasket.Application.Services
             _context.Orders.Add(order);
             _context.Carts.Remove(cart); // Clear cart after order
             
+            DeliverySlot? slot = null;
             if (dto.DeliverySlotId.HasValue)
             {
-                var slot = await _context.DeliverySlots.FindAsync(dto.DeliverySlotId.Value);
+                slot = await _context.DeliverySlots.FindAsync(dto.DeliverySlotId.Value);
                 if (slot != null) slot.CurrentOrders++;
             }
 
@@ -113,6 +117,10 @@ namespace GreenBasket.Application.Services
                 TotalCost = order.TotalCost,
                 DiscountAmount = order.DiscountAmount,
                 Status = order.Status,
+                DeliveryAddress = order.DeliveryAddress,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
+                DeliverySlot = slot?.TimeRange,
                 Items = order.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
@@ -129,6 +137,7 @@ namespace GreenBasket.Application.Services
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Where(o => o.AppUserId == userId)
+                .Include(o => o.DeliverySlot)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
@@ -139,6 +148,10 @@ namespace GreenBasket.Application.Services
                 TotalCost = o.TotalCost,
                 DiscountAmount = o.DiscountAmount,
                 Status = o.Status,
+                DeliveryAddress = o.DeliveryAddress,
+                PaymentMethod = o.PaymentMethod,
+                PaymentStatus = o.PaymentStatus,
+                DeliverySlot = o.DeliverySlot != null ? o.DeliverySlot.TimeRange : null,
                 Items = o.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
@@ -154,6 +167,7 @@ namespace GreenBasket.Application.Services
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
+                .Include(o => o.DeliverySlot)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
@@ -164,6 +178,10 @@ namespace GreenBasket.Application.Services
                 TotalCost = o.TotalCost,
                 DiscountAmount = o.DiscountAmount,
                 Status = o.Status,
+                DeliveryAddress = o.DeliveryAddress,
+                PaymentMethod = o.PaymentMethod,
+                PaymentStatus = o.PaymentStatus,
+                DeliverySlot = o.DeliverySlot != null ? o.DeliverySlot.TimeRange : null,
                 Items = o.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
