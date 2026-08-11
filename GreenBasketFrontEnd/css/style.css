@@ -364,7 +364,6 @@ p {
 
 .btn-primary:hover {
     background-color: #28553A !important;
-    transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0px var(--mm-dark);
 }
 
@@ -693,13 +692,12 @@ p {
     border: 2px solid var(--mm-dark) !important;
     color: var(--mm-dark) !important;
     box-shadow: 2px 2px 0px var(--mm-dark) !important;
-    transition: transform 0.2s ease !important;
 }
 
 .footer .btn-outline-secondary:hover {
-    transform: translate(-2px, -2px) !important;
     box-shadow: 4px 4px 0px var(--mm-dark) !important;
     background-color: var(--mm-mint) !important;
+    color: var(--mm-dark) !important;
 }
 
 .hero-video-overlay {
@@ -1219,4 +1217,30 @@ p {
         font-size: 0.85rem !important;
         padding: 10px 0 !important;
     }
+}
+
+
+/* Force all buttons to not shift on hover to prevent flickering */
+.btn:hover, button:hover {
+    transform: none !important;
+}
+
+/* Order page action buttons - prevent any CSS interference */
+.btn-open-report, 
+.btn-reorder, 
+.btn-cancel-order,
+.btn-admin-refund,
+.btn-set-status {
+    position: relative !important;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+.btn-open-report:hover, 
+.btn-reorder:hover, 
+.btn-cancel-order:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.85;
 }

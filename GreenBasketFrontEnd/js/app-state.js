@@ -518,8 +518,10 @@
                 return [];
             }
             try {
-                const identifier = user.id || user.email;
-                const response = await fetch(`${API_BASE_URL}/Cart/${encodeURIComponent(identifier)}`);
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, '');
+                const response = await fetch(`${API_BASE_URL}/Cart`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (!response.ok) throw new Error('Failed to fetch cart');
                 const cartDto = await response.json();
                 
@@ -551,9 +553,13 @@
             if (!user) return false;
             
             try {
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, '');
                 const response = await fetch(`${API_BASE_URL}/Cart/add`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         appUserId: user.id || user.email,
                         productId: parseInt(productId, 10),
@@ -577,9 +583,13 @@
             if (!item || !item.cartItemId) return false;
 
             try {
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, '');
                 const response = await fetch(`${API_BASE_URL}/Cart/update-item/${item.cartItemId}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ quantity: parseFloat(newQty) })
                 });
                 if (!response.ok) throw new Error('Failed to update cart qty');
@@ -598,8 +608,10 @@
             if (!item || !item.cartItemId) return false;
 
             try {
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, '');
                 const response = await fetch(`${API_BASE_URL}/Cart/remove-item/${item.cartItemId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to remove cart item');
                 await this.syncCartFromBackendAsync();
@@ -629,7 +641,7 @@
 
         // --- Delivery Addresses (FR-1.2) ---
         getAddresses() {
-            return loadStorage(STORAGE_KEYS.ADDRESSES, DEFAULT_ADDRESSES);
+            return loadStorage(STORAGE_KEYS.ADDRESSES, []);
         },
         saveAddress(addressData) {
             let addresses = this.getAddresses();
@@ -698,28 +710,53 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.isSuccess && result.data) {
-                        const apiOrders = result.data.map(o => ({
-                            id: `ORD-${o.id}`,
-                            rawId: o.id,
-                            date: o.createdAt || new Date().toISOString(),
-                            customerName: o.appUserId,
-                            email: o.appUserId,
-                            deliveryAddress: 'N/A (API)',
-                            paymentMethod: 'N/A (API)',
-                            items: (o.items || []).map(i => ({
-                                id: i.productId,
-                                productId: i.productId,
-                                name: `Product ID: ${i.productId}`,
-                                price: i.unitPrice,
-                                qty: i.quantity,
-                                unit: 'item'
-                            })),
-                            subtotal: o.totalCost - o.discountAmount,
-                            deliveryFee: 0,
-                            total: o.totalCost,
-                            status: o.status,
-                            qualityReport: null
-                        }));
+                        // Build product lookup map for images/names
+                        const products = this.getProducts();
+                        const prodMap = {};
+                        products.forEach(p => prodMap[String(p.id)] = p);
+
+                        const apiOrders = result.data.map(o => {
+                            // Format the date nicely
+                            let dateStr = 'N/A';
+                            if (o.createdAt) {
+                                try {
+                                    const d = new Date(o.createdAt);
+                                    dateStr = d.toISOString().replace('T', ' ').substring(0, 16);
+                                } catch(e) { dateStr = String(o.createdAt); }
+                            }
+
+                            // Format customer ID to a shorter display
+                            const custId = o.appUserId || 'Unknown';
+                            const shortCust = custId.length > 20 ? custId.substring(0, 8) + '...' : custId;
+
+                            return {
+                                id: `ORD-${o.id}`,
+                                rawId: o.id,
+                                date: dateStr,
+                                customerName: shortCust,
+                                email: custId,
+                                deliveryAddress: 'Saved Delivery Location',
+                                deliverySlot: 'Standard Window',
+                                paymentMethod: 'Credit Card / Online',
+                                items: (o.items || []).map(i => {
+                                    const prod = prodMap[String(i.productId)] || {};
+                                    return {
+                                        id: i.productId,
+                                        productId: i.productId,
+                                        name: i.productName || prod.name || `Produce #${i.productId}`,
+                                        price: i.unitPrice,
+                                        qty: i.quantity,
+                                        unit: prod.unit || 'kg',
+                                        image: prod.image || 'img/vegetable-item-2.jpg'
+                                    };
+                                }),
+                                subtotal: o.totalCost - (o.discountAmount || 0),
+                                deliveryFee: 0,
+                                total: o.totalCost,
+                                status: o.status,
+                                qualityReport: null
+                            };
+                        });
                         apiOrders.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
                         return apiOrders;
                     }
@@ -763,7 +800,7 @@
                             return {
                                 id: String(i.productId),
                                 productId: i.productId,
-                                name: prod.name || `Produce #${i.productId}`,
+                                name: i.productName || prod.name || `Produce #${i.productId}`,
                                 price: i.unitPrice || prod.price || 1.50,
                                 qty: i.quantity || 1,
                                 unit: prod.unit || 'kg',
@@ -802,7 +839,8 @@
         },
         getOrderById(orderId) {
             const orders = this.getOrders();
-            return orders.find(o => o.id === orderId) || null;
+            const targetId = String(orderId);
+            return orders.find(o => String(o.id) === targetId) || null;
         },
         placeOrder(checkoutDetails) {
             const cart = this.getCart();
@@ -869,8 +907,10 @@
         async updateOrderStatusAsync(orderId, newStatus) {
             const targetId = String(orderId).replace(/^ORD-/, '');
             try {
+                const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, '');
                 const response = await fetch(`${API_BASE_URL}/Order/update-status/${targetId}?status=${encodeURIComponent(newStatus)}`, {
-                    method: 'PUT'
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to update order status');
                 return true;
@@ -936,6 +976,30 @@
 
             order.qualityReport = ticket;
             saveStorage(this.getOrdersKey(), orders);
+            return ticket;
+        },
+        async submitQualityReportAsync(orderId, issueType, comments) {
+            const ticket = this.submitQualityReport(orderId, issueType, comments);
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return ticket;
+
+            try {
+                const targetId = String(orderId).replace(/^ORD-/, '');
+                const reportDetails = `[${issueType}] ${comments}`;
+                const response = await fetch(`${API_BASE_URL}/Order/report-issue/${targetId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reportDetails)
+                });
+                if (!response.ok) {
+                    console.error('Failed to send quality report to API:', response.status);
+                }
+            } catch (err) {
+                console.error('API Error submitting quality report:', err);
+            }
             return ticket;
         },
         resolveQualityReport(orderId, resolutionStatus) {
@@ -1508,6 +1572,54 @@
             }
         },
 
+        async loadUsersWithRolesAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const result = await response.json().catch(() => null);
+                if (!response.ok || !result || !result.isSuccess) {
+                    throw new Error((result && result.message) ? result.message : 'Failed to load users.');
+                }
+                
+                return result.data || [];
+            } catch (err) {
+                console.warn('API loadUsersWithRoles error:', err.message);
+                throw err;
+            }
+        },
+
+        async removeRoleAsync(email, roleName) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/Admin/remove-role`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email, roleName: roleName })
+                });
+
+                const data = await response.json().catch(() => null);
+
+                if (!response.ok) {
+                    throw new Error((data && data.message) ? data.message : 'Failed to remove role.');
+                }
+
+                return data;
+            } catch (err) {
+                console.warn('API removeRole error:', err.message);
+                throw err;
+            }
+        },
+
         async getProductBatchesAsync(productId) {
             const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             if (!token) throw new Error("Authentication required.");
@@ -1579,13 +1691,13 @@
 
     // Ensure default initializations if storage empty
     if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-        saveStorage(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+        saveStorage(STORAGE_KEYS.PRODUCTS, []);
     }
     if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
-        saveStorage(STORAGE_KEYS.ORDERS, DEFAULT_ORDERS);
+        saveStorage(STORAGE_KEYS.ORDERS, []);
     }
     if (!localStorage.getItem(STORAGE_KEYS.ADDRESSES)) {
-        saveStorage(STORAGE_KEYS.ADDRESSES, DEFAULT_ADDRESSES);
+        saveStorage(STORAGE_KEYS.ADDRESSES, []);
     }
 
     // Auto-sync products from Backend API if available

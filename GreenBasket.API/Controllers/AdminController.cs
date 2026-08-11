@@ -1,4 +1,4 @@
-﻿using GreenBasket.Application.DTOs.Admin;
+using GreenBasket.Application.DTOs.Admin;
 using GreenBasket.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -57,6 +57,55 @@ namespace GreenBasket.API.Controllers
             }
 
             return BadRequest(new { IsSuccess = false, Message = "Failed to assign role.", Errors = result.Errors });
+        }
+
+        // API lấy danh sách người dùng và quyền của họ
+        [HttpGet("users")]
+        public async Task<IActionResult> GetAllUsersWithRoles()
+        {
+            var users = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(_userManager.Users);
+            var result = new System.Collections.Generic.List<UserWithRolesDTO>();
+            
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                result.Add(new UserWithRolesDTO
+                {
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Roles = roles
+                });
+            }
+            
+            return Ok(new { IsSuccess = true, Data = result });
+        }
+
+        // API gỡ quyền của user
+        [HttpPost("remove-role")]
+        public async Task<IActionResult> RemoveRole([FromBody] AssignRoleDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return NotFound(new { IsSuccess = false, Message = "User not found with this email." });
+            }
+
+            var isInRole = await _userManager.IsInRoleAsync(user, model.RoleName);
+            if (!isInRole)
+            {
+                return BadRequest(new { IsSuccess = false, Message = "The user does not have this role." });
+            }
+
+            var result = await _userManager.RemoveFromRoleAsync(user, model.RoleName);
+            if (result.Succeeded)
+            {
+                return Ok(new { IsSuccess = true, Message = $"Successfully removed role '{model.RoleName}' from user {model.Email}!" });
+            }
+
+            return BadRequest(new { IsSuccess = false, Message = "Failed to remove role.", Errors = result.Errors });
         }
     }
 }

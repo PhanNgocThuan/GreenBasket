@@ -519,7 +519,8 @@
                             <form id="assignRoleForm" class="row g-3 align-items-end">
                                 <div class="col-md-5">
                                     <label for="assignRoleEmail" class="form-label fw-bold">User Email Address</label>
-                                    <input type="email" class="form-control p-3" id="assignRoleEmail" placeholder="e.g. customer@example.com" required>
+                                    <input type="email" class="form-control p-3" id="assignRoleEmail" list="userEmailsList" placeholder="Search or select email..." required autocomplete="off">
+                                    <datalist id="userEmailsList"></datalist>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="assignRoleName" class="form-label fw-bold">Target Role</label>
@@ -536,6 +537,27 @@
                                     </button>
                                 </div>
                             </form>
+                            
+                            <hr class="my-4">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-users me-2"></i>Current Users and Roles</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Email</th>
+                                            <th>Name</th>
+                                            <th>Assigned Roles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gb-admin-users-tbody">
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4 text-muted">
+                                                <i class="fas fa-spinner fa-spin me-2"></i>Loading users...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -862,10 +884,14 @@
             // Refund / Cancel Handler
             $(document).on('click', '.btn-admin-refund', function () {
                 const id = $(this).data('id');
-                window.GB.confirm(`Process cancellation and refund for Order <strong>#${id}</strong>?`, function () {
-                    window.AppState.cancelOrder(id);
-                    window.GB.showToast(`Order #${id} refund processed and status set to Cancelled.`, 'info');
-                    renderAdminDashboard();
+                window.GB.confirm(`Process cancellation and refund for Order <strong>#${id}</strong>?`, async function () {
+                    const success = await window.AppState.updateOrderStatusAsync(id, 'Cancelled');
+                    if (success) {
+                        window.GB.showToast(`Order #${id} refund processed and status set to Cancelled.`, 'info');
+                        renderAdminDashboard();
+                    } else {
+                        window.GB.showToast(`Failed to process refund for order #${id}.`, 'danger');
+                    }
                 }, 'Process Refund & Cancel');
             });
 
@@ -1142,11 +1168,73 @@
                     window.GB.showToast(result.message || `Successfully assigned role <strong>${roleName}</strong> to <strong>${email}</strong>!`, 'success');
                     $('#assignRoleEmail').val('');
                     $('#assignRoleName').val('');
+                    renderUsers();
                 } catch (err) {
                     window.GB.showToast(`<strong>Error:</strong> ${err.message}`, 'danger');
                 } finally {
                     $btn.html(originalText).prop('disabled', false);
                 }
+            });
+
+            async function renderUsers() {
+                const $tbody = $('#gb-admin-users-tbody');
+                const $datalist = $('#userEmailsList');
+                try {
+                    const users = await window.AppState.loadUsersWithRolesAsync();
+                    $tbody.empty();
+                    $datalist.empty();
+
+                    if (!users || users.length === 0) {
+                        $tbody.html('<tr><td colspan="3" class="text-center py-4 text-muted">No users found.</td></tr>');
+                        return;
+                    }
+
+                    users.forEach(u => {
+                        // Add to search dropdown
+                        $datalist.append(`<option value="${u.email}">${u.fullName || 'User'}</option>`);
+                        
+                        let rolesHtml = '';
+                        if (u.roles && u.roles.length > 0) {
+                            u.roles.forEach(role => {
+                                let badgeColor = 'bg-secondary';
+                                if (role === 'Admin') badgeColor = 'bg-danger';
+                                else if (role === 'Staff') badgeColor = 'bg-primary';
+                                
+                                rolesHtml += `<span class="badge rounded-pill ${badgeColor} me-2 fs-6 mb-1">
+                                                ${role} 
+                                                <i class="fas fa-times ms-1 btn-remove-role" style="cursor: pointer;" data-email="${u.email}" data-role="${role}" title="Remove Role"></i>
+                                              </span>`;
+                            });
+                        } else {
+                            rolesHtml = '<span class="text-muted fst-italic">No roles</span>';
+                        }
+
+                        $tbody.append(`
+                            <tr>
+                                <td class="fw-bold">${u.email}</td>
+                                <td>${u.fullName || 'N/A'}</td>
+                                <td>${rolesHtml}</td>
+                            </tr>
+                        `);
+                    });
+                } catch (err) {
+                    $tbody.html(`<tr><td colspan="3" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error loading users: ${err.message}</td></tr>`);
+                }
+            }
+
+            $(document).on('click', '.btn-remove-role', function () {
+                const email = $(this).data('email');
+                const roleName = $(this).data('role');
+                
+                window.GB.confirm(`Remove role <strong>${roleName}</strong> from user <strong>${email}</strong>?`, async function () {
+                    try {
+                        const result = await window.AppState.removeRoleAsync(email, roleName);
+                        window.GB.showToast(result.message || `Role removed successfully.`, 'info');
+                        renderUsers();
+                    } catch (err) {
+                        window.GB.showToast(`<strong>Cannot Remove Role:</strong> ${err.message}`, 'warning');
+                    }
+                }, 'Remove Role');
             });
 
             // --- Reports & Analytics Logic ---
@@ -1326,6 +1414,7 @@
             // Initial render
             renderAdminDashboard();
             renderFarms();
+            renderUsers();
             
             // Trigger background fetches
             if (window.AppState.loadFarmsAsync) {
@@ -1340,6 +1429,7 @@
                 } else {
                     renderAdminDashboard();
                     renderFarms();
+                    renderUsers();
                 }
             });
         });
