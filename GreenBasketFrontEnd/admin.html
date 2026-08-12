@@ -1552,8 +1552,8 @@
                     // 1. Fetch Revenue
                     if (window.AppState.getRevenueReportAsync) {
                         const revData = await window.AppState.getRevenueReportAsync(from, to, 'day');
-                        const labels = revData.map(r => r.period);
-                        const data = revData.map(r => r.totalRevenue);
+                        const labels = revData.map(r => r.periodLabel || r.period);
+                        const data = revData.map(r => r.revenue || r.totalRevenue);
 
                         const ctx = document.getElementById('revenueChart').getContext('2d');
                         if (revenueChartInstance) {
@@ -1595,9 +1595,9 @@
                                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                         <div>
                                             <span class="badge bg-secondary rounded-pill me-2">#${index + 1}</span>
-                                            <span class="fw-bold">${item.productName}</span>
+                                            <span class="fw-bold">${item.name || item.productName}</span>
                                         </div>
-                                        <span class="text-success fw-bold">${item.totalQuantitySold} unit(s)</span>
+                                        <span class="text-success fw-bold">${item.unitsSold || item.totalQuantitySold} unit(s)</span>
                                     </li>
                                 `);
                             });
@@ -1615,9 +1615,9 @@
                             turnover.forEach(item => {
                                 $turnoverTbody.append(`
                                     <tr>
-                                        <td class="fw-bold">${item.productName}</td>
-                                        <td>${item.totalQuantitySold}</td>
-                                        <td><span class="badge bg-info">${item.turnoverRate.toFixed(2)}</span></td>
+                                        <td class="fw-bold">${item.name || item.productName}</td>
+                                        <td>${item.unitsSold || item.totalQuantitySold}</td>
+                                        <td><span class="badge bg-info">${(item.turnoverRatio !== undefined ? item.turnoverRatio : (item.turnoverRate || 0)).toFixed(2)}</span></td>
                                     </tr>
                                 `);
                             });
