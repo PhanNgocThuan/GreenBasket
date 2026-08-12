@@ -288,7 +288,6 @@
 
     <script>
         $(document).ready(function () {
-            let discountAmount = 0.00;
 
             function renderCartPage() {
                 const cart = window.AppState.getCart();
@@ -354,6 +353,21 @@
                 // Update Totals
                 const subtotal = window.AppState.getCartSubtotal();
                 const deliveryFee = subtotal >= 30 || subtotal === 0 ? 0.00 : 2.00;
+                
+                let discountAmount = 0.00;
+                let currentDiscount = window.AppState.getAppliedDiscount ? window.AppState.getAppliedDiscount() : null;
+                
+                if (currentDiscount && subtotal > 0) {
+                    discountAmount = (subtotal * currentDiscount.discountPercentage) / 100;
+                    if (currentDiscount.maxDiscountAmount && discountAmount > currentDiscount.maxDiscountAmount) {
+                        discountAmount = currentDiscount.maxDiscountAmount;
+                    }
+                    $('#couponDiscountRow').removeClass('d-none');
+                    $('#cartDiscount').text('-$' + discountAmount.toFixed(2));
+                } else {
+                    $('#couponDiscountRow').addClass('d-none');
+                }
+
                 const total = Math.max(0, subtotal + deliveryFee - discountAmount);
 
                 $('#cartSubtotal').text('$' + subtotal.toFixed(2));
@@ -418,22 +432,33 @@
             });
 
             // Coupon Code Handler
-            $('#btnApplyCoupon').on('click', function () {
+            $('#btnApplyCoupon').on('click', async function () {
                 const code = $('#couponCode').val().trim().toUpperCase();
-                if (code === 'GREEN10') {
-                    discountAmount = 1.00;
-                    $('#couponDiscountRow').removeClass('d-none');
-                    $('#cartDiscount').text('-$1.00');
-                    window.GB.showToast('Coupon GREEN10 applied! $1.00 discount added.', 'success');
-                } else if (code === 'GREEN2026') {
-                    discountAmount = 2.00;
-                    $('#couponDiscountRow').removeClass('d-none');
-                    $('#cartDiscount').text('-$2.00');
-                    window.GB.showToast('Coupon GREEN2026 applied! $2.00 discount added.', 'success');
-                } else {
-                    window.GB.showToast('Invalid coupon code!', 'danger');
+                if (!code) {
+                    window.GB.showToast('Please enter a coupon code.', 'warning');
+                    return;
                 }
-                renderCartPage();
+
+                const $btn = $(this);
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
+                try {
+                    const discount = await window.AppState.validateDiscountCodeAsync(code);
+                    if (window.AppState.setAppliedDiscount) {
+                        window.AppState.setAppliedDiscount(discount);
+                    }
+                    window.GB.showToast(`Coupon ${code} applied! ${discount.discountPercentage}% discount added.`, 'success');
+                    renderCartPage();
+                } catch (err) {
+                    if (window.AppState.clearAppliedDiscount) {
+                        window.AppState.clearAppliedDiscount();
+                    }
+                    window.GB.showToast(err.message, 'danger');
+                    renderCartPage();
+                } finally {
+                    $btn.html(originalText).prop('disabled', false);
+                }
             });
 
             // Initial render

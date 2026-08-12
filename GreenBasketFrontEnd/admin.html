@@ -276,6 +276,62 @@
     </div>
 
 
+    <!-- Discount Add/Edit Modal -->
+    <div class="modal fade" id="editDiscountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white fw-bold" id="editDiscountModalTitle"><i
+                            class="fas fa-tags me-2"></i>Add / Edit Discount</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editDiscountForm">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="dEditId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Discount Code<sup>*</sup></label>
+                            <input type="text" id="dEditCode" class="form-control p-3 text-uppercase" required
+                                placeholder="e.g. SUMMER50">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Discount (%)<sup>*</sup></label>
+                                <input type="number" step="0.01" max="100" min="0.01" id="dEditPercentage" class="form-control p-3" required
+                                    placeholder="e.g. 10">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Max Amount ($)</label>
+                                <input type="number" step="0.01" id="dEditMaxAmount" class="form-control p-3"
+                                    placeholder="No limit if blank">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Expiry Date<sup>*</sup></label>
+                            <input type="date" id="dEditExpiry" class="form-control p-3" required>
+                        </div>
+
+                        <div class="mb-3 form-check mt-3">
+                            <input type="checkbox" class="form-check-input" id="dEditIsActive" checked>
+                            <label class="form-check-label fw-bold" for="dEditIsActive">Is Active</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 text-white fw-bold">
+                            <i class="fas fa-save me-1"></i>Save Discount
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Farm Add/Edit Modal (FR-6.2) -->
     <div class="modal fade" id="editFarmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -446,6 +502,12 @@
                     </button>
                 </li>
                 <li class="nav-item">
+                    <button class="nav-link fw-bold fs-5 text-primary" id="discounts-tab" data-bs-toggle="tab"
+                        data-bs-target="#discounts-pane">
+                        <i class="fas fa-tags me-2"></i>Discounts
+                    </button>
+                </li>
+                <li class="nav-item">
                     <button class="nav-link fw-bold fs-5 text-primary" id="reports-tab" data-bs-toggle="tab"
                         data-bs-target="#reports-pane">
                         <i class="fas fa-chart-line me-2"></i>Reports &amp; Analytics
@@ -453,8 +515,38 @@
                 </li>
             </ul>
 
-
             <div class="tab-content" id="adminTabsContent">
+
+                <!-- Tab Pane: Discounts -->
+                <div class="tab-pane fade" id="discounts-pane">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title text-white mb-0"><i class="fas fa-tags me-2"></i>Discount Codes</h5>
+                            <button class="btn btn-sm btn-light text-primary fw-bold rounded-pill px-3" id="btnAddNewDiscount">
+                                <i class="fas fa-plus me-1"></i>New Discount
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Discount %</th>
+                                            <th>Max Amount ($)</th>
+                                            <th>Expiry Date</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gb-admin-discounts-tbody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Tab Pane 1: Order Fulfillment Queue (FR-6.3) -->
                 <div class="tab-pane fade show active" id="orders-pane">
@@ -1313,7 +1405,135 @@
                 }, 'Delete User');
             });
 
-            // --- Reports & Analytics Logic ---
+            // --- Discount Management Logic ---
+            async function renderDiscounts() {
+                const $tbody = $('#gb-admin-discounts-tbody');
+                if (!window.AppState || !window.AppState.getAllDiscountsAdminAsync) return;
+
+                try {
+                    $tbody.html('<tr><td colspan="6" class="text-center p-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading discounts...</td></tr>');
+                    const discounts = await window.AppState.getAllDiscountsAdminAsync();
+                    $tbody.empty();
+
+                    if (discounts.length === 0) {
+                        $tbody.html('<tr><td colspan="6" class="text-center p-4 text-muted">No discounts found. Click "New Discount" to add one.</td></tr>');
+                        return;
+                    }
+
+                    discounts.forEach(d => {
+                        const statusBadge = d.isActive 
+                            ? (new Date(d.expiryDate) < new Date() ? '<span class="badge bg-warning text-dark">Expired</span>' : '<span class="badge bg-success">Active</span>') 
+                            : '<span class="badge bg-danger">Disabled</span>';
+                        
+                        const maxAmt = d.maxDiscountAmount ? `$${d.maxDiscountAmount.toFixed(2)}` : 'No Limit';
+                        const expiry = new Date(d.expiryDate).toLocaleDateString();
+
+                        $tbody.append(`
+                            <tr>
+                                <td class="fw-bold text-uppercase text-primary">${d.code}</td>
+                                <td>${d.discountPercentage}%</td>
+                                <td>${maxAmt}</td>
+                                <td>${expiry}</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-discount" 
+                                        data-id="${d.id}" data-code="${d.code}" data-percentage="${d.discountPercentage}" 
+                                        data-max="${d.maxDiscountAmount || ''}" data-expiry="${d.expiryDate}" data-active="${d.isActive}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-discount" data-id="${d.id}" data-code="${d.code}">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } catch (err) {
+                    $tbody.html(`<tr><td colspan="6" class="text-center text-danger p-4"><i class="fas fa-exclamation-triangle me-2"></i>${err.message}</td></tr>`);
+                }
+            }
+
+            $('#btnAddNewDiscount').on('click', function () {
+                $('#editDiscountForm')[0].reset();
+                $('#dEditId').val('');
+                $('#dEditCode').prop('disabled', false); // Can only set code on creation
+                
+                // Set default expiry to +30 days
+                const d = new Date();
+                d.setDate(d.getDate() + 30);
+                $('#dEditExpiry').val(d.toISOString().split('T')[0]);
+                
+                $('#editDiscountModalTitle').html('<i class="fas fa-tags me-2"></i>Add New Discount');
+                $('#editDiscountModal').modal('show');
+            });
+
+            $(document).on('click', '.btn-edit-discount', function () {
+                const id = $(this).data('id');
+                const code = $(this).data('code');
+                const percentage = $(this).data('percentage');
+                const max = $(this).data('max');
+                const expiry = $(this).data('expiry');
+                const isActive = $(this).data('active');
+
+                $('#dEditId').val(id);
+                $('#dEditCode').val(code).prop('disabled', true); // cannot edit code once created
+                $('#dEditPercentage').val(percentage);
+                $('#dEditMaxAmount').val(max);
+                $('#dEditExpiry').val(expiry.split('T')[0]);
+                $('#dEditIsActive').prop('checked', isActive);
+
+                $('#editDiscountModalTitle').html(`<i class="fas fa-edit me-2"></i>Edit Discount - ${code}`);
+                $('#editDiscountModal').modal('show');
+            });
+
+            $('#editDiscountForm').on('submit', async function (e) {
+                e.preventDefault();
+                const id = $('#dEditId').val();
+                
+                const data = {
+                    discountPercentage: parseFloat($('#dEditPercentage').val()),
+                    maxDiscountAmount: $('#dEditMaxAmount').val() ? parseFloat($('#dEditMaxAmount').val()) : null,
+                    expiryDate: new Date($('#dEditExpiry').val()).toISOString(),
+                    isActive: $('#dEditIsActive').is(':checked')
+                };
+
+                const $btn = $(this).find('button[type="submit"]');
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin me-1"></i>Saving...').prop('disabled', true);
+
+                try {
+                    if (id) {
+                        await window.AppState.updateDiscountAdminAsync(id, data);
+                        window.GB.showToast('Discount updated successfully.', 'success');
+                    } else {
+                        data.code = $('#dEditCode').val();
+                        await window.AppState.createDiscountAdminAsync(data);
+                        window.GB.showToast('Discount created successfully.', 'success');
+                    }
+                    $('#editDiscountModal').modal('hide');
+                    renderDiscounts();
+                } catch (err) {
+                    window.GB.showToast(`<strong>Error:</strong> ${err.message}`, 'danger');
+                } finally {
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            });
+
+            $(document).on('click', '.btn-delete-discount', function () {
+                const id = $(this).data('id');
+                const code = $(this).data('code');
+
+                window.GB.confirmModal('Delete Discount', `Are you sure you want to delete promo code <strong>${code}</strong>?`, async () => {
+                    try {
+                        await window.AppState.deleteDiscountAdminAsync(id);
+                        window.GB.showToast(`Discount ${code} deleted successfully.`, 'info');
+                        renderDiscounts();
+                    } catch (err) {
+                        window.GB.showToast(`<strong>Cannot Delete:</strong> ${err.message}`, 'warning');
+                    }
+                }, 'Delete Discount');
+            });
+
             let revenueChartInstance = null;
 
             async function generateReports() {
@@ -1491,6 +1711,7 @@
             renderAdminDashboard();
             renderFarms();
             renderUsers();
+            renderDiscounts();
             
             // Trigger background fetches
             if (window.AppState.loadFarmsAsync) {
@@ -1506,6 +1727,7 @@
                     renderAdminDashboard();
                     renderFarms();
                     renderUsers();
+                    renderDiscounts();
                 }
             });
         });

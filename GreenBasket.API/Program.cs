@@ -89,6 +89,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFarmService, FarmService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 
 // 6. Cấu hình Swagger kèm nút Authorize (JWT Bearer)
 builder.Services.AddSwaggerGen(c =>

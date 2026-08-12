@@ -646,7 +646,32 @@
 
                 const subtotal = window.AppState.getCartSubtotal();
                 const deliveryFee = subtotal >= 30 ? 0.00 : 2.00;
-                const total = subtotal + deliveryFee;
+                
+                let discountAmount = 0.00;
+                let currentDiscount = window.AppState.getAppliedDiscount ? window.AppState.getAppliedDiscount() : null;
+                
+                if (currentDiscount && subtotal > 0) {
+                    discountAmount = (subtotal * currentDiscount.discountPercentage) / 100;
+                    if (currentDiscount.maxDiscountAmount && discountAmount > currentDiscount.maxDiscountAmount) {
+                        discountAmount = currentDiscount.maxDiscountAmount;
+                    }
+                    
+                    if ($('#coDiscountRow').length === 0) {
+                        $('#coDeliveryFee').parent().after(`
+                            <div class="d-flex justify-content-between mb-3 pb-2 border-bottom text-danger" id="coDiscountRow">
+                                <span class="text-muted">Discount (${currentDiscount.code}):</span>
+                                <span class="fw-bold" id="coDiscountAmount">-$0.00</span>
+                            </div>
+                        `);
+                    } else {
+                        $('#coDiscountRow').find('.text-muted').text(`Discount (${currentDiscount.code}):`);
+                    }
+                    $('#coDiscountAmount').text('-$' + discountAmount.toFixed(2));
+                } else {
+                    $('#coDiscountRow').remove();
+                }
+
+                const total = Math.max(0, subtotal + deliveryFee - discountAmount);
 
                 $('#coSubtotal').text('$' + subtotal.toFixed(2));
                 $('#coDeliveryFee').html(deliveryFee === 0 ? '<span class="badge bg-success">FREE Shipping</span>' : '$' + deliveryFee.toFixed(2));

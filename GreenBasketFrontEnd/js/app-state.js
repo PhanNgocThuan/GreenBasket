@@ -511,6 +511,15 @@
             // Read-only local cache of the cart for synchronous UI rendering
             return loadStorage(this.getCartKey(), []);
         },
+        setAppliedDiscount(discount) {
+            saveStorage('gb_applied_discount', discount);
+        },
+        getAppliedDiscount() {
+            return loadStorage('gb_applied_discount', null);
+        },
+        clearAppliedDiscount() {
+            localStorage.removeItem('gb_applied_discount');
+        },
 
         async syncCartFromBackendAsync() {
             const user = this.getAuthUser();
@@ -855,9 +864,10 @@
                             deliverySlot: o.deliverySlot || 'Standard Window',
                             paymentMethod: o.paymentMethod || 'Credit Card / Online',
                             items: items,
-                            subtotal: subtotal,
+                            subtotal: o.totalCost !== undefined && o.discountAmount !== undefined ? o.totalCost + o.discountAmount : subtotal,
+                            discountAmount: o.discountAmount || 0,
                             deliveryFee: subtotal >= 30 ? 0.00 : 2.00,
-                            total: subtotal + (subtotal >= 30 ? 0.00 : 2.00),
+                            total: o.totalCost !== undefined ? o.totalCost : subtotal + (subtotal >= 30 ? 0.00 : 2.00),
                             status: o.status || 'Processing',
                             qualityReport: null
                         };
@@ -908,6 +918,7 @@
             orders.unshift(newOrder);
             saveStorage(this.getOrdersKey(), orders);
             this.clearCart();
+            this.clearAppliedDiscount();
             return newOrder;
         },
         async placeOrderAsync(checkoutDetails) {
@@ -916,11 +927,16 @@
 
             if (token && authUser) {
                 try {
+                    const appliedDiscount = this.getAppliedDiscount();
                     const dto = {
                         appUserId: authUser.id || authUser.email,
                         deliveryAddress: checkoutDetails.address || 'Saved Delivery Location',
                         paymentMethod: checkoutDetails.paymentMethod || 'Credit Card / Online'
                     };
+
+                    if (appliedDiscount && appliedDiscount.id) {
+                        dto.discountCodeId = appliedDiscount.id;
+                    }
 
                     const response = await fetch(`${API_BASE_URL}/Order/create`, {
                         method: 'POST',
@@ -935,6 +951,7 @@
                         const apiOrder = await response.json();
                         // Clear local cart since API cleared backend cart
                         saveStorage(this.getCartKey(), []);
+                        this.clearAppliedDiscount();
                         return apiOrder;
                     }
                 } catch (err) {
@@ -1832,6 +1849,82 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error("Failed to load best sellers report.");
+            return response.json();
+        },
+
+        // --- Discount Management ---
+        async getAllDiscountsAdminAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/discounts/admin/all`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to load discounts.");
+            return response.json();
+        },
+
+        async createDiscountAdminAsync(data) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/discounts/admin`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Failed to create discount.");
+            }
+            return response.json();
+        },
+
+        async updateDiscountAdminAsync(id, data) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/discounts/admin/${id}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Failed to update discount.");
+            }
+            return true;
+        },
+
+        async deleteDiscountAdminAsync(id) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) throw new Error("Authentication required.");
+            const response = await fetch(`${API_BASE_URL}/discounts/admin/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Failed to delete discount.");
+            }
+            return true;
+        },
+
+        async validateDiscountCodeAsync(code) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`${API_BASE_URL}/discounts/validate/${encodeURIComponent(code)}`, {
+                headers: headers
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Invalid discount code.");
+            }
             return response.json();
         }
     };

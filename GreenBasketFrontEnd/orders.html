@@ -369,6 +369,7 @@
                                         <small class="text-muted d-block"><strong>Delivery Slot:</strong> ${order.deliverySlot}</small>
                                         <small class="text-muted d-block mt-1"><strong>Address:</strong> ${order.deliveryAddress}</small>
                                         <small class="text-muted d-block mt-1"><strong>Payment Method:</strong> ${order.paymentMethod}</small>
+                                        ${order.discountAmount > 0 ? `<small class="text-danger d-block mt-1"><strong>Discount Applied:</strong> -$${order.discountAmount.toFixed(2)}</small>` : ''}
                                         <div class="d-flex justify-content-between mt-3 pt-2 border-top fw-bold text-dark fs-5">
                                             <span>Total Paid:</span>
                                             <span class="text-primary">$${order.total.toFixed(2)}</span>
