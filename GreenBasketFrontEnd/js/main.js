@@ -406,6 +406,7 @@
     // Global Document Event Listeners
     $(document).ready(function () {
         checkAuthGuard();
+        initFloatingCart();
         updateHeaderUI();
         initSearchOverlay();
 
@@ -438,6 +439,34 @@
             const query = $(this).find('input[type="search"], input[type="text"]').val().trim();
             window.GB.openSearchOverlay(query);
         });
+
+        // Initialize Floating Cart
+        function initFloatingCart() {
+            if ($('#gb-floating-cart').length) return;
+            
+            // Don't show floating cart on cart, checkout or landing pages
+            const path = window.location.pathname.toLowerCase();
+            if (path.includes('cart.html') || path.includes('checkout.html') || path.includes('landing.html') || path === '/' || path.endsWith('/greenbasketfrontend/')) {
+                return;
+            }
+            
+            const floatingCartHtml = `
+                <a href="cart.html" id="gb-floating-cart" class="d-flex align-items-center justify-content-center shadow" 
+                   style="position: fixed; bottom: 95px; right: 35px; width: 65px; height: 65px; background-color: #198754; color: white; border-radius: 50%; z-index: 1050; text-decoration: none; border: 3px solid #2B2118; box-shadow: 4px 4px 0px #2B2118 !important; transition: all 0.2s ease;">
+                    <i class="fas fa-shopping-basket fs-3"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white gb-cart-count" style="font-size: 0.9rem; padding: 0.4em 0.6em; margin-left: -5px; margin-top: 5px;">
+                        0
+                    </span>
+                </a>
+            `;
+            
+            $('body').append(floatingCartHtml);
+            
+            $('#gb-floating-cart').hover(
+                function() { $(this).css('transform', 'scale(1.1) translateY(-5px)'); },
+                function() { $(this).css('transform', 'scale(1) translateY(0)'); }
+            );
+        }
 
         // Global delegate for 'Add to Cart' buttons
         $(document).on('click', '.btn-add-cart', async function (e) {

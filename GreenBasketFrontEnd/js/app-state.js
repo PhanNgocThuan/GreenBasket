@@ -44,8 +44,9 @@
     ];
 
     function getStorageArea(key) {
-        const sessionKeys = [STORAGE_KEYS.JWT_TOKEN, STORAGE_KEYS.AUTH_USER, STORAGE_KEYS.USER_ROLE];
-        return sessionKeys.includes(key) ? sessionStorage : localStorage;
+        // ALWAYS use localStorage instead of sessionStorage to prevent auth loss 
+        // when navigating between HTML files via file:// protocol.
+        return localStorage;
     }
 
     // Helper functions for Storage load & save
@@ -522,6 +523,15 @@
                 const response = await fetch(`${API_BASE_URL}/Cart`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                if (response.status === 401) {
+                    this.logoutUser();
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                    }
+                    throw new Error('Unauthorized');
+                }
+                
                 if (!response.ok) throw new Error('Failed to fetch cart');
                 const cartDto = await response.json();
                 
@@ -566,6 +576,15 @@
                         quantity: parseFloat(qty)
                     })
                 });
+                
+                if (response.status === 401) {
+                    this.logoutUser();
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                    }
+                    throw new Error('Unauthorized');
+                }
+                
                 if (!response.ok) throw new Error('Failed to add to cart');
                 await this.syncCartFromBackendAsync();
                 return true;
@@ -592,6 +611,15 @@
                     },
                     body: JSON.stringify({ quantity: parseFloat(newQty) })
                 });
+                
+                if (response.status === 401) {
+                    this.logoutUser();
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                    }
+                    throw new Error('Unauthorized');
+                }
+                
                 if (!response.ok) throw new Error('Failed to update cart qty');
                 await this.syncCartFromBackendAsync();
                 return true;
@@ -613,6 +641,15 @@
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                if (response.status === 401) {
+                    this.logout();
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                    }
+                    throw new Error('Unauthorized');
+                }
+                
                 if (!response.ok) throw new Error('Failed to remove cart item');
                 await this.syncCartFromBackendAsync();
                 return true;
@@ -1312,6 +1349,56 @@
             return resData;
         },
 
+        // =========================================================
+        // Admin User Management API
+        // =========================================================
+        async getAllUsersAdminAsync() {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            if (!token) return [];
+            try {
+                const response = await fetch(`${API_BASE_URL}/Admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) return [];
+                const res = await response.json();
+                return res.data || [];
+            } catch (err) {
+                console.error(err); return [];
+            }
+        },
+        async createUserAdminAsync(payload) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            const response = await fetch(`${API_BASE_URL}/Admin/users`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const res = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(res.message || 'Failed to create user');
+            return res;
+        },
+        async updateUserAdminAsync(email, payload) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            const response = await fetch(`${API_BASE_URL}/Admin/users/${encodeURIComponent(email)}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const res = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(res.message || 'Failed to update user');
+            return res;
+        },
+        async deleteUserAdminAsync(email) {
+            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
+            const response = await fetch(`${API_BASE_URL}/Admin/users/${encodeURIComponent(email)}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const res = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(res.message || 'Failed to delete user');
+            return res;
+        },
+
         async resetPasswordAsync(email, otp, newPassword) {
             const response = await fetch(`${API_BASE_URL}/Auth/reset-password`, {
                 method: 'POST',
@@ -1412,14 +1499,6 @@
             addresses.unshift(newAddress);
             
             localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
-
-            if (newAddress.isDefault) {
-                this.updateUserProfile({
-                    fullName: newAddress.receiverName,
-                    phone: newAddress.phoneNumber,
-                    address: `${newAddress.streetAddress}, ${newAddress.ward}, ${newAddress.district}, ${newAddress.city}`
-                });
-            }
             
             window.dispatchEvent(new Event('addressDataChanged'));
             return newAddress;
@@ -1438,14 +1517,6 @@
             });
             
             localStorage.setItem(this.getAddressKey(), JSON.stringify(addresses));
-            
-            if (selected) {
-                this.updateUserProfile({
-                    fullName: selected.receiverName,
-                    phone: selected.phoneNumber,
-                    address: `${selected.streetAddress}, ${selected.ward}, ${selected.district}, ${selected.city}`
-                });
-            }
             
             window.dispatchEvent(new Event('addressDataChanged'));
             return selected;

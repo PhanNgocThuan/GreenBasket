@@ -52,7 +52,7 @@
                     <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#"
                             class="text-white">Dalat & Mekong Organic Farm Collective</a></small>
                     <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a
-                            href="mailto:support@greenbasket.com" class="text-white">support@greenbasket.com</a></small>
+                            href="mailto:greenbasketsupporter@gmail.com" class="text-white">greenbasketsupporter@gmail.com</a></small>
                 </div>
                 <div class="top-link pe-2 d-flex align-items-center">
                     <a href="orders.html" class="text-white me-3"><small class="text-white">My Orders</small></a>
@@ -163,83 +163,19 @@
                             </div>
                         </div>
 
-                        <!-- FR-1.2 Delivery Address Details Card -->
-                        <div class="card border-0 shadow-sm rounded-3 mb-4">
-                            <div
-                                class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0 text-white"><i class="fas fa-map-marker-alt me-2"></i>2.
-                                    Recipient & Delivery Address</h5>
-                                <button type="button" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill"
-                                    id="btn-toggle-address-form"
-                                    style="font-size: 0.85rem; border: 1.5px solid #2B2118; box-shadow: 1.5px 1.5px 0px #2B2118;">
-                                    <i class="fas fa-plus-circle me-1"></i>Add New Address
-                                </button>
-                            </div>
-                            <div class="card-body p-4">
-                                <!-- Saved Addresses Selection Grid -->
-                                <div id="gb-saved-addresses-wrapper" class="mb-3 d-none">
-                                    <label class="form-label fw-bold text-dark mb-2">
-                                        <i class="fas fa-bookmark text-success me-1"></i>Choose from your Saved Delivery
-                                        Locations:
-                                    </label>
-                                    <div id="gb-address-cards-container" class="row g-3">
+                        <!-- Shopee-style Address Block -->
+                        <div class="card border-0 shadow-sm mb-4" style="border-radius: 0;">
+                            <div style="height: 3px; width: 100%; background-position-x: -30px; background-size: 116px 3px; background-image: repeating-linear-gradient(45deg, #6fa6d6, #6fa6d6 33px, transparent 0, transparent 41px, #f18d9b 0, #f18d9b 74px, transparent 0, transparent 82px);"></div>
+                            <div class="card-body p-4 bg-white" id="gb-selected-address-block">
+                                <h6 class="text-danger mb-3 fw-bold"><i class="fas fa-map-marker-alt me-2"></i>Delivery Address</h6>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div id="gb-selected-address-details">
                                         <!-- Rendered dynamically -->
+                                        <p class="text-muted mb-0">Loading address...</p>
                                     </div>
-                                </div>
-
-                                <!-- Collapsible / Toggleable Address Form Fields -->
-                                <div id="gb-address-form-container" class="d-none">
-                                    <div class="border-top pt-3 mt-2" id="gb-form-heading">
-                                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-edit text-success me-2"></i>Address Input &amp; Recipient Details</h6>
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-12">
-                                            <label class="form-label fw-bold text-dark">Full Recipient
-                                                Name<sup>*</sup></label>
-                                            <input type="text" class="form-control p-3" id="fullName"
-                                                placeholder="e.g. Alex Johnson" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold text-dark">Phone Number<sup>*</sup></label>
-                                            <input type="tel" class="form-control p-3" id="phone"
-                                                placeholder="e.g. +84 901 234 567" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold text-dark">Email Address<sup>*</sup></label>
-                                            <input type="email" class="form-control p-3" id="email"
-                                                placeholder="e.g. alex@example.com" required>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <label class="form-label fw-bold text-dark">Street Address &amp;
-                                                Apartment<sup>*</sup></label>
-                                            <input type="text" class="form-control p-3" id="address"
-                                                placeholder="e.g. 123 High Street, Ward Ben Nghe, District 1, Ho Chi Minh City"
-                                                required>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <label class="form-label fw-bold text-dark">Delivery Notes / Gate Code
-                                                (Optional)</label>
-                                            <textarea id="deliveryNotes" class="form-control p-3" rows="2"
-                                                placeholder="e.g. Please leave package with building reception if not home."></textarea>
-                                        </div>
-
-                                        <div class="col-md-12 mt-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                            <button type="button" id="btn-save-as-new-address"
-                                                class="btn btn-outline-success fw-bold rounded-pill px-3"
-                                                style="border: 2px solid #198754;">
-                                                <i class="fas fa-plus-circle me-1"></i> Save to Address List
-                                            </button>
-                                            <button type="button" id="btn-update-address"
-                                                class="btn btn-warning fw-bold rounded-pill px-4 text-dark"
-                                                style="border: 2px solid #2B2118; box-shadow: 2px 2px 0px #2B2118;">
-                                                <i class="fas fa-edit me-1"></i> Update Selected Address
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <button type="button" class="btn btn-link text-primary fw-bold text-decoration-none p-0" data-bs-toggle="modal" data-bs-target="#addressListModal">
+                                        Change
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -319,6 +255,67 @@
     <!-- Checkout Page End -->
 
 
+    <!-- Address List Modal -->
+    <div class="modal fade" id="addressListModal" tabindex="-1" aria-labelledby="addressListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-0">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title text-dark fw-normal fs-5" id="addressListModalLabel">My Addresses</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" id="addressListContainer">
+                    <!-- Rendered dynamically -->
+                </div>
+                <div class="modal-footer border-top py-3 bg-white" style="position: sticky; bottom: 0;">
+                    <button type="button" class="btn btn-primary w-100 rounded-0 text-white fw-bold" data-bs-toggle="modal" data-bs-target="#addressFormModal" onclick="openAddressForm()">
+                        <i class="fas fa-plus me-1"></i> Add New Address
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Form Modal -->
+    <div class="modal fade" id="addressFormModal" tabindex="-1" aria-labelledby="addressFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-0">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title text-dark fw-normal fs-5" id="addressFormModalLabel">New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="gb-address-form">
+                        <input type="hidden" id="editAddressId" value="">
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" placeholder="Full Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" placeholder="Phone Number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Email Address</label>
+                            <input type="email" class="form-control" id="email" placeholder="Email Address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Street Address</label>
+                            <textarea class="form-control" id="address" rows="3" placeholder="Street Address" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Delivery Notes (Optional)</label>
+                            <textarea id="deliveryNotes" class="form-control" rows="2" placeholder="Notes..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top py-3">
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addressListModal">Cancel</button>
+                    <button type="button" class="btn btn-primary text-white px-4 fw-bold" id="btn-save-address-modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
         <div class="container py-5">
@@ -340,7 +337,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-item">
                         <h4 class="text-light mb-3">Support</h4>
-                        <p>Email: support@greenbasket.com</p>
+                        <p>Email: greenbasketsupporter@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -438,15 +435,52 @@
     <script src="js/main.js"></script>
 
     <script>
-        let isFormExpandedManually = false;
+        let currentSelectedAddress = null;
+
+        window.openAddressForm = function(addressId = null) {
+            $('#gb-address-form')[0].reset();
+            $('#editAddressId').val('');
+            
+            if (addressId) {
+                const addr = window.AppState.getAddressById(addressId);
+                if (addr) {
+                    $('#editAddressId').val(addr.id);
+                    $('#fullName').val(addr.receiverName || '');
+                    $('#phone').val(addr.phoneNumber || '');
+                    $('#email').val(addr.email || '');
+                    $('#address').val(addr.streetAddress || '');
+                }
+                $('#addressFormModalLabel').text('Update Address');
+            } else {
+                $('#addressFormModalLabel').text('Add New Address');
+                const authUser = window.AppState ? window.AppState.getAuthUser() : null;
+                if (authUser) {
+                    $('#fullName').val(authUser.name || '');
+                    $('#phone').val(authUser.phone || '');
+                    $('#email').val(authUser.email || '');
+                }
+            }
+        };
 
         function selectAddress(addr) {
-            if (!addr) return;
-            $('#fullName').val(addr.receiverName || '');
-            $('#phone').val(addr.phoneNumber || '');
-            $('#email').val(addr.email || '');
+            if (!addr) {
+                currentSelectedAddress = null;
+                $('#gb-selected-address-details').html('<p class="text-danger fw-bold mb-0"><i class="fas fa-exclamation-circle me-1"></i>Please add a delivery address</p>');
+                return;
+            }
+            currentSelectedAddress = addr;
+            
             const fullStr = `${addr.streetAddress || ''}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
-            $('#address').val(fullStr);
+            
+            $('#gb-selected-address-details').html(`
+                <div class="d-flex align-items-center mb-1">
+                    <strong class="text-dark fs-6 me-2">${addr.receiverName} (+84) ${addr.phoneNumber.replace('+84', '').trim()}</strong>
+                </div>
+                <div class="d-flex align-items-center flex-wrap">
+                    <span class="text-muted me-3">${fullStr}</span>
+                    ${addr.isDefault ? '<span class="badge border border-success text-success rounded-0 px-2 py-1" style="font-size: 0.7rem; font-weight: normal;">Default</span>' : ''}
+                </div>
+            `);
         }
 
         async function renderSavedAddresses() {
@@ -456,69 +490,47 @@
                 ? await window.AppState.getUserAddressesAsync()
                 : window.AppState.getUserAddresses();
 
-            // 🛠️ TỰ ĐỘNG DỌN SẠCH CÁC ĐỊA CHỈ RÁC "UNDEFINED" BỊ KẸT
             addresses = (addresses || []).filter(a => a && a.receiverName && a.receiverName !== 'undefined');
             if (window.AppState && window.AppState.getAddressKey) {
                 localStorage.setItem(window.AppState.getAddressKey(), JSON.stringify(addresses));
             }
             localStorage.setItem('gb_addresses_v1', JSON.stringify(addresses));
 
-            const $wrapper = $('#gb-saved-addresses-wrapper');
-            const $container = $('#gb-address-cards-container');
-            const $formContainer = $('#gb-address-form-container');
-            const $btnToggle = $('#btn-toggle-address-form');
-
+            const $container = $('#addressListContainer');
+            
             if (!addresses || addresses.length === 0) {
-                // Người CHƯA CÓ địa chỉ -> TỰ ĐỘNG HIỆN CÁC Ô NHẬP
-                $wrapper.addClass('d-none');
-                $formContainer.removeClass('d-none');
-                $btnToggle.addClass('d-none');
-                if (typeof fillUserProfile === 'function') fillUserProfile();
+                $container.html('<div class="p-5 text-center text-muted">No addresses found.</div>');
+                selectAddress(null);
                 return;
-            }
-
-            // Người ĐÃ CÓ địa chỉ -> Hiển thị danh sách thẻ chọn địa chỉ
-            $wrapper.removeClass('d-none');
-            $btnToggle.removeClass('d-none');
-
-            // Ẩn các ô nhập bên dưới mặc định, trừ khi người dùng chủ động bấm thêm/sửa
-            if (!isFormExpandedManually) {
-                $formContainer.addClass('d-none');
-                $btnToggle.html('<i class="fas fa-plus-circle me-1"></i>Add New Address');
-            } else {
-                $formContainer.removeClass('d-none');
-                $btnToggle.html('<i class="fas fa-chevron-up me-1"></i>Hide Address Form');
             }
 
             $container.empty();
 
-            let defaultSelectedAddr = addresses.find(a => a.isDefault) || addresses[0];
+            let defaultSelectedAddr = currentSelectedAddress || addresses.find(a => a.isDefault) || addresses[0];
 
             addresses.forEach(addr => {
                 const isChecked = defaultSelectedAddr && defaultSelectedAddr.id == addr.id;
                 const fullStr = `${addr.streetAddress || ''}, ${addr.ward || ''}, ${addr.district || ''}, ${addr.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, '');
-                const emailHtml = addr.email ? `<small class="text-muted d-block mt-1"><i class="fas fa-envelope me-1 text-primary"></i>${addr.email}</small>` : '';
-
+                
                 $container.append(`
-                    <div class="col-md-6">
-                        <div class="card p-3 gb-addr-card ${isChecked ? 'bg-light border-success' : ''}" data-id="${addr.id}" style="border: 2.5px solid ${isChecked ? '#198754' : '#2B2118'} !important; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
-                            <div class="form-check m-0 d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <input class="form-check-input addr-radio me-2" type="radio" name="selectedAddress" id="addr-radio-${addr.id}" value="${addr.id}" ${isChecked ? 'checked' : ''}>
-                                    <label class="form-check-label w-100" for="addr-radio-${addr.id}" style="cursor: pointer;">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <strong class="text-dark fs-6">${addr.receiverName}</strong>
-                                            ${addr.isDefault ? '<span class="badge bg-success" style="font-size: 0.7rem;">Default</span>' : ''}
-                                        </div>
-                                        <small class="text-muted d-block"><i class="fas fa-phone-alt me-1 text-success"></i>${addr.phoneNumber}</small>
-                                        ${emailHtml}
-                                        <small class="text-dark d-block mt-1 fw-bold"><i class="fas fa-map-marker-alt me-1 text-danger"></i>${fullStr}</small>
-                                    </label>
+                    <div class="border-bottom p-3 gb-addr-list-item" style="cursor: pointer;" onclick="chooseAddress('${addr.id}')">
+                        <div class="form-check m-0 d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1 d-flex">
+                                <div class="me-3 mt-1">
+                                    <input class="form-check-input rounded-circle border-secondary" style="width: 1.2rem; height: 1.2rem; cursor: pointer; border-color: ${isChecked ? '#198754' : ''};" type="radio" name="modalAddressSelect" value="${addr.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); chooseAddress('${addr.id}')">
                                 </div>
-                                <button type="button" class="btn btn-sm text-danger ms-2 border-0 p-1 btn-delete-addr" 
-                                    data-id="${addr.id}" 
-                                    title="Delete this address" style="z-index: 10;">
-                                    <i class="fas fa-trash-alt fs-5"></i>
+                                <div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <strong class="text-dark me-2 border-end pe-2" style="font-size: 1.05rem;">${addr.receiverName}</strong>
+                                        <span class="text-muted small">(+84) ${addr.phoneNumber.replace('+84', '').trim()}</span>
+                                    </div>
+                                    <div class="text-muted small mb-1">${fullStr}</div>
+                                    ${addr.isDefault ? '<span class="badge border border-success text-success bg-transparent rounded-0 px-2 py-1 mt-1" style="font-size: 0.65rem; font-weight: normal;">Default</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="ms-2">
+                                <button type="button" class="btn btn-link text-primary text-decoration-none p-0 fw-bold" onclick="event.stopPropagation(); openAddressForm('${addr.id}')" data-bs-toggle="modal" data-bs-target="#addressFormModal">
+                                    Update
                                 </button>
                             </div>
                         </div>
@@ -531,53 +543,23 @@
             }
         }
         window.renderSavedAddresses = renderSavedAddresses;
-
-        function fillUserProfile() {
-            const authUser = window.AppState ? window.AppState.getAuthUser() : null;
-            if (authUser) {
-                if (authUser.name && !$('#fullName').val()) $('#fullName').val(authUser.name);
-                if (authUser.phone && !$('#phone').val()) $('#phone').val(authUser.phone);
-                if (authUser.email && !$('#email').val()) $('#email').val(authUser.email);
-                if (authUser.address && !$('#address').val()) $('#address').val(authUser.address);
+        
+        window.chooseAddress = function(id) {
+            const addr = window.AppState.getAddressById(id);
+            if (addr) {
+                selectAddress(addr);
+                $('#addressListModal').modal('hide');
+                renderSavedAddresses(); // update checked radio button state
             }
-        }
+        };
 
         $(document).ready(function () {
             renderSavedAddresses();
 
-            // Event handler khi xóa địa chỉ
-            $(document).on('click', '.btn-delete-addr', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const id = $(this).data('id');
-                if (window.AppState && window.AppState.deleteAddress) {
-                    window.AppState.deleteAddress(id);
-                }
-            });
-
-            // Toggle hiển thị form nhập địa chỉ bên dưới khi bấm "Thêm địa chỉ giao hàng"
-            $('#btn-toggle-address-form').on('click', function () {
-                const $formContainer = $('#gb-address-form-container');
-                isFormExpandedManually = $formContainer.hasClass('d-none');
-
-                if (isFormExpandedManually) {
-                    $formContainer.removeClass('d-none');
-                    $(this).html('<i class="fas fa-chevron-up me-1"></i>Hide Address Form');
-                    // Reset form để nhập địa chỉ mới
-                    const authUser = window.AppState ? window.AppState.getAuthUser() : null;
-                    $('#fullName').val(authUser ? authUser.name : '');
-                    $('#phone').val(authUser ? authUser.phone : '');
-                    $('#email').val(authUser ? authUser.email : '');
-                    $('#address').val('');
-                    $('#fullName').focus();
-                } else {
-                    $formContainer.addClass('d-none');
-                    $(this).html('<i class="fas fa-plus-circle me-1"></i>Add New Address');
-                }
-            });
-
-            // Lưu địa chỉ nhập trên form vào danh sách địa chỉ đã lưu
-            $('#btn-save-as-new-address').on('click', function () {
+            $('#btn-save-address-modal').on('click', async function () {
+                const $btn = $(this);
+                const origText = $btn.html();
+                const id = $('#editAddressId').val();
                 const name = $('#fullName').val().trim();
                 const phone = $('#phone').val().trim();
                 const email = $('#email').val().trim();
@@ -585,26 +567,43 @@
 
                 if (!name || !phone || !address) {
                     if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('Please fill in Recipient Name, Phone Number, and Address!', 'warning');
+                        window.GB.showToast('Please fill in required fields!', 'warning');
                     } else {
-                        alert('Please fill in Recipient Name, Phone Number, and Address!');
+                        alert('Please fill in required fields!');
                     }
                     return;
                 }
 
-                if (window.AppState && window.AppState.addAddress) {
-                    const newAddr = window.AppState.addAddress({
+                if (window.AppState) {
+                    $btn.prop('disabled', true).text('Saving...');
+                    if (id && window.AppState.deleteAddress) {
+                        window.AppState.deleteAddress(id);
+                    }
+                    
+                    const payload = {
                         receiverName: name,
                         phoneNumber: phone,
                         email: email,
                         streetAddress: address,
                         isDefault: true
-                    });
-                    if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('New address saved and added to your list!', 'success');
+                    };
+                    
+                    let newAddr = null;
+                    if (window.AppState.createAddressAsync) {
+                        newAddr = await window.AppState.createAddressAsync(payload);
+                    } else if (window.AppState.addAddress) {
+                        newAddr = window.AppState.addAddress(payload);
                     }
-                    isFormExpandedManually = false;
-                    renderSavedAddresses();
+                    
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Address saved successfully!', 'success');
+                    }
+                    
+                    $('#addressFormModal').modal('hide');
+                    if (newAddr) currentSelectedAddress = newAddr;
+                    
+                    $btn.prop('disabled', false).html(origText);
+                    await renderSavedAddresses();
                 }
             });
 
@@ -654,28 +653,24 @@
                 $('#coTotal').text('$' + total.toFixed(2));
             }
 
-            $(document).on('click', '.gb-addr-card', function (e) {
-                if ($(e.target).closest('.btn-delete-addr').length) return;
-                const id = $(this).data('id');
-                $('.gb-addr-card').removeClass('bg-light border-success').css('border', '2.5px solid #2B2118');
-                $(this).addClass('bg-light border-success').css('border', '2.5px solid #198754');
-                $(`#addr-radio-${id}`).prop('checked', true);
-
-                if (window.AppState) {
-                    const addr = window.AppState.getAddressById(id);
-                    if (addr) selectAddress(addr);
-                }
-            });
-
             // Checkout Form Submission Handler
             $('#gb-checkout-form').on('submit', async function (e) {
                 e.preventDefault();
 
+                if (!currentSelectedAddress) {
+                    if (window.GB && window.GB.showToast) {
+                        window.GB.showToast('Please select a delivery address!', 'warning');
+                    } else {
+                        alert('Please select a delivery address!');
+                    }
+                    return;
+                }
+
                 const checkoutDetails = {
-                    fullName: $('#fullName').val().trim(),
-                    phone: $('#phone').val().trim(),
-                    email: $('#email').val().trim(),
-                    address: $('#address').val().trim(),
+                    fullName: currentSelectedAddress.receiverName,
+                    phone: currentSelectedAddress.phoneNumber,
+                    email: currentSelectedAddress.email,
+                    address: `${currentSelectedAddress.streetAddress || ''}, ${currentSelectedAddress.ward || ''}, ${currentSelectedAddress.district || ''}, ${currentSelectedAddress.city || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|\s*,\s*$/g, ''),
                     deliverySlot: $('#deliverySlot').val(),
                     paymentMethod: $('input[name="paymentMethod"]:checked').val()
                 };

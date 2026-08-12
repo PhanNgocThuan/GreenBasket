@@ -107,5 +107,98 @@ namespace GreenBasket.API.Controllers
 
             return BadRequest(new { IsSuccess = false, Message = "Failed to remove role.", Errors = result.Errors });
         }
+
+        // API tạo người dùng mới
+        [HttpPost("users")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { IsSuccess = false, Message = "Email already exists." });
+            }
+
+            var user = new AppUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { IsSuccess = false, Message = "Failed to create user.", Errors = result.Errors });
+            }
+
+            if (!string.IsNullOrEmpty(model.RoleName))
+            {
+                var roleExists = await _roleManager.RoleExistsAsync(model.RoleName);
+                if (roleExists)
+                {
+                    await _userManager.AddToRoleAsync(user, model.RoleName);
+                }
+            }
+
+            return Ok(new { IsSuccess = true, Message = "User created successfully." });
+        }
+
+        // API cập nhật thông tin người dùng
+        [HttpPut("users/{email}")]
+        public async Task<IActionResult> UpdateUser(string email, [FromBody] UpdateUserDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound(new { IsSuccess = false, Message = "User not found." });
+            }
+
+            user.FullName = model.FullName;
+            var updateResult = await _userManager.UpdateAsync(user);
+
+            if (!updateResult.Succeeded)
+            {
+                return BadRequest(new { IsSuccess = false, Message = "Failed to update user.", Errors = updateResult.Errors });
+            }
+
+            if (!string.IsNullOrEmpty(model.RoleName))
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+                var roleExists = await _roleManager.RoleExistsAsync(model.RoleName);
+                if (roleExists)
+                {
+                    await _userManager.AddToRoleAsync(user, model.RoleName);
+                }
+            }
+
+            return Ok(new { IsSuccess = true, Message = "User updated successfully." });
+        }
+
+        // API xóa người dùng
+        [HttpDelete("users/{email}")]
+        public async Task<IActionResult> DeleteUser(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound(new { IsSuccess = false, Message = "User not found." });
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok(new { IsSuccess = true, Message = "User deleted successfully." });
+            }
+
+            return BadRequest(new { IsSuccess = false, Message = "Failed to delete user.", Errors = result.Errors });
+        }
     }
 }
