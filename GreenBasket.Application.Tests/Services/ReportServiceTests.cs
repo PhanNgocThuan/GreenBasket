@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using GreenBasket.Application.DTOs.Products;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
 using GreenBasket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class ReportServiceTests
     {
@@ -23,167 +20,144 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region GetRevenueReportAsync Tests
+        #region GetRevenueReportAsync
 
         [Fact]
-        public async Task GetRevenueReportAsync_ShouldOnlyIncludeDeliveredOrdersWithinDateRange()
+        public async Task GetRevenueReportAsync_FiltersOnlyDeliveredOrdersInDateRange()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var now = DateTime.UtcNow;
+            var from = new DateTime(2026, 1, 1);
+            var to = new DateTime(2026, 1, 31);
 
-            var product = new Product { Id = 1, Name = "Sữa Tươi", Price = 30000, StockQty = 10 };
-            context.Products.Add(product);
+            var deliveredOrder = new Order { Id = 1, Status = "Delivered", CreatedAt = new DateTime(2026, 1, 15) };
+            var pendingOrder = new Order { Id = 2, Status = "Pending", CreatedAt = new DateTime(2026, 1, 15) };
+            var outOfRangeOrder = new Order { Id = 3, Status = "Delivered", CreatedAt = new DateTime(2026, 2, 1) };
 
-            var orderDelivered = new Order { Id = 1, Status = "Delivered", CreatedAt = now };
-            var orderPending = new Order { Id = 2, Status = "Pending", CreatedAt = now };
-            var orderOld = new Order { Id = 3, Status = "Delivered", CreatedAt = now.AddDays(-10) };
-
-            context.Orders.AddRange(orderDelivered, orderPending, orderOld);
-
+            context.Orders.AddRange(deliveredOrder, pendingOrder, outOfRangeOrder);
             context.OrderItems.AddRange(
-                new OrderItem { Id = 1, OrderId = 1, ProductId = 1, Quantity = 2, UnitPrice = 30000 }, // 60k - Hợp lệ
-                new OrderItem { Id = 2, OrderId = 2, ProductId = 1, Quantity = 5, UnitPrice = 30000 }, // Pending - Bỏ qua
-                new OrderItem { Id = 3, OrderId = 3, ProductId = 1, Quantity = 3, UnitPrice = 30000 }  // Ngoài khoảng - Bỏ qua
-            );
-
-            await context.SaveChangesAsync();
-
-            var service = new ReportService(context);
-
-            // Act
-            var result = await service.GetRevenueReportAsync(now.AddDays(-1), now.AddDays(1), "day");
-
-            // Assert
-            result.Should().HaveCount(1);
-            result.First().Revenue.Should().Be(60000);
-            result.First().OrderCount.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task GetRevenueReportAsync_ShouldGroupByMonth_WhenGroupByIsMonth()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var date1 = new DateTime(2026, 1, 15, 10, 0, 0, DateTimeKind.Utc);
-            var date2 = new DateTime(2026, 1, 20, 10, 0, 0, DateTimeKind.Utc);
-            var date3 = new DateTime(2026, 2, 5, 10, 0, 0, DateTimeKind.Utc);
-
-            var order1 = new Order { Id = 1, Status = "Delivered", CreatedAt = date1 };
-            var order2 = new Order { Id = 2, Status = "Delivered", CreatedAt = date2 };
-            var order3 = new Order { Id = 3, Status = "Delivered", CreatedAt = date3 };
-
-            context.Orders.AddRange(order1, order2, order3);
-            context.OrderItems.AddRange(
-                new OrderItem { Id = 1, OrderId = 1, ProductId = 1, Quantity = 1, UnitPrice = 10000 },
-                new OrderItem { Id = 2, OrderId = 2, ProductId = 1, Quantity = 2, UnitPrice = 10000 },
-                new OrderItem { Id = 3, OrderId = 3, ProductId = 1, Quantity = 4, UnitPrice = 10000 }
+                new OrderItem { Id = 1, Order = deliveredOrder, Quantity = 2, UnitPrice = 50000m }, // 100,000
+                new OrderItem { Id = 2, Order = pendingOrder, Quantity = 5, UnitPrice = 50000m },   // Bị bỏ qua
+                new OrderItem { Id = 3, Order = outOfRangeOrder, Quantity = 1, UnitPrice = 50000m } // Bị bỏ qua
             );
             await context.SaveChangesAsync();
 
             var service = new ReportService(context);
 
             // Act
-            var result = await service.GetRevenueReportAsync(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 2, 28, 0, 0, 0, DateTimeKind.Utc), "month");
+            var result = await service.GetRevenueReportAsync(from, to, "day");
 
             // Assert
-            result.Should().HaveCount(2);
-
-            result.First().PeriodLabel.Should().Be("2026-01");
-            result.First().Revenue.Should().Be(30000);
-            result.First().OrderCount.Should().Be(2);
-
-            result.Last().PeriodLabel.Should().Be("2026-02");
-            result.Last().Revenue.Should().Be(40000);
-            result.Last().OrderCount.Should().Be(1);
+            Assert.Single(result);
+            Assert.Equal("2026-01-15", result[0].PeriodLabel);
+            Assert.Equal(100000m, result[0].Revenue);
+            Assert.Equal(1, result[0].OrderCount);
         }
 
-        #endregion
-
-        #region GetInventoryTurnoverReportAsync Tests
-
         [Fact]
-        public async Task GetInventoryTurnoverReportAsync_ShouldCalculateTurnoverCorrectly()
+        public async Task GetRevenueReportAsync_GroupByMonthAndWeek_FormatsPeriodLabelCorrectly()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var now = DateTime.UtcNow;
+            var from = new DateTime(2026, 1, 1);
+            var to = new DateTime(2026, 1, 31);
 
-            var product1 = new Product { Id = 1, Name = "Rau Cần", StockQty = 10 };
-            var product2 = new Product { Id = 2, Name = "Cà Rốt", StockQty = 0 };
-
-            context.Products.AddRange(product1, product2);
-
-            var order = new Order { Id = 1, Status = "Delivered", CreatedAt = now };
+            var order = new Order { Id = 1, Status = "Delivered", CreatedAt = new DateTime(2026, 1, 15) };
             context.Orders.Add(order);
+            context.OrderItems.Add(new OrderItem { Id = 1, Order = order, Quantity = 1, UnitPrice = 20000m });
+            await context.SaveChangesAsync();
 
+            var service = new ReportService(context);
+
+            // Act
+            var monthlyResult = await service.GetRevenueReportAsync(from, to, "month");
+            var weeklyResult = await service.GetRevenueReportAsync(from, to, "week");
+
+            // Assert
+            Assert.Equal("2026-01", monthlyResult[0].PeriodLabel);
+            Assert.Contains("2026-W", weeklyResult[0].PeriodLabel);
+        }
+
+        #endregion
+
+        #region GetInventoryTurnoverReportAsync
+
+        [Fact]
+        public async Task GetInventoryTurnoverReportAsync_CalculatesTurnoverAndOrdersByRatioDesc()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var from = new DateTime(2026, 1, 1);
+            var to = new DateTime(2026, 1, 31);
+
+            var p1 = new Product { Id = 1, Name = "Sản phẩm A", StockQty = 10 };
+            var p2 = new Product { Id = 2, Name = "Sản phẩm B", StockQty = 0 };
+
+            var order = new Order { Id = 1, Status = "Delivered", CreatedAt = new DateTime(2026, 1, 10) };
+
+            context.Products.AddRange(p1, p2);
+            context.Orders.Add(order);
             context.OrderItems.AddRange(
-                new OrderItem { Id = 1, OrderId = 1, ProductId = 1, Quantity = 20, UnitPrice = 5000 },
-                new OrderItem { Id = 2, OrderId = 1, ProductId = 2, Quantity = 10, UnitPrice = 8000 }
+                new OrderItem { Id = 1, Order = order, ProductId = 1, Quantity = 20 },
+                new OrderItem { Id = 2, Order = order, ProductId = 2, Quantity = 5 }
             );
             await context.SaveChangesAsync();
 
             var service = new ReportService(context);
 
             // Act
-            var result = await service.GetInventoryTurnoverReportAsync(now.AddDays(-1), now.AddDays(1));
+            var result = await service.GetInventoryTurnoverReportAsync(from, to);
 
             // Assert
-            result.Should().HaveCount(2);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(1, result[0].ProductId);
+            Assert.Equal(2.0, result[0].TurnoverRatio); // 20 sold / 10 stock
+            Assert.Equal(20, result[0].UnitsSold);
 
-            var item1 = result.First(r => r.ProductId == 1);
-            item1.UnitsSold.Should().Be(20);
-            item1.CurrentStock.Should().Be(10);
-            item1.TurnoverRatio.Should().Be(2.0); // 20 / 10 = 2
-
-            var item2 = result.First(r => r.ProductId == 2);
-            item2.UnitsSold.Should().Be(10);
-            item2.CurrentStock.Should().Be(0);
-            item2.TurnoverRatio.Should().Be(0); // Tồn kho = 0 => Vòng quay = 0
+            Assert.Equal(2, result[1].ProductId);
+            Assert.Equal(0, result[1].TurnoverRatio); // StockQty = 0 -> TurnoverRatio = 0
         }
 
         #endregion
 
-        #region GetBestSellersAsync Tests
+        #region GetBestSellersAsync
 
         [Fact]
-        public async Task GetBestSellersAsync_ShouldReturnTopNProductsOrderedByUnitsSoldDescending()
+        public async Task GetBestSellersAsync_ReturnsTopNBestSellersOrderedByUnitsSold()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var now = DateTime.UtcNow;
+            var from = new DateTime(2026, 1, 1);
+            var to = new DateTime(2026, 1, 31);
 
             var p1 = new Product { Id = 1, Name = "Táo" };
             var p2 = new Product { Id = 2, Name = "Cam" };
             var p3 = new Product { Id = 3, Name = "Xoài" };
 
+            var order = new Order { Id = 1, Status = "Delivered", CreatedAt = new DateTime(2026, 1, 10) };
+
             context.Products.AddRange(p1, p2, p3);
-
-            var order = new Order { Id = 1, Status = "Delivered", CreatedAt = now };
             context.Orders.Add(order);
-
             context.OrderItems.AddRange(
-                new OrderItem { Id = 1, OrderId = 1, ProductId = 1, Quantity = 10, UnitPrice = 20000 }, // Táo: 10
-                new OrderItem { Id = 2, OrderId = 1, ProductId = 2, Quantity = 50, UnitPrice = 15000 }, // Cam: 50
-                new OrderItem { Id = 3, OrderId = 1, ProductId = 3, Quantity = 30, UnitPrice = 25000 }  // Xoài: 30
+                new OrderItem { Id = 1, Order = order, Product = p1, ProductId = 1, Quantity = 10, UnitPrice = 1000m },
+                new OrderItem { Id = 2, Order = order, Product = p2, ProductId = 2, Quantity = 50, UnitPrice = 2000m },
+                new OrderItem { Id = 3, Order = order, Product = p3, ProductId = 3, Quantity = 30, UnitPrice = 1500m }
             );
             await context.SaveChangesAsync();
 
             var service = new ReportService(context);
 
-            // Act: Lấy top 2 sản phẩm bán chạy nhất
-            var result = await service.GetBestSellersAsync(now.AddDays(-1), now.AddDays(1), top: 2);
+            // Act (lấy top 2 sản phẩm bán chạy)
+            var result = await service.GetBestSellersAsync(from, to, 2);
 
             // Assert
-            result.Should().HaveCount(2);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("Cam", result[0].Name);  // 50 units
+            Assert.Equal(50, result[0].UnitsSold);
+            Assert.Equal(100000m, result[0].Revenue);
 
-            result[0].ProductId.Should().Be(2); // Cam (50 sản phẩm)
-            result[0].UnitsSold.Should().Be(50);
-            result[0].Revenue.Should().Be(750000);
-
-            result[1].ProductId.Should().Be(3); // Xoài (30 sản phẩm)
-            result[1].UnitsSold.Should().Be(30);
-            result[1].Revenue.Should().Be(750000);
+            Assert.Equal("Xoài", result[1].Name); // 30 units
+            Assert.Equal(30, result[1].UnitsSold);
         }
 
         #endregion

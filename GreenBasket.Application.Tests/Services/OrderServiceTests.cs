@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using GreenBasket.Application.DTOs;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
@@ -10,7 +8,7 @@ using GreenBasket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class OrderServiceTests
     {
@@ -23,277 +21,281 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region CalculateTotalCostAsync Tests
+        #region CalculateTotalCostAsync
 
         [Fact]
-        public async Task CalculateTotalCostAsync_ShouldReturnZero_WhenCartIsEmptyOrNotFound()
+        public async Task CalculateTotalCostAsync_CartNotFoundOrEmpty_ReturnsZero()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new OrderService(context);
-            var dto = new CalculateCostDto { AppUserId = "user-1" };
 
             // Act
-            var result = await service.CalculateTotalCostAsync(dto);
+            var result = await service.CalculateTotalCostAsync(new CalculateCostDto { AppUserId = "user1" });
 
             // Assert
-            result.Should().Be(0m);
+            Assert.Equal(0m, result);
         }
 
         [Fact]
-        public async Task CalculateTotalCostAsync_ShouldCalculateCorrectTotal_WithoutDiscount()
+        public async Task CalculateTotalCostAsync_WithoutDiscount_ReturnsFullTotal()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var cart = new Cart
             {
-                Id = 1,
-                AppUserId = "user-1",
+                AppUserId = "user1",
                 CartItems = new List<CartItem>
                 {
-                    new CartItem { Id = 1, ProductId = 10, Quantity = 2, UnitPrice = 50000 }, // 100k
-                    new CartItem { Id = 2, ProductId = 11, Quantity = 1, UnitPrice = 30000 }  // 30k
+                    new CartItem { ProductId = 1, Quantity = 2, UnitPrice = 50000m }
                 }
             };
             context.Carts.Add(cart);
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
-            var dto = new CalculateCostDto { AppUserId = "user-1" };
 
             // Act
-            var result = await service.CalculateTotalCostAsync(dto);
+            var result = await service.CalculateTotalCostAsync(new CalculateCostDto { AppUserId = "user1" });
 
             // Assert
-            result.Should().Be(130000m);
+            Assert.Equal(100000m, result);
         }
 
         [Fact]
-        public async Task CalculateTotalCostAsync_ShouldApplyDiscountAndCapMaxAmount()
+        public async Task CalculateTotalCostAsync_WithValidDiscountAndMaxAmountCap_AppliesCap()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var cart = new Cart
             {
-                Id = 1,
-                AppUserId = "user-1",
+                AppUserId = "user1",
                 CartItems = new List<CartItem>
                 {
-                    new CartItem { Id = 1, ProductId = 10, Quantity = 2, UnitPrice = 100000 } // 200k
+                    new CartItem { ProductId = 1, Quantity = 2, UnitPrice = 100000m } // Tổng: 200,000
                 }
             };
             var discount = new DiscountCode
             {
                 Id = 1,
-                Code = "SALE20",
-                IsActive = true,
-                DiscountPercentage = 20, // 20% of 200k = 40k
-                MaxDiscountAmount = 30000, // Capped at 30k
-                ExpiryDate = DateTime.UtcNow.AddDays(1)
+                Code = "SAVE50",
+                DiscountPercentage = 50, // 50% = 100,000
+                MaxDiscountAmount = 30000m, // Cố định giảm tối đa 30,000
+                ExpiryDate = DateTime.UtcNow.AddDays(1),
+                IsActive = true
             };
-
             context.Carts.Add(cart);
             context.DiscountCodes.Add(discount);
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
-            var dto = new CalculateCostDto { AppUserId = "user-1", DiscountCode = "SALE20" };
 
             // Act
-            var result = await service.CalculateTotalCostAsync(dto);
+            var result = await service.CalculateTotalCostAsync(new CalculateCostDto { AppUserId = "user1", DiscountCode = "SAVE50" });
 
-            // Assert
-            result.Should().Be(170000m); // 200k - 30k
+            // Assert (200,000 - 30,000 = 170,000)
+            Assert.Equal(170000m, result);
         }
 
         #endregion
 
-        #region CreateOrderAsync Tests
+        #region CreateOrderAsync
 
         [Fact]
-        public async Task CreateOrderAsync_ShouldThrowException_WhenCartIsEmpty()
+        public async Task CreateOrderAsync_CartIsEmpty_ThrowsException()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new OrderService(context);
-            var dto = new CreateOrderDto { AppUserId = "user-1" };
 
-            // Act
-            Func<Task> act = async () => await service.CreateOrderAsync(dto);
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<Exception>(() =>
+                service.CreateOrderAsync(new CreateOrderDto { AppUserId = "user1" }));
 
-            // Assert
-            await act.Should().ThrowAsync<Exception>()
-                     .WithMessage("Cart is empty");
+            Assert.Equal("Cart is empty", ex.Message);
         }
 
         [Fact]
-        public async Task CreateOrderAsync_ShouldCreateOrderRemoveCartAndIncrementSlot_WhenValid()
+        public async Task CreateOrderAsync_ValidRequest_CreatesOrderAndClearsCart()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var userId = "user-1";
-
             var cart = new Cart
             {
-                Id = 1,
-                AppUserId = userId,
+                AppUserId = "user1",
                 CartItems = new List<CartItem>
                 {
-                    new CartItem { Id = 10, ProductId = 1, Quantity = 2, UnitPrice = 50000 }
+                    new CartItem { ProductId = 10, Quantity = 2, UnitPrice = 50000m }
                 }
             };
-            var deliverySlot = new DeliverySlot { Id = 5, CurrentOrders = 2 };
-
+            var slot = new DeliverySlot { Id = 1, TimeRange = "08:00 - 10:00", CurrentOrders = 0 };
             context.Carts.Add(cart);
-            context.DeliverySlots.Add(deliverySlot);
+            context.DeliverySlots.Add(slot);
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
             var dto = new CreateOrderDto
             {
-                AppUserId = userId,
-                DeliverySlotId = 5
+                AppUserId = "user1",
+                DeliverySlotId = 1,
+                DeliveryAddress = "123 Main St",
+                PaymentMethod = "COD"
             };
 
             // Act
             var result = await service.CreateOrderAsync(dto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.TotalCost.Should().Be(100000m);
-            result.Status.Should().Be("Pending");
-            result.Items.Should().HaveCount(1);
-
-            // Kiểm tra giỏ hàng đã bị xoá
-            (await context.Carts.AnyAsync(c => c.AppUserId == userId)).Should().BeFalse();
-
-            // Kiểm tra khung giờ giao hàng tăng lượt order
-            var slotInDb = await context.DeliverySlots.FindAsync(5);
-            slotInDb!.CurrentOrders.Should().Be(3);
+            Assert.NotNull(result);
+            Assert.Equal(100000m, result.TotalCost);
+            Assert.Equal("123 Main St", result.DeliveryAddress);
+            Assert.Equal(0, await context.Carts.CountAsync()); // Giỏ hàng bị xóa
+            Assert.Equal(1, (await context.DeliverySlots.FindAsync(1))!.CurrentOrders); // Số đơn slot tăng
         }
 
         #endregion
 
-        #region CancelOrderAsync Tests
+        #region GetUserOrdersAsync & GetAllOrdersAsync
 
         [Fact]
-        public async Task CancelOrderAsync_ShouldReturnFalse_WhenOrderNotFoundOrAlreadyShipped()
+        public async Task GetUserOrdersAsync_ReturnsOnlyUserOrders()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var order = new Order { Id = 1, AppUserId = "user-1", Status = "Shipped" };
-            context.Orders.Add(order);
+            context.Orders.AddRange(
+                new Order { Id = 1, AppUserId = "user1", CreatedAt = DateTime.UtcNow },
+                new Order { Id = 2, AppUserId = "user2", CreatedAt = DateTime.UtcNow }
+            );
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
 
             // Act
-            var resultNotFound = await service.CancelOrderAsync(999, "user-1");
-            var resultShipped = await service.CancelOrderAsync(1, "user-1");
+            var result = await service.GetUserOrdersAsync("user1");
 
             // Assert
-            resultNotFound.Should().BeFalse();
-            resultShipped.Should().BeFalse();
+            Assert.Single(result);
+            Assert.Equal(1, result[0].Id);
         }
 
         [Fact]
-        public async Task CancelOrderAsync_ShouldUpdateStatusToCancelled_WhenPending()
+        public async Task GetAllOrdersAsync_ReturnsAllOrdersOrderedByCreatedAtDescending()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var order = new Order { Id = 1, AppUserId = "user-1", Status = "Pending" };
-            context.Orders.Add(order);
+            context.Orders.AddRange(
+                new Order { Id = 1, AppUserId = "user1", CreatedAt = DateTime.UtcNow.AddHours(-1) },
+                new Order { Id = 2, AppUserId = "user2", CreatedAt = DateTime.UtcNow }
+            );
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
 
             // Act
-            var result = await service.CancelOrderAsync(1, "user-1");
+            var result = await service.GetAllOrdersAsync();
 
             // Assert
-            result.Should().BeTrue();
-            var updatedOrder = await context.Orders.FindAsync(1);
-            updatedOrder!.Status.Should().Be("Cancelled");
-        }
-
-        #endregion
-
-        #region UpdateOrderStatusAsync Tests
-
-        [Fact]
-        public async Task UpdateOrderStatusAsync_ShouldReturnFalse_WhenOrderDoesNotExist()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var service = new OrderService(context);
-
-            // Act
-            var result = await service.UpdateOrderStatusAsync(999, "Shipped");
-
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task UpdateOrderStatusAsync_ShouldUpdateStatusAndReturnTrue_WhenOrderExists()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var order = new Order { Id = 1, Status = "Pending" };
-            context.Orders.Add(order);
-            await context.SaveChangesAsync();
-
-            var service = new OrderService(context);
-
-            // Act
-            var result = await service.UpdateOrderStatusAsync(1, "Shipped");
-
-            // Assert
-            result.Should().BeTrue();
-            var updatedOrder = await context.Orders.FindAsync(1);
-            updatedOrder!.Status.Should().Be("Shipped");
+            Assert.Equal(2, result.Count);
+            Assert.Equal(2, result[0].Id); // Đơn mới hơn xếp trước
         }
 
         #endregion
 
-        #region ReportDamagedGoodsAsync Tests
+        #region CancelOrderAsync
 
         [Fact]
-        public async Task ReportDamagedGoodsAsync_ShouldReturnFalse_WhenStatusIsNotDelivered()
+        public async Task CancelOrderAsync_ShippedOrDelivered_ReturnsFalse()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var order = new Order { Id = 1, Status = "Pending" };
-            context.Orders.Add(order);
+            context.Orders.Add(new Order { Id = 1, AppUserId = "user1", Status = "Shipped" });
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
 
             // Act
-            var result = await service.ReportDamagedGoodsAsync(1, "Hàng bị hỏng");
+            var result = await service.CancelOrderAsync(1, "user1");
 
             // Assert
-            result.Should().BeFalse();
+            Assert.False(result);
         }
 
         [Fact]
-        public async Task ReportDamagedGoodsAsync_ShouldUpdateStatusToIssueReported_WhenDelivered()
+        public async Task CancelOrderAsync_Processing_UpdatesStatusToCancelledAndReturnsTrue()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var order = new Order { Id = 1, Status = "Delivered" };
-            context.Orders.Add(order);
+            context.Orders.Add(new Order { Id = 1, AppUserId = "user1", Status = "Processing" });
             await context.SaveChangesAsync();
 
             var service = new OrderService(context);
 
             // Act
-            var result = await service.ReportDamagedGoodsAsync(1, "Sản phẩm bị dập nát");
+            var result = await service.CancelOrderAsync(1, "user1");
 
             // Assert
-            result.Should().BeTrue();
-            var updatedOrder = await context.Orders.FindAsync(1);
-            updatedOrder!.Status.Should().Be("Issue Reported");
+            Assert.True(result);
+            var order = await context.Orders.FindAsync(1);
+            Assert.Equal("Cancelled", order!.Status);
+        }
+
+        #endregion
+
+        #region UpdateOrderStatusAsync & ReportDamagedGoodsAsync
+
+        [Fact]
+        public async Task UpdateOrderStatusAsync_OrderExists_UpdatesStatusAndReturnsTrue()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Orders.Add(new Order { Id = 1, Status = "Processing" });
+            await context.SaveChangesAsync();
+
+            var service = new OrderService(context);
+
+            // Act
+            var result = await service.UpdateOrderStatusAsync(1, "Delivered");
+
+            // Assert
+            Assert.True(result);
+            var order = await context.Orders.FindAsync(1);
+            Assert.Equal("Delivered", order!.Status);
+        }
+
+        [Fact]
+        public async Task ReportDamagedGoodsAsync_DeliveredOrder_UpdatesStatusToIssueReported()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Orders.Add(new Order { Id = 1, Status = "Delivered" });
+            await context.SaveChangesAsync();
+
+            var service = new OrderService(context);
+
+            // Act
+            var result = await service.ReportDamagedGoodsAsync(1, "Hàng hỏng do vận chuyển");
+
+            // Assert
+            Assert.True(result);
+            var order = await context.Orders.FindAsync(1);
+            Assert.Equal("Issue Reported", order!.Status);
+        }
+
+        [Fact]
+        public async Task ReportDamagedGoodsAsync_NotDeliveredOrder_ReturnsFalse()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Orders.Add(new Order { Id = 1, Status = "Processing" });
+            await context.SaveChangesAsync();
+
+            var service = new OrderService(context);
+
+            // Act
+            var result = await service.ReportDamagedGoodsAsync(1, "Hàng hỏng do vận chuyển");
+
+            // Assert
+            Assert.False(result);
         }
 
         #endregion

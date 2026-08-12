@@ -1,188 +1,188 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FluentAssertions;
 using GreenBasket.Application.DTOs.Auth;
+using GreenBasket.Application.Interfaces;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using NSubstitute;
+using Moq;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class AuthServiceTests
     {
-        private readonly UserManager<AppUser> _userManagerMock;
-        private readonly IConfiguration _configurationMock;
+        private readonly Mock<UserManager<AppUser>> _mockUserManager;
+        private readonly Mock<IConfiguration> _mockConfiguration;
+        private readonly Mock<IEmailService> _mockEmailService;
         private readonly AuthService _authService;
 
         public AuthServiceTests()
         {
-            var userStoreMock = Substitute.For<IUserStore<AppUser>>();
-            _userManagerMock = Substitute.For<UserManager<AppUser>>(
-                userStoreMock, null!, null!, null!, null!, null!, null!, null!, null!);
+            var store = new Mock<IUserStore<AppUser>>();
+            _mockUserManager = new Mock<UserManager<AppUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockEmailService = new Mock<IEmailService>();
 
-            _configurationMock = Substitute.For<IConfiguration>();
+            // Mock cấu hình JWT Secret hợp lệ (tối thiểu 32 ký tự cho HMAC-SHA256)
+            _mockConfiguration.Setup(c => c["JWT:Secret"]).Returns("SUPER_SECRET_KEY_FOR_JWT_TOKEN_GENERATION_123456");
+            _mockConfiguration.Setup(c => c["JWT:ValidIssuer"]).Returns("GreenBasketIssuer");
+            _mockConfiguration.Setup(c => c["JWT:ValidAudience"]).Returns("GreenBasketAudience");
 
-            // JWT Key bắt buộc phải dài tối thiểu 32 ký tự (256-bit) cho thuật toán HMAC-SHA256
-            _configurationMock["JWT:Secret"].Returns("ThisIsASuperSecretKeyThatIs32BytesLong!");
-            _configurationMock["JWT:ValidIssuer"].Returns("GreenBasketAPI");
-            _configurationMock["JWT:ValidAudience"].Returns("GreenBasketUsers");
-
-            _authService = new AuthService(_userManagerMock, _configurationMock);
-        }
-
-        #region RegisterAsync Tests
-
-        [Fact]
-        public async Task RegisterAsync_ShouldThrowException_WhenUserCreationFails()
-        {
-            // Arrange
-            var dto = new RegisterDTO
-            {
-                Email = "test@example.com",
-                Password = "Password123!",
-                FullName = "Test User"
-            };
-
-            var error = new IdentityError { Description = "Password is too weak." };
-            _userManagerMock.CreateAsync(Arg.Any<AppUser>(), dto.Password)
-                             .Returns(IdentityResult.Failed(error));
-
-            // Act
-            Func<Task> act = async () => await _authService.RegisterAsync(dto);
-
-            // Assert
-            await act.Should().ThrowAsync<Exception>()
-                     .WithMessage("*Registration failed: Password is too weak.*");
+            _authService = new AuthService(_mockUserManager.Object, _mockConfiguration.Object, _mockEmailService.Object);
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnAuthResponseDTO_WhenRegistrationIsSuccessful()
+        public async Task RegisterAsync_Success_ReturnsPendingVerificationToken()
         {
             // Arrange
-            var dto = new RegisterDTO
-            {
-                Email = "test@example.com",
-                Password = "Password123!",
-                FullName = "Test User"
-            };
+            var registerDto = new RegisterDTO { Email = "test@example.com", FullName = "Test User", Password = "Password123!" };
 
-            _userManagerMock.CreateAsync(Arg.Any<AppUser>(), dto.Password)
-                             .Returns(IdentityResult.Success);
-
-            _userManagerMock.AddToRoleAsync(Arg.Any<AppUser>(), "Customer")
-                             .Returns(IdentityResult.Success);
-
-            _userManagerMock.GetRolesAsync(Arg.Any<AppUser>())
-                             .Returns(new List<string> { "Customer" });
+            _mockUserManager.Setup(m => m.CreateAsync(It.IsAny<AppUser>(), registerDto.Password))
+                .ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(m => m.AddToRoleAsync(It.IsAny<AppUser>(), "Customer"))
+                .ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(m => m.GenerateTwoFactorTokenAsync(It.IsAny<AppUser>(), "Email"))
+                .ReturnsAsync("123456");
 
             // Act
-            var result = await _authService.RegisterAsync(dto);
+            var result = await _authService.RegisterAsync(registerDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Email.Should().Be(dto.Email);
-            result.FullName.Should().Be(dto.FullName);
-            result.Token.Should().NotBeNullOrWhiteSpace();
-
-            await _userManagerMock.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "Customer");
-        }
-
-        #endregion
-
-        #region LoginAsync Tests
-
-        [Fact]
-        public async Task LoginAsync_ShouldThrowException_WhenEmailDoesNotExist()
-        {
-            // Arrange
-            var dto = new LoginDTO
-            {
-                Email = "notfound@example.com",
-                Password = "Password123!"
-            };
-
-            _userManagerMock.FindByEmailAsync(dto.Email)
-                             .Returns(Task.FromResult<AppUser?>(null));
-
-            // Act
-            Func<Task> act = async () => await _authService.LoginAsync(dto);
-
-            // Assert
-            await act.Should().ThrowAsync<Exception>()
-                     .WithMessage("Email does not exist in the system.");
+            Assert.NotNull(result);
+            Assert.Equal("PendingVerification", result.Token);
+            Assert.Equal(registerDto.Email, result.Email);
+            _mockEmailService.Verify(e => e.SendEmailAsync(registerDto.Email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
-        public async Task LoginAsync_ShouldThrowException_WhenPasswordIsIncorrect()
+        public async Task RegisterAsync_CreationFailed_ThrowsException()
         {
             // Arrange
-            var dto = new LoginDTO
-            {
-                Email = "user@example.com",
-                Password = "WrongPassword"
-            };
+            var registerDto = new RegisterDTO { Email = "test@example.com", Password = "123" };
+            var identityError = new IdentityError { Description = "Password too short" };
 
-            var fakeUser = new AppUser
-            {
-                Id = "user-123",
-                Email = dto.Email,
-                FullName = "Test User"
-            };
+            _mockUserManager.Setup(m => m.CreateAsync(It.IsAny<AppUser>(), registerDto.Password))
+                .ReturnsAsync(IdentityResult.Failed(identityError));
 
-            _userManagerMock.FindByEmailAsync(dto.Email)
-                             .Returns(Task.FromResult<AppUser?>(fakeUser));
-
-            _userManagerMock.CheckPasswordAsync(fakeUser, dto.Password)
-                             .Returns(Task.FromResult(false));
-
-            // Act
-            Func<Task> act = async () => await _authService.LoginAsync(dto);
-
-            // Assert
-            await act.Should().ThrowAsync<Exception>()
-                     .WithMessage("Incorrect password.");
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _authService.RegisterAsync(registerDto));
+            Assert.Contains("Registration failed: Password too short", exception.Message);
         }
 
         [Fact]
-        public async Task LoginAsync_ShouldReturnAuthResponseDTO_WhenCredentialsAreValid()
+        public async Task LoginAsync_UserNotFound_ThrowsException()
         {
             // Arrange
-            var dto = new LoginDTO
-            {
-                Email = "user@example.com",
-                Password = "CorrectPassword123!"
-            };
+            var loginDto = new LoginDTO { Email = "notfound@example.com", Password = "Password123!" };
+            _mockUserManager.Setup(m => m.FindByEmailAsync(loginDto.Email)).ReturnsAsync((AppUser)null!);
 
-            var fakeUser = new AppUser
-            {
-                Id = "user-123",
-                Email = dto.Email,
-                FullName = "Test User"
-            };
-
-            _userManagerMock.FindByEmailAsync(dto.Email)
-                             .Returns(Task.FromResult<AppUser?>(fakeUser));
-
-            _userManagerMock.CheckPasswordAsync(fakeUser, dto.Password)
-                             .Returns(Task.FromResult(true));
-
-            _userManagerMock.GetRolesAsync(fakeUser)
-                             .Returns(Task.FromResult<IList<string>>(new List<string> { "Customer" }));
-
-            // Act
-            var result = await _authService.LoginAsync(dto);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Email.Should().Be(dto.Email);
-            result.FullName.Should().Be(fakeUser.FullName);
-            result.Token.Should().NotBeNullOrWhiteSpace();
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _authService.LoginAsync(loginDto));
+            Assert.Equal("Invalid email or password.", exception.Message);
         }
 
-        #endregion
+        [Fact]
+        public async Task LoginAsync_EmailNotConfirmed_ThrowsException()
+        {
+            // Arrange
+            var loginDto = new LoginDTO { Email = "unconfirmed@example.com", Password = "Password123!" };
+            var user = new AppUser { Email = loginDto.Email, EmailConfirmed = false };
+
+            _mockUserManager.Setup(m => m.FindByEmailAsync(loginDto.Email)).ReturnsAsync(user);
+            _mockUserManager.Setup(m => m.IsEmailConfirmedAsync(user)).ReturnsAsync(false);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _authService.LoginAsync(loginDto));
+            Assert.Equal("Please verify your email before logging in.", exception.Message);
+        }
+
+        [Fact]
+        public async Task LoginAsync_ValidCredentials_ReturnsJwtToken()
+        {
+            // Arrange
+            var loginDto = new LoginDTO { Email = "user@example.com", Password = "Password123!" };
+            var user = new AppUser { Id = "user-123", Email = loginDto.Email, FullName = "John Doe", EmailConfirmed = true };
+
+            _mockUserManager.Setup(m => m.FindByEmailAsync(loginDto.Email)).ReturnsAsync(user);
+            _mockUserManager.Setup(m => m.IsEmailConfirmedAsync(user)).ReturnsAsync(true);
+            _mockUserManager.Setup(m => m.CheckPasswordAsync(user, loginDto.Password)).ReturnsAsync(true);
+            _mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Customer" });
+
+            // Act
+            var result = await _authService.LoginAsync(loginDto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(string.IsNullOrWhiteSpace(result.Token));
+            Assert.Equal(user.Email, result.Email);
+            Assert.Equal(user.Id, result.UserId);
+        }
+
+        [Fact]
+        public async Task VerifyEmailAsync_ValidOtp_ReturnsTrueAndUpdatesUser()
+        {
+            // Arrange
+            var user = new AppUser { Email = "test@example.com", EmailConfirmed = false };
+            _mockUserManager.Setup(m => m.FindByEmailAsync("test@example.com")).ReturnsAsync(user);
+            _mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(user, "Email", "123456")).ReturnsAsync(true);
+            _mockUserManager.Setup(m => m.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _authService.VerifyEmailAsync("test@example.com", "123456");
+
+            // Assert
+            Assert.True(result);
+            Assert.True(user.EmailConfirmed);
+            _mockUserManager.Verify(m => m.UpdateAsync(user), Times.Once);
+        }
+
+        [Fact]
+        public async Task ResendOtpAsync_AlreadyConfirmed_ThrowsException()
+        {
+            // Arrange
+            var user = new AppUser { Email = "confirmed@example.com", EmailConfirmed = true };
+            _mockUserManager.Setup(m => m.FindByEmailAsync("confirmed@example.com")).ReturnsAsync(user);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _authService.ResendOtpAsync("confirmed@example.com"));
+            Assert.Equal("Email is already verified.", exception.Message);
+        }
+
+        [Fact]
+        public async Task ForgotPasswordAsync_UserNotFound_ReturnsTrueWithoutSendingEmail()
+        {
+            // Arrange
+            _mockUserManager.Setup(m => m.FindByEmailAsync("unknown@example.com")).ReturnsAsync((AppUser)null!);
+
+            // Act
+            var result = await _authService.ForgotPasswordAsync("unknown@example.com");
+
+            // Assert
+            Assert.True(result);
+            _mockEmailService.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ResetPasswordAsync_ValidOtp_ResetsPasswordSuccessfully()
+        {
+            // Arrange
+            var dto = new ResetPasswordDTO { Email = "user@example.com", Otp = "123456", NewPassword = "NewPassword123!" };
+            var user = new AppUser { Email = dto.Email };
+
+            _mockUserManager.Setup(m => m.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
+            _mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(user, "Email", dto.Otp)).ReturnsAsync(true);
+            _mockUserManager.Setup(m => m.GeneratePasswordResetTokenAsync(user)).ReturnsAsync("reset-token");
+            _mockUserManager.Setup(m => m.ResetPasswordAsync(user, "reset-token", dto.NewPassword)).ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _authService.ResetPasswordAsync(dto);
+
+            // Assert
+            Assert.True(result);
+            _mockUserManager.Verify(m => m.ResetPasswordAsync(user, "reset-token", dto.NewPassword), Times.Once);
+        }
     }
 }

@@ -22,170 +22,133 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region GetUserAddressesAsync Tests
-
         [Fact]
-        public async Task GetUserAddressesAsync_ShouldReturnAddressesOnlyForSpecifiedUser()
+        public async Task GetUserAddressesAsync_ShouldReturnOnlyUserAddresses()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var targetUserId = "user-1";
-            var otherUserId = "user-2";
-
             context.Addresses.AddRange(
-                new Address { Id = 1, UserId = targetUserId, ReceiverName = "Địa chỉ 1", PhoneNumber = "0123456789", StreetAddress = "Đường 1", City = "HCM", District = "Q1", Ward = "P1" },
-                new Address { Id = 2, UserId = targetUserId, ReceiverName = "Địa chỉ 2", PhoneNumber = "0123456789", StreetAddress = "Đường 2", City = "HCM", District = "Q1", Ward = "P1" },
-                new Address { Id = 3, UserId = otherUserId, ReceiverName = "Địa chỉ User khác", PhoneNumber = "0987654321", StreetAddress = "Đường 3", City = "HN", District = "HK", Ward = "P2" }
+                new Address { Id = 1, UserId = "user1", ReceiverName = "User 1 Addr 1" },
+                new Address { Id = 2, UserId = "user1", ReceiverName = "User 1 Addr 2" },
+                new Address { Id = 3, UserId = "user2", ReceiverName = "User 2 Addr" }
             );
             await context.SaveChangesAsync();
 
             var service = new AddressService(context);
 
             // Act
-            var result = await service.GetUserAddressesAsync(targetUserId);
+            var result = await service.GetUserAddressesAsync("user1");
 
             // Assert
-            result.Should().HaveCount(2);
-            result.Select(a => a.Id).Should().Contain(new[] { 1, 2 });
+            Assert.Equal(2, result.Count());
+            Assert.All(result, item => Assert.True(item.Id == 1 || item.Id == 2));
         }
 
-        #endregion
-
-        #region GetAddressByIdAsync Tests
-
         [Fact]
-        public async Task GetAddressByIdAsync_ShouldReturnAddress_WhenIdAndUserIdMatch()
+        public async Task GetAddressByIdAsync_ShouldReturnAddress_WhenAddressExistsAndBelongsToUser()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-            var address = new Address
+            context.Addresses.Add(new Address { Id = 1, UserId = "user1", ReceiverName = "Alice", City = "HCM" });
+            await context.SaveChangesAsync();
+
+            var service = new AddressService(context);
+
+            // Act
+            var result = await service.GetAddressByIdAsync(1, "user1");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+            Assert.Equal("Alice", result.ReceiverName);
+        }
+
+        [Fact]
+        public async Task GetAddressByIdAsync_ShouldReturnNull_WhenUserIdDoesNotMatchOrNotFound()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Addresses.Add(new Address { Id = 1, UserId = "user1" });
+            await context.SaveChangesAsync();
+
+            var service = new AddressService(context);
+
+            // Act
+            var result = await service.GetAddressByIdAsync(1, "other_user");
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task CreateAddressAsync_ShouldAddNewAddress_AndResetPreviousDefault_WhenIsDefaultIsTrue()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var existingDefault = new Address { Id = 1, UserId = "user1", IsDefault = true, ReceiverName = "Old Default" };
+            context.Addresses.Add(existingDefault);
+            await context.SaveChangesAsync();
+
+            var service = new AddressService(context);
+            var createDto = new CreateAddressDTO
             {
-                Id = 1,
-                UserId = userId,
-                ReceiverName = "Nguyen Van A",
+                ReceiverName = "New Default",
                 PhoneNumber = "0901234567",
                 StreetAddress = "123 Street",
                 City = "HCM",
-                District = "District 1",
-                Ward = "Ward 1"
-            };
-            context.Addresses.Add(address);
-            await context.SaveChangesAsync();
-
-            var service = new AddressService(context);
-
-            // Act
-            var result = await service.GetAddressByIdAsync(1, userId);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.ReceiverName.Should().Be("Nguyen Van A");
-        }
-
-        [Fact]
-        public async Task GetAddressByIdAsync_ShouldReturnNull_WhenAddressBelongsToAnotherUser()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            context.Addresses.Add(new Address { Id = 1, UserId = "user-owner", ReceiverName = "Owner" });
-            await context.SaveChangesAsync();
-
-            var service = new AddressService(context);
-
-            // Act
-            var result = await service.GetAddressByIdAsync(1, "other-user");
-
-            // Assert
-            result.Should().BeNull();
-        }
-
-        #endregion
-
-        #region CreateAddressAsync Tests
-
-        [Fact]
-        public async Task CreateAddressAsync_ShouldUnsetDefaultAddresses_WhenNewAddressIsDefault()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-
-            // Địa chỉ mặc định cũ
-            var existingAddress = new Address
-            {
-                Id = 1,
-                UserId = userId,
-                IsDefault = true,
-                ReceiverName = "Địa chỉ cũ"
-            };
-            context.Addresses.Add(existingAddress);
-            await context.SaveChangesAsync();
-
-            var newAddressDto = new CreateAddressDTO
-            {
-                ReceiverName = "Địa chỉ mới",
-                PhoneNumber = "0900000000",
-                StreetAddress = "Đường mới",
-                City = "City",
-                District = "District",
-                Ward = "Ward",
+                District = "D1",
+                Ward = "W1",
                 IsDefault = true
             };
 
-            var service = new AddressService(context);
-
             // Act
-            var result = await service.CreateAddressAsync(userId, newAddressDto);
+            var result = await service.CreateAddressAsync("user1", createDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.IsDefault.Should().BeTrue();
+            Assert.NotNull(result);
+            Assert.True(result.IsDefault);
 
-            // Kiểm tra địa chỉ cũ đã bị hủy trạng thái IsDefault
-            var oldAddressInDb = await context.Addresses.FindAsync(1);
-            oldAddressInDb!.IsDefault.Should().BeFalse();
+            // Kiểm tra địa chỉ cũ đã bị bỏ IsDefault
+            var updatedOldAddress = await context.Addresses.FindAsync(1);
+            Assert.False(updatedOldAddress!.IsDefault);
+
+            // Kiểm tra tổng số địa chỉ
+            Assert.Equal(2, await context.Addresses.CountAsync());
         }
 
-        #endregion
-
-        #region UpdateAddressAsync Tests
-
         [Fact]
-        public async Task UpdateAddressAsync_ShouldUpdateAndUnsetOtherDefaults_WhenSetToDefault()
+        public async Task UpdateAddressAsync_ShouldUpdateAddress_AndUnsetDefaultOfOtherAddresses_WhenIsDefaultSetToTrue()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-
-            var addr1 = new Address { Id = 1, UserId = userId, IsDefault = true, ReceiverName = "Địa chỉ 1" };
-            var addr2 = new Address { Id = 2, UserId = userId, IsDefault = false, ReceiverName = "Địa chỉ 2" };
-            context.Addresses.AddRange(addr1, addr2);
+            context.Addresses.AddRange(
+                new Address { Id = 1, UserId = "user1", IsDefault = true, ReceiverName = "Old Default" },
+                new Address { Id = 2, UserId = "user1", IsDefault = false, ReceiverName = "Address To Update" }
+            );
             await context.SaveChangesAsync();
 
+            var service = new AddressService(context);
             var updateDto = new UpdateAddressDTO
             {
-                ReceiverName = "Địa chỉ 2 Đã cập nhật",
-                PhoneNumber = "0911111111",
-                StreetAddress = "Street 2",
-                City = "City",
-                District = "District",
-                Ward = "Ward",
-                IsDefault = true // Đặt addr2 làm mặc định
+                ReceiverName = "Updated Name",
+                PhoneNumber = "0987654321",
+                StreetAddress = "456 Street",
+                City = "HN",
+                District = "D2",
+                Ward = "W2",
+                IsDefault = true
             };
 
-            var service = new AddressService(context);
-
             // Act
-            var result = await service.UpdateAddressAsync(2, userId, updateDto);
+            var result = await service.UpdateAddressAsync(2, "user1", updateDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.IsDefault.Should().BeTrue();
+            Assert.NotNull(result);
+            Assert.Equal("Updated Name", result.ReceiverName);
+            Assert.True(result.IsDefault);
 
-            // Kiểm tra addr1 không còn là mặc định
-            var addr1InDb = await context.Addresses.FindAsync(1);
-            addr1InDb!.IsDefault.Should().BeFalse();
+            var address1 = await context.Addresses.FindAsync(1);
+            Assert.False(address1!.IsDefault);
         }
 
         [Fact]
@@ -197,49 +160,42 @@ namespace GreenBasket.Application.Tests.Services
             var updateDto = new UpdateAddressDTO { ReceiverName = "Test" };
 
             // Act
-            var result = await service.UpdateAddressAsync(999, "user-123", updateDto);
+            var result = await service.UpdateAddressAsync(99, "user1", updateDto);
 
             // Assert
-            result.Should().BeNull();
+            Assert.Null(result);
         }
 
-        #endregion
-
-        #region DeleteAddressAsync Tests
-
         [Fact]
-        public async Task DeleteAddressAsync_ShouldRemoveAddressAndReturnTrue_WhenExists()
+        public async Task DeleteAddressAsync_ShouldRemoveAddress_WhenAddressExists()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-            context.Addresses.Add(new Address { Id = 1, UserId = userId, ReceiverName = "Cần xóa" });
+            context.Addresses.Add(new Address { Id = 1, UserId = "user1" });
             await context.SaveChangesAsync();
 
             var service = new AddressService(context);
 
             // Act
-            var result = await service.DeleteAddressAsync(1, userId);
+            var result = await service.DeleteAddressAsync(1, "user1");
 
             // Assert
-            result.Should().BeTrue();
-            (await context.Addresses.CountAsync()).Should().Be(0);
+            Assert.True(result);
+            Assert.Equal(0, await context.Addresses.CountAsync());
         }
 
         [Fact]
-        public async Task DeleteAddressAsync_ShouldReturnFalse_WhenNotFound()
+        public async Task DeleteAddressAsync_ShouldReturnFalse_WhenAddressNotFound()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new AddressService(context);
 
             // Act
-            var result = await service.DeleteAddressAsync(999, "user-123");
+            var result = await service.DeleteAddressAsync(99, "user1");
 
             // Assert
-            result.Should().BeFalse();
+            Assert.False(result);
         }
-
-        #endregion
     }
 }

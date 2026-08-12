@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using GreenBasket.Application.DTOs.Products;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
@@ -10,7 +9,7 @@ using GreenBasket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class ProductServiceTests
     {
@@ -23,120 +22,77 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region SearchAsync Tests
+        #region SearchAsync
 
         [Fact]
-        public async Task SearchAsync_ShouldFilterByKeywordAndPrice_AndPaginateCorrectly()
+        public async Task SearchAsync_FiltersByKeywordAndExcludesInactiveProducts()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var farm = new Farm { Id = 1, Name = "Trang trại Đà Lạt", Location = "Đà Lạt", ContactInfo = "123" };
+            var farm = new Farm { Id = 1, Name = "Dalat Farm" };
 
-            var p1 = new Product
-            {
-                Id = 1,
-                Name = "Cà chua Organic",
-                Category = ProductCategory.LeafyGreens,
-                Price = 30000,
-                IsActive = true,
-                StockStatus = StockStatus.InStock,
-                Batches = new List<Batch>
-                {
-                    new Batch { Id = 10, Farm = farm, QuantityRemaining = 50, HarvestDate = DateTime.UtcNow }
-                }
-            };
-            var p2 = new Product
-            {
-                Id = 2,
-                Name = "Táo Nhập Khẩu",
-                Category = ProductCategory.TropicalFruit,
-                Price = 80000,
-                IsActive = true,
-                StockStatus = StockStatus.InStock
-            };
-            var p3 = new Product
-            {
-                Id = 3,
-                Name = "Cà rốt Tươi",
-                Category = ProductCategory.RootVeggies,
-                Price = 15000,
-                IsActive = false // Sản phẩm đã ẩn
-            };
-
-            context.Farms.Add(farm);
-            context.Products.AddRange(p1, p2, p3);
-            await context.SaveChangesAsync();
-
-            var service = new ProductService(context);
-
-            // Act: Tìm từ khóa "Cà" với minPrice = 20000
-            var (items, totalCount) = await service.SearchAsync(
-                keyword: "Cà",
-                minPrice: 20000,
-                maxPrice: null,
-                category: null,
-                organic: null,
-                inStock: null,
-                sort: "price-asc",
-                page: 1,
-                pageSize: 10
-            );
-
-            // Assert
-            totalCount.Should().Be(1); // Chỉ p1 thỏa mãn (p3 bị ẩn)
-            items.Should().HaveCount(1);
-            items.First().Name.Should().Be("Cà chua Organic");
-            items.First().FarmOrigin.Should().Be("Trang trại Đà Lạt");
-        }
-
-        [Fact]
-        public async Task SearchAsync_ShouldSortByPriceDescending()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
             context.Products.AddRange(
-                new Product { Id = 1, Name = "Rau Muống", Price = 10000, IsActive = true },
-                new Product { Id = 2, Name = "Nấm Nhu yếu", Price = 50000, IsActive = true }
+                new Product { Id = 1, Name = "Táo Red", Description = "Ngon", IsActive = true, Price = 10 },
+                new Product { Id = 2, Name = "Cam Sành", Description = "Mọng nước", IsActive = true, Price = 20 },
+                new Product { Id = 3, Name = "Táo Bị Ẩn", Description = "Ngon", IsActive = false, Price = 10 }
             );
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
 
             // Act
-            var (items, totalCount) = await service.SearchAsync(
-                keyword: null, minPrice: null, maxPrice: null, category: null,
-                organic: null, inStock: null, sort: "price-desc", page: 1, pageSize: 10
-            );
+            var (items, totalCount) = await service.SearchAsync("Táo", null, null, null, null, null, null, 1, 10);
 
             // Assert
-            totalCount.Should().Be(2);
-            items.First().Price.Should().Be(50000);
-            items.Last().Price.Should().Be(10000);
+            Assert.Equal(1, totalCount);
+            Assert.Single(items);
+            Assert.Equal("Táo Red", items[0].Name);
+        }
+
+        [Fact]
+        public async Task SearchAsync_FiltersByPriceRangeAndSorting()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Products.AddRange(
+                new Product { Id = 1, Name = "SP A", Price = 50000m, IsActive = true },
+                new Product { Id = 2, Name = "SP B", Price = 20000m, IsActive = true },
+                new Product { Id = 3, Name = "SP C", Price = 80000m, IsActive = true }
+            );
+            await context.SaveChangesAsync();
+
+            var service = new ProductService(context);
+
+            // Act (Lọc từ 20k-60k, sắp xếp giảm dần)
+            var (items, totalCount) = await service.SearchAsync(null, 20000m, 60000m, null, null, null, "price-desc", 1, 10);
+
+            // Assert
+            Assert.Equal(2, totalCount);
+            Assert.Equal("SP A", items[0].Name); // 50,000 xếp trước 20,000
+            Assert.Equal("SP B", items[1].Name);
         }
 
         #endregion
 
-        #region GetByIdAsync Tests
+        #region GetByIdAsync
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnProductDetailWithActiveBatches_WhenExists()
+        public async Task GetByIdAsync_WhenActive_ReturnsProductDetailWithOnlyAvailableBatches()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var farm = new Farm { Id = 1, Name = "Nông trại Xanh", Location = "Lâm Đồng", ContactInfo = "123" };
+            var farm = new Farm { Id = 1, Name = "Nông trại Xanh" };
             var product = new Product
             {
                 Id = 1,
-                Name = "Dưa Hấu",
-                Price = 40000,
+                Name = "Cà chua",
                 IsActive = true,
                 Batches = new List<Batch>
                 {
-                    new Batch { Id = 1, Farm = farm, QuantityRemaining = 20, HarvestDate = DateTime.UtcNow },
-                    new Batch { Id = 2, Farm = farm, QuantityRemaining = 0, HarvestDate = DateTime.UtcNow.AddDays(-5) } // Hết hàng
+                    new Batch { Id = 10, Farm = farm, QuantityRemaining = 5, HarvestDate = DateTime.UtcNow },
+                    new Batch { Id = 11, Farm = farm, QuantityRemaining = 0, HarvestDate = DateTime.UtcNow.AddDays(-1) } // Hết hàng
                 }
             };
-
             context.Farms.Add(farm);
             context.Products.Add(product);
             await context.SaveChangesAsync();
@@ -147,94 +103,90 @@ namespace GreenBasket.Application.Tests.Services
             var result = await service.GetByIdAsync(1);
 
             // Assert
-            result.Should().NotBeNull();
-            result!.Name.Should().Be("Dưa Hấu");
-            result.Batches.Should().HaveCount(1); // Chỉ lấy lô còn hàng (QuantityRemaining > 0)
-            result.Batches.First().Id.Should().Be(1);
+            Assert.NotNull(result);
+            Assert.Equal("Cà chua", result!.Name);
+            Assert.Single(result.Batches); // Chỉ lấy batch còn hàng (QuantityRemaining > 0)
+            Assert.Equal(10, result.Batches[0].Id);
         }
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnNull_WhenProductIsInactiveOrNotFound()
+        public async Task GetByIdAsync_WhenInactiveOrNotFound_ReturnsNull()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            context.Products.Add(new Product { Id = 1, Name = "Cần Tây", IsActive = false });
+            context.Products.Add(new Product { Id = 1, Name = "SP Ẩn", IsActive = false });
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
 
             // Act
             var resultInactive = await service.GetByIdAsync(1);
-            var resultNotFound = await service.GetByIdAsync(999);
+            var resultNotFound = await service.GetByIdAsync(99);
 
             // Assert
-            resultInactive.Should().BeNull();
-            resultNotFound.Should().BeNull();
+            Assert.Null(resultInactive);
+            Assert.Null(resultNotFound);
         }
 
         #endregion
 
-        #region CreateAsync & UpdateAsync & DeleteAsync Tests
+        #region CreateAsync & UpdateAsync & DeleteAsync
 
         [Fact]
-        public async Task CreateAsync_ShouldCreateProductWithOutOfStockStatus()
+        public async Task CreateAsync_ValidRequest_CreatesProductWithDefaultStockStatus()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new ProductService(context);
             var request = new CreateProductRequest
             {
-                Name = "Bơ Sáp",
-                Category = ProductCategory.TropicalFruit,
-                Price = 60000,
-                Unit = "Kg"
+                Name = "Dưa Lưới",
+                Price = 120000m,
+                Unit = "Kg",
+                Organic = true
             };
 
             // Act
             var result = await service.CreateAsync(request);
 
             // Assert
-            result.Should().NotBeNull();
-            result.StockQty.Should().Be(0);
-            result.StockStatus.Should().Be(StockStatus.OutOfStock.ToString());
+            Assert.NotNull(result);
+            Assert.Equal("Dưa Lưới", result.Name);
+            Assert.Equal(0, result.StockQty);
+            Assert.Equal(StockStatus.OutOfStock.ToString(), result.StockStatus);
 
-            var productInDb = await context.Products.FindAsync(result.Id);
-            productInDb!.IsActive.Should().BeTrue();
+            var inDb = await context.Products.FindAsync(result.Id);
+            Assert.NotNull(inDb);
+            Assert.True(inDb!.IsActive);
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldUpdateFieldsAndReturnTrue_WhenProductExists()
+        public async Task UpdateAsync_WhenExists_UpdatesProductDetails()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            context.Products.Add(new Product { Id = 1, Name = "Tên Cũ", Price = 10000, IsActive = true });
+            context.Products.Add(new Product { Id = 1, Name = "Táo Cũ", Price = 10000m });
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
-            var request = new UpdateProductRequest
-            {
-                Name = "Tên Mới",
-                Price = 20000,
-                Category = ProductCategory.LeafyGreens,
-                Unit = "Túi"
-            };
+            var updateRequest = new UpdateProductRequest { Name = "Táo Mới", Price = 15000m };
 
             // Act
-            var result = await service.UpdateAsync(1, request);
+            var result = await service.UpdateAsync(1, updateRequest);
 
             // Assert
-            result.Should().BeTrue();
-            var updatedProduct = await context.Products.FindAsync(1);
-            updatedProduct!.Name.Should().Be("Tên Mới");
-            updatedProduct.Price.Should().Be(20000);
+            Assert.True(result);
+            var updated = await context.Products.FindAsync(1);
+            Assert.Equal("Táo Mới", updated!.Name);
+            Assert.Equal(15000m, updated.Price);
         }
 
         [Fact]
-        public async Task DeleteAsync_ShouldPerformSoftDelete_BySettingIsActiveToFalse()
+        public async Task DeleteAsync_WhenExists_PerformsSoftDelete()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            context.Products.Add(new Product { Id = 1, Name = "Sản phẩm xóa", IsActive = true });
+            context.Products.Add(new Product { Id = 1, Name = "Sản phẩm A", IsActive = true });
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
@@ -243,104 +195,137 @@ namespace GreenBasket.Application.Tests.Services
             var result = await service.DeleteAsync(1);
 
             // Assert
-            result.Should().BeTrue();
-            var productInDb = await context.Products.FindAsync(1);
-            productInDb!.IsActive.Should().BeFalse(); // Soft delete check
+            Assert.True(result);
+            var deleted = await context.Products.FindAsync(1);
+            Assert.NotNull(deleted);
+            Assert.False(deleted!.IsActive); // Soft delete: IsActive chuyển thành false
         }
 
         #endregion
 
-        #region AddBatchAsync & GetBatchesAsync Tests
+        #region AddBatchAsync & LowStock Thresholds
 
         [Fact]
-        public async Task AddBatchAsync_ShouldAddBatchAndUpdateStockQuantityAndStatus()
+        public async Task AddBatchAsync_UpdatesStockQtyAndComputesLowStockStatus()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var farm = new Farm { Id = 1, Name = "Nông trại", Location = "LĐ", ContactInfo = "000" };
-            var product = new Product
+            context.Products.Add(new Product
             {
                 Id = 1,
-                Name = "Cam Sành",
+                Name = "Rau Cần",
                 StockQty = 0,
                 StockStatus = StockStatus.OutOfStock
-            };
-
-            context.Farms.Add(farm);
-            context.Products.Add(product);
+            });
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
-            var request = new CreateBatchRequest
+            var batchRequest = new CreateBatchRequest
             {
                 FarmId = 1,
-                Quantity = 5, // < 10 threshold => LowStock
-                HarvestDate = DateTime.UtcNow,
-                CostPrice = 15000
+                Quantity = 5, // Nhập 5 (< 10 -> LowStock)
+                CostPrice = 5000m,
+                HarvestDate = DateTime.UtcNow
             };
 
             // Act
-            var result = await service.AddBatchAsync(1, request);
+            var result = await service.AddBatchAsync(1, batchRequest);
 
             // Assert
-            result.Should().BeTrue();
-            var productInDb = await context.Products.FindAsync(1);
-            productInDb!.StockQty.Should().Be(5);
-            productInDb.StockStatus.Should().Be(StockStatus.LowStock);
-
-            (await context.Batches.CountAsync(b => b.ProductId == 1)).Should().Be(1);
+            Assert.True(result);
+            var product = await context.Products.FindAsync(1);
+            Assert.Equal(5, product!.StockQty);
+            Assert.Equal(StockStatus.LowStock, product.StockStatus);
         }
 
         [Fact]
-        public async Task GetBatchesAsync_ShouldReturnAdminBatchListOrderedByHarvestDate()
+        public async Task AddBatchAsync_UpdatesStockQtyAndComputesInStockStatus()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var farm = new Farm { Id = 1, Name = "Nông Trại A", Location = "HCM", ContactInfo = "123" };
-            var batchOlder = new Batch { Id = 1, ProductId = 10, Farm = farm, HarvestDate = DateTime.UtcNow.AddDays(-2), QuantityReceived = 50, QuantityRemaining = 50 };
-            var batchNewer = new Batch { Id = 2, ProductId = 10, Farm = farm, HarvestDate = DateTime.UtcNow, QuantityReceived = 30, QuantityRemaining = 30 };
-
-            context.Farms.Add(farm);
-            context.Batches.AddRange(batchOlder, batchNewer);
+            context.Products.Add(new Product
+            {
+                Id = 1,
+                Name = "Rau Cần",
+                StockQty = 0,
+                StockStatus = StockStatus.OutOfStock
+            });
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
+            var batchRequest = new CreateBatchRequest
+            {
+                FarmId = 1,
+                Quantity = 15, // Nhập 15 (>= 10 -> InStock)
+                CostPrice = 5000m,
+                HarvestDate = DateTime.UtcNow
+            };
 
             // Act
-            var results = await service.GetBatchesAsync(10);
+            await service.AddBatchAsync(1, batchRequest);
 
             // Assert
-            results.Should().HaveCount(2);
-            results.First().Id.Should().Be(2); // Mới nhất lên đầu
-            results.First().FarmName.Should().Be("Nông Trại A");
+            var product = await context.Products.FindAsync(1);
+            Assert.Equal(15, product!.StockQty);
+            Assert.Equal(StockStatus.InStock, product.StockStatus);
         }
 
         #endregion
 
-        #region GetLowStockReportAsync Tests
+        #region GetBatchesAsync & GetLowStockReportAsync
 
         [Fact]
-        public async Task GetLowStockReportAsync_ShouldReturnOnlyActiveAndNonInStockProducts()
+        public async Task GetBatchesAsync_ReturnsMappedAdminBatchDtos()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var farm = new Farm { Id = 1, Name = "Farm A" };
+            context.Farms.Add(farm);
+            context.Batches.Add(new Batch
+            {
+                Id = 10,
+                ProductId = 1,
+                Farm = farm,
+                HarvestDate = DateTime.UtcNow,
+                QuantityRemaining = 20,
+                QuantityReceived = 20,
+                CostPrice = 10000m
+            });
+            await context.SaveChangesAsync();
+
+            var service = new ProductService(context);
+
+            // Act
+            var result = await service.GetBatchesAsync(1);
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("Farm A", result[0].FarmName);
+            Assert.Equal(20, result[0].QuantityRemaining);
+        }
+
+        [Fact]
+        public async Task GetLowStockReportAsync_ReturnsOnlyActiveAndNotInStockProducts()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             context.Products.AddRange(
-                new Product { Id = 1, Name = "Rau Hết Hàng", StockQty = 0, StockStatus = StockStatus.OutOfStock, IsActive = true },
-                new Product { Id = 2, Name = "Rau Sắp Hết", StockQty = 3, StockStatus = StockStatus.LowStock, IsActive = true },
-                new Product { Id = 3, Name = "Rau Còn Nhiều", StockQty = 50, StockStatus = StockStatus.InStock, IsActive = true },
-                new Product { Id = 4, Name = "Rau Ẩn Hết Hàng", StockQty = 0, StockStatus = StockStatus.OutOfStock, IsActive = false }
+                new Product { Id = 1, Name = "Hết hàng", IsActive = true, StockQty = 0, StockStatus = StockStatus.OutOfStock },
+                new Product { Id = 2, Name = "Sắp hết", IsActive = true, StockQty = 3, StockStatus = StockStatus.LowStock },
+                new Product { Id = 3, Name = "Còn nhiều", IsActive = true, StockQty = 50, StockStatus = StockStatus.InStock },
+                new Product { Id = 4, Name = "Hết hàng ẩn", IsActive = false, StockQty = 0, StockStatus = StockStatus.OutOfStock }
             );
             await context.SaveChangesAsync();
 
             var service = new ProductService(context);
 
             // Act
-            var results = await service.GetLowStockReportAsync();
+            var result = await service.GetLowStockReportAsync();
 
             // Assert
-            results.Should().HaveCount(2);
-            results.Select(r => r.ProductId).Should().Contain(new[] { 1, 2 });
-            results.First().StockQty.Should().Be(0); // Sắp xếp tăng dần theo StockQty
+            Assert.Equal(2, result.Count);
+            Assert.Equal("Hết hàng", result[0].Name); // Đã OrderBy theo StockQty
+            Assert.Equal("Sắp hết", result[1].Name);
         }
 
         #endregion

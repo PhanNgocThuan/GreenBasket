@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using GreenBasket.Infrastructure.Data; // Thay bằng namespace DbContext của bạn
+using GreenBasket.Infrastructure.Data;
 
 namespace GreenBasket.API.Tests
 {

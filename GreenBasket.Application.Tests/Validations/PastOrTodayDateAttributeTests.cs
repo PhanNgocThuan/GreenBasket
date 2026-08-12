@@ -8,42 +8,78 @@ namespace GreenBasket.Application.Tests.Validations
 {
     public class PastOrTodayDateAttributeTests
     {
-        private readonly PastOrTodayDateAttribute _attribute;
+        private readonly PastOrTodayDateAttribute _attribute = new();
 
-        public PastOrTodayDateAttributeTests()
+        [Fact]
+        public void IsValid_NullValue_ReturnsFalse()
         {
-            _attribute = new PastOrTodayDateAttribute();
+            // Act
+            var result = _attribute.IsValid(null);
+
+            // Assert
+            Assert.False(result);
         }
 
         [Fact]
-        public void IsValid_ShouldReturnSuccess_WhenDateIsTodayOrInPast()
+        public void IsValid_NonDateTimeValue_ReturnsFalse()
         {
-            // Arrange
-            var today = DateTime.Today;
-            var pastDate = DateTime.Today.AddDays(-5);
-            var validationContext = new ValidationContext(new object());
-
             // Act
-            var todayResult = _attribute.GetValidationResult(today, validationContext);
-            var pastResult = _attribute.GetValidationResult(pastDate, validationContext);
+            var result = _attribute.IsValid("2026-08-12");
 
             // Assert
-            todayResult.Should().Be(ValidationResult.Success);
-            pastResult.Should().Be(ValidationResult.Success);
+            Assert.False(result);
         }
 
         [Fact]
-        public void IsValid_ShouldReturnError_WhenDateIsInFuture()
+        public void IsValid_DefaultDateTime_ReturnsFalse()
         {
-            // Arrange
-            var futureDate = DateTime.Today.AddDays(1);
-            var validationContext = new ValidationContext(new object());
+            // Arrange (default DateTime = 0001-01-01)
+            var defaultDate = default(DateTime);
 
             // Act
-            var result = _attribute.GetValidationResult(futureDate, validationContext);
+            var result = _attribute.IsValid(defaultDate);
 
             // Assert
-            result.Should().NotBe(ValidationResult.Success);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void IsValid_PastDate_ReturnsTrue()
+        {
+            // Arrange
+            var pastDate = DateTime.UtcNow.AddDays(-5);
+
+            // Act
+            var result = _attribute.IsValid(pastDate);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void IsValid_TodayUtcDate_ReturnsTrue()
+        {
+            // Arrange
+            var todayUtc = DateTime.UtcNow.Date;
+
+            // Act
+            var result = _attribute.IsValid(todayUtc);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void IsValid_FutureDate_ReturnsFalse()
+        {
+            // Arrange
+            var futureDate = DateTime.UtcNow.AddDays(1);
+
+            // Act
+            var result = _attribute.IsValid(futureDate);
+
+            // Assert
+            Assert.False(result);
         }
     }
 }

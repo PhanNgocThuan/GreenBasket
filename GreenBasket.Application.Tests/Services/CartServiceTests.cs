@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using GreenBasket.Application.DTOs;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
@@ -9,7 +8,7 @@ using GreenBasket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class CartServiceTests
     {
@@ -22,212 +21,181 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region GetCartAsync Tests
-
         [Fact]
-        public async Task GetCartAsync_ShouldReturnEmptyCartDto_WhenCartDoesNotExist()
+        public async Task GetCartAsync_CartDoesNotExist_ReturnsEmptyCartDto()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new CartService(context);
-            var userId = "user-123";
 
             // Act
-            var result = await service.GetCartAsync(userId);
+            var result = await service.GetCartAsync("user1");
 
             // Assert
-            result.Should().NotBeNull();
-            result.AppUserId.Should().Be(userId);
-            result.Items.Should().BeEmpty();
+            Assert.NotNull(result);
+            Assert.Equal("user1", result.AppUserId);
+            Assert.Empty(result.Items);
         }
 
         [Fact]
-        public async Task GetCartAsync_ShouldReturnPopulatedCart_WhenCartExists()
+        public async Task GetCartAsync_CartExists_ReturnsMappedCartDtoWithItems()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-
-            var product = new Product { Id = 1, Name = "Táo Organic", Price = 50000 };
-            var cart = new Cart
-            {
-                Id = 10,
-                AppUserId = userId,
-                CartItems = new List<CartItem>
-                {
-                    new CartItem { Id = 100, ProductId = 1, Quantity = 2, UnitPrice = 50000, Product = product }
-                }
-            };
-
-            context.Products.Add(product);
-            context.Carts.Add(cart);
-            await context.SaveChangesAsync();
-
-            var service = new CartService(context);
-
-            // Act
-            var result = await service.GetCartAsync(userId);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Id.Should().Be(10);
-            result.Items.Should().HaveCount(1);
-            result.Items.First().ProductName.Should().Be("Táo Organic");
-            result.Items.First().Quantity.Should().Be(2);
-        }
-
-        #endregion
-
-        #region AddToCartAsync Tests
-
-        [Fact]
-        public async Task AddToCartAsync_ShouldThrowException_WhenProductNotFound()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var service = new CartService(context);
-            var dto = new AddToCartDto { AppUserId = "user-123", ProductId = 999, Quantity = 1 };
-
-            // Act
-            Func<Task> act = async () => await service.AddToCartAsync(dto);
-
-            // Assert
-            await act.Should().ThrowAsync<Exception>()
-                     .WithMessage("Product not found");
-        }
-
-        [Fact]
-        public async Task AddToCartAsync_ShouldCreateNewCartAndAddItem_WhenCartDoesNotExist()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var product = new Product { Id = 1, Name = "Rau Cần Tây", Price = 25000 };
-            context.Products.Add(product);
-            await context.SaveChangesAsync();
-
-            var service = new CartService(context);
-            var dto = new AddToCartDto { AppUserId = "user-123", ProductId = 1, Quantity = 2 };
-
-            // Act
-            var result = await service.AddToCartAsync(dto);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Items.Should().HaveCount(1);
-            result.Items.First().ProductId.Should().Be(1);
-            result.Items.First().Quantity.Should().Be(2);
-            result.Items.First().UnitPrice.Should().Be(25000);
-        }
-
-        [Fact]
-        public async Task AddToCartAsync_ShouldAccumulateQuantity_WhenItemAlreadyExistsInCart()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var userId = "user-123";
-            var product = new Product { Id = 1, Name = "Sữa Tươi", Price = 30000 };
+            var product = new Product { Id = 10, Name = "Táo Organic", Price = 50000 };
             var cart = new Cart
             {
                 Id = 1,
-                AppUserId = userId,
+                AppUserId = "user1",
                 CartItems = new List<CartItem>
                 {
-                    new CartItem { Id = 10, ProductId = 1, Quantity = 3, UnitPrice = 30000 }
+                    new CartItem { Id = 100, ProductId = 10, Product = product, Quantity = 2, UnitPrice = 50000 }
                 }
             };
+            context.Products.Add(product);
+            context.Carts.Add(cart);
+            await context.SaveChangesAsync();
+
+            var service = new CartService(context);
+
+            // Act
+            var result = await service.GetCartAsync("user1");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+            Assert.NotNull(result.Items);
+            Assert.Single(result.Items);
+            Assert.Equal("Táo Organic", result.Items.First().ProductName);
+            Assert.Equal(2, result.Items.First().Quantity);
+        }
+
+        [Fact]
+        public async Task AddToCartAsync_ProductNotFound_ThrowsException()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var service = new CartService(context);
+            var dto = new AddToCartDto { AppUserId = "user1", ProductId = 99, Quantity = 1 };
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => service.AddToCartAsync(dto));
+            Assert.Equal("Product not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task AddToCartAsync_CartDoesNotExist_CreatesCartAndAddsItem()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Products.Add(new Product { Id = 1, Name = "Cam Sành", Price = 30000 });
+            await context.SaveChangesAsync();
+
+            var service = new CartService(context);
+            var dto = new AddToCartDto { AppUserId = "user1", ProductId = 1, Quantity = 3 };
+
+            // Act
+            var result = await service.AddToCartAsync(dto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("user1", result.AppUserId);
+            Assert.NotNull(result.Items);
+            Assert.Single(result.Items);
+            Assert.Equal(3, result.Items.First().Quantity);
+            Assert.Equal(30000, result.Items.First().UnitPrice);
+        }
+
+        [Fact]
+        public async Task AddToCartAsync_ItemAlreadyInCart_IncrementsQuantity()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var product = new Product { Id = 1, Name = "Dưa Hấu", Price = 20000 };
+            var cart = new Cart { Id = 1, AppUserId = "user1" };
+            cart.CartItems.Add(new CartItem { Id = 10, ProductId = 1, Quantity = 2, UnitPrice = 20000 });
 
             context.Products.Add(product);
             context.Carts.Add(cart);
             await context.SaveChangesAsync();
 
             var service = new CartService(context);
-            var dto = new AddToCartDto { AppUserId = userId, ProductId = 1, Quantity = 2 };
+            var dto = new AddToCartDto { AppUserId = "user1", ProductId = 1, Quantity = 3 };
 
             // Act
             var result = await service.AddToCartAsync(dto);
 
             // Assert
-            result.Items.Should().HaveCount(1);
-            result.Items.First().Quantity.Should().Be(5); // 3 + 2 = 5
-        }
-
-        #endregion
-
-        #region UpdateCartItemQuantityAsync Tests
-
-        [Fact]
-        public async Task UpdateCartItemQuantityAsync_ShouldReturnFalse_WhenItemNotFound()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var service = new CartService(context);
-            var dto = new UpdateCartItemDto { Quantity = 5 };
-
-            // Act
-            var result = await service.UpdateCartItemQuantityAsync(999, dto);
-
-            // Assert
-            result.Should().BeFalse();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Items);
+            Assert.Single(result.Items);
+            Assert.Equal(5, result.Items.First().Quantity); // 2 + 3 = 5
         }
 
         [Fact]
-        public async Task UpdateCartItemQuantityAsync_ShouldUpdateQuantityAndReturnTrue_WhenItemExists()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var cartItem = new CartItem { Id = 1, ProductId = 10, Quantity = 1, UnitPrice = 100 };
-            context.CartItems.Add(cartItem);
-            await context.SaveChangesAsync();
-
-            var service = new CartService(context);
-            var dto = new UpdateCartItemDto { Quantity = 10 };
-
-            // Act
-            var result = await service.UpdateCartItemQuantityAsync(1, dto);
-
-            // Assert
-            result.Should().BeTrue();
-            var updatedItem = await context.CartItems.FindAsync(1);
-            updatedItem!.Quantity.Should().Be(10);
-        }
-
-        #endregion
-
-        #region RemoveFromCartAsync Tests
-
-        [Fact]
-        public async Task RemoveFromCartAsync_ShouldReturnFalse_WhenItemNotFound()
+        public async Task UpdateCartItemQuantityAsync_ItemNotFound_ReturnsFalse()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new CartService(context);
 
             // Act
-            var result = await service.RemoveFromCartAsync(999);
+            var result = await service.UpdateCartItemQuantityAsync(99, new UpdateCartItemDto { Quantity = 5 });
 
             // Assert
-            result.Should().BeFalse();
+            Assert.False(result);
         }
 
         [Fact]
-        public async Task RemoveFromCartAsync_ShouldRemoveItemAndReturnTrue_WhenItemExists()
+        public async Task UpdateCartItemQuantityAsync_ItemExists_UpdatesQuantityAndReturnsTrue()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            var cartItem = new CartItem { Id = 1, ProductId = 10, Quantity = 2, UnitPrice = 50 };
-            context.CartItems.Add(cartItem);
+            context.CartItems.Add(new CartItem { Id = 100, ProductId = 1, Quantity = 2, UnitPrice = 10000 });
             await context.SaveChangesAsync();
 
             var service = new CartService(context);
 
             // Act
-            var result = await service.RemoveFromCartAsync(1);
+            var result = await service.UpdateCartItemQuantityAsync(100, new UpdateCartItemDto { Quantity = 10 });
 
             // Assert
-            result.Should().BeTrue();
-            (await context.CartItems.CountAsync()).Should().Be(0);
+            Assert.True(result);
+            var updatedItem = await context.CartItems.FindAsync(100);
+            Assert.NotNull(updatedItem);
+            Assert.Equal(10, updatedItem.Quantity);
         }
 
-        #endregion
+        [Fact]
+        public async Task RemoveFromCartAsync_ItemNotFound_ReturnsFalse()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var service = new CartService(context);
+
+            // Act
+            var result = await service.RemoveFromCartAsync(99);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task RemoveFromCartAsync_ItemExists_RemovesItemAndReturnsTrue()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.CartItems.Add(new CartItem { Id = 100, ProductId = 1, Quantity = 1, UnitPrice = 10000 });
+            await context.SaveChangesAsync();
+
+            var service = new CartService(context);
+
+            // Act
+            var result = await service.RemoveFromCartAsync(100);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(0, await context.CartItems.CountAsync());
+        }
     }
 }

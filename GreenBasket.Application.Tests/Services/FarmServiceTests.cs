@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using GreenBasket.Application.DTOs.Products;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
@@ -10,7 +8,7 @@ using GreenBasket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace GreenBasket.Application.Tests.Services
+namespace GreenBasket.Application.Tests
 {
     public class FarmServiceTests
     {
@@ -23,16 +21,14 @@ namespace GreenBasket.Application.Tests.Services
             return new ApplicationDbContext(options);
         }
 
-        #region GetAllAsync Tests
-
         [Fact]
         public async Task GetAllAsync_ShouldReturnFarmsOrderedByName()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             context.Farms.AddRange(
-                new Farm { Id = 1, Name = "Nông trại B", Location = "Lâm Đồng", ContactInfo = "0123" },
-                new Farm { Id = 2, Name = "Nông trại A", Location = "Đà Lạt", ContactInfo = "0456" }
+                new Farm { Id = 1, Name = "Zebra Farm", Location = "Dalat" },
+                new Farm { Id = 2, Name = "Alpha Farm", Location = "Lao Cai" }
             );
             await context.SaveChangesAsync();
 
@@ -42,21 +38,18 @@ namespace GreenBasket.Application.Tests.Services
             var result = await service.GetAllAsync();
 
             // Assert
-            result.Should().HaveCount(2);
-            result.First().Name.Should().Be("Nông trại A");
-            result.Last().Name.Should().Be("Nông trại B");
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("Alpha Farm", result[0].Name); // Kiểm tra xem có sắp xếp theo Tên không
+            Assert.Equal("Zebra Farm", result[1].Name);
         }
 
-        #endregion
-
-        #region GetByIdAsync Tests
-
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnFarmDto_WhenFarmExists()
+        public async Task GetByIdAsync_WhenExists_ShouldReturnFarmDto()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            context.Farms.Add(new Farm { Id = 1, Name = "Nông trại X", Location = "Củ Chi", ContactInfo = "0909" });
+            context.Farms.Add(new Farm { Id = 1, Name = "Green Farm", Location = "Lam Dong", ContactInfo = "0123456789" });
             await context.SaveChangesAsync();
 
             var service = new FarmService(context);
@@ -65,134 +58,136 @@ namespace GreenBasket.Application.Tests.Services
             var result = await service.GetByIdAsync(1);
 
             // Assert
-            result.Should().NotBeNull();
-            result!.Name.Should().Be("Nông trại X");
-            result.Location.Should().Be("Củ Chi");
+            Assert.NotNull(result);
+            Assert.Equal(1, result!.Id);
+            Assert.Equal("Green Farm", result.Name);
+            Assert.Equal("Lam Dong", result.Location);
         }
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnNull_WhenFarmDoesNotExist()
+        public async Task GetByIdAsync_WhenNotExists_ShouldReturnNull()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new FarmService(context);
 
             // Act
-            var result = await service.GetByIdAsync(999);
+            var result = await service.GetByIdAsync(99);
 
             // Assert
-            result.Should().BeNull();
+            Assert.Null(result);
         }
 
-        #endregion
-
-        #region CreateAsync Tests
-
         [Fact]
-        public async Task CreateAsync_ShouldAddFarmToDatabaseAndReturnDto()
+        public async Task CreateAsync_ValidRequest_ShouldCreateAndReturnFarmDto()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new FarmService(context);
             var request = new CreateFarmRequest
             {
-                Name = "Nông trại Xanh",
-                Location = "Mộc Châu",
-                ContactInfo = "contact@farm.com"
+                Name = "Organic Farm",
+                Location = "Ben Tre",
+                ContactInfo = "contact@organic.com"
             };
 
             // Act
             var result = await service.CreateAsync(request);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Id.Should().BeGreaterThan(0);
-            result.Name.Should().Be("Nông trại Xanh");
-
-            var farmInDb = await context.Farms.FindAsync(result.Id);
-            farmInDb.Should().NotBeNull();
-            farmInDb!.Name.Should().Be("Nông trại Xanh");
-        }
-
-        #endregion
-
-        #region UpdateAsync Tests
-
-        [Fact]
-        public async Task UpdateAsync_ShouldReturnFalse_WhenFarmDoesNotExist()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var service = new FarmService(context);
-            var request = new UpdateFarmRequest { Name = "New Name", Location = "Loc", ContactInfo = "000" };
-
-            // Act
-            var result = await service.UpdateAsync(999, request);
-
-            // Assert
-            result.Should().BeFalse();
+            Assert.NotNull(result);
+            Assert.Equal("Organic Farm", result.Name);
+            Assert.Equal("Ben Tre", result.Location);
+            Assert.Equal(1, await context.Farms.CountAsync());
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldUpdateFarmAndReturnTrue_WhenFarmExists()
+        public async Task UpdateAsync_WhenExists_ShouldUpdateAndReturnTrue()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
-            context.Farms.Add(new Farm { Id = 1, Name = "Tên cũ", Location = "Vị trí cũ", ContactInfo = "0111" });
+            context.Farms.Add(new Farm { Id = 1, Name = "Old Farm", Location = "Old Location", ContactInfo = "000" });
             await context.SaveChangesAsync();
 
             var service = new FarmService(context);
-            var request = new UpdateFarmRequest { Name = "Tên mới", Location = "Vị trí mới", ContactInfo = "0999" };
+            var updateRequest = new UpdateFarmRequest
+            {
+                Name = "New Farm",
+                Location = "New Location",
+                ContactInfo = "111"
+            };
 
             // Act
-            var result = await service.UpdateAsync(1, request);
+            var result = await service.UpdateAsync(1, updateRequest);
 
             // Assert
-            result.Should().BeTrue();
-            var farmInDb = await context.Farms.FindAsync(1);
-            farmInDb!.Name.Should().Be("Tên mới");
-            farmInDb.Location.Should().Be("Vị trí mới");
+            Assert.True(result);
+            var updated = await context.Farms.FindAsync(1);
+            Assert.NotNull(updated);
+            Assert.Equal("New Farm", updated!.Name);
+            Assert.Equal("New Location", updated.Location);
+            Assert.Equal("111", updated.ContactInfo);
         }
 
-        #endregion
+        [Fact]
+        public async Task UpdateAsync_WhenNotExists_ShouldReturnFalse()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var service = new FarmService(context);
+            var updateRequest = new UpdateFarmRequest { Name = "New Farm" };
 
-        #region DeleteAsync Tests
+            // Act
+            var result = await service.UpdateAsync(99, updateRequest);
+
+            // Assert
+            Assert.False(result);
+        }
 
         [Fact]
-        public async Task DeleteAsync_ShouldReturnFalse_WhenFarmDoesNotExist()
+        public async Task DeleteAsync_WhenExistsAndHasNoBatches_ShouldDeleteAndReturnTrue()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            context.Farms.Add(new Farm { Id = 1, Name = "Farm To Delete" });
+            await context.SaveChangesAsync();
+
+            var service = new FarmService(context);
+
+            // Act
+            var result = await service.DeleteAsync(1);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(0, await context.Farms.CountAsync());
+        }
+
+        [Fact]
+        public async Task DeleteAsync_WhenNotExists_ShouldReturnFalse()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var service = new FarmService(context);
 
             // Act
-            var result = await service.DeleteAsync(999);
+            var result = await service.DeleteAsync(99);
 
             // Assert
-            result.Should().BeFalse();
+            Assert.False(result);
         }
 
         [Fact]
-        public async Task DeleteAsync_ShouldReturnFalse_WhenFarmHasBatches()
+        public async Task DeleteAsync_WhenHasBatches_ShouldReturnFalse()
         {
             // Arrange
             using var context = GetInMemoryDbContext();
             var farm = new Farm
             {
                 Id = 1,
-                Name = "Nông trại có lô hàng",
-                Location = "Lâm Đồng",
-                ContactInfo = "123",
+                Name = "Farm With Batches",
                 Batches = new List<Batch>
                 {
-                    new Batch
-                    {
-                        Id = 1,
-                        ProductId = 1,
-                        QuantityReceived = 100,
-                        QuantityRemaining = 100,
-                        CostPrice = 50000
-                    }
+                    new Batch { Id = 10 }
                 }
             };
             context.Farms.Add(farm);
@@ -204,36 +199,8 @@ namespace GreenBasket.Application.Tests.Services
             var result = await service.DeleteAsync(1);
 
             // Assert
-            result.Should().BeFalse();
-            (await context.Farms.CountAsync()).Should().Be(1);
+            Assert.False(result); // Phải trả về false do Nông trại đã có Batch
+            Assert.Equal(1, await context.Farms.CountAsync()); // Dữ liệu không bị xóa
         }
-
-        [Fact]
-        public async Task DeleteAsync_ShouldRemoveFarmAndReturnTrue_WhenFarmHasNoBatches()
-        {
-            // Arrange
-            using var context = GetInMemoryDbContext();
-            var farm = new Farm
-            {
-                Id = 1,
-                Name = "Nông trại trống",
-                Location = "Lâm Đồng",
-                ContactInfo = "123",
-                Batches = new List<Batch>()
-            };
-            context.Farms.Add(farm);
-            await context.SaveChangesAsync();
-
-            var service = new FarmService(context);
-
-            // Act
-            var result = await service.DeleteAsync(1);
-
-            // Assert
-            result.Should().BeTrue();
-            (await context.Farms.CountAsync()).Should().Be(0);
-        }
-
-        #endregion
     }
 }
