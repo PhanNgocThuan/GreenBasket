@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GreenBasket.Application.DTOs.Auth;
@@ -6,6 +6,7 @@ using GreenBasket.Application.Interfaces;
 using GreenBasket.Application.Services;
 using GreenBasket.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
@@ -18,6 +19,7 @@ namespace GreenBasket.Application.Tests
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IEmailService> _mockEmailService;
         private readonly AuthService _authService;
+        private readonly IMemoryCache _cache;
 
         public AuthServiceTests()
         {
@@ -25,13 +27,14 @@ namespace GreenBasket.Application.Tests
             _mockUserManager = new Mock<UserManager<AppUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
             _mockConfiguration = new Mock<IConfiguration>();
             _mockEmailService = new Mock<IEmailService>();
+            _cache = new MemoryCache(new MemoryCacheOptions());
 
             // Mock cấu hình JWT Secret hợp lệ (tối thiểu 32 ký tự cho HMAC-SHA256)
             _mockConfiguration.Setup(c => c["JWT:Secret"]).Returns("SUPER_SECRET_KEY_FOR_JWT_TOKEN_GENERATION_123456");
             _mockConfiguration.Setup(c => c["JWT:ValidIssuer"]).Returns("GreenBasketIssuer");
             _mockConfiguration.Setup(c => c["JWT:ValidAudience"]).Returns("GreenBasketAudience");
 
-            _authService = new AuthService(_mockUserManager.Object, _mockConfiguration.Object, _mockEmailService.Object);
+            _authService = new AuthService(_mockUserManager.Object, _mockConfiguration.Object, _mockEmailService.Object, _cache);
         }
 
         [Fact]
@@ -125,16 +128,19 @@ namespace GreenBasket.Application.Tests
         public async Task VerifyEmailAsync_ValidOtp_ReturnsTrueAndUpdatesUser()
         {
             // Arrange
-            var user = new AppUser { Email = "test@example.com", EmailConfirmed = false };
+            var user = new AppUser { Id = "test-id", Email = "test@example.com", EmailConfirmed = false };
             _mockUserManager.Setup(m => m.FindByEmailAsync("test@example.com")).ReturnsAsync(user);
             _mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(user, "Email", "123456")).ReturnsAsync(true);
             _mockUserManager.Setup(m => m.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Customer" });
+            _cache.Set($"OTP_{user.Email}", "123456");
 
             // Act
             var result = await _authService.VerifyEmailAsync("test@example.com", "123456");
 
             // Assert
-            Assert.True(result);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Token);
             Assert.True(user.EmailConfirmed);
             _mockUserManager.Verify(m => m.UpdateAsync(user), Times.Once);
         }
@@ -166,22 +172,24 @@ namespace GreenBasket.Application.Tests
         }
 
         [Fact]
-        public async Task ResetPasswordAsync_ValidOtp_ResetsPasswordSuccessfully()
+        public async Task ResetPasswordAsync_Success_ReturnsTrue()
         {
             // Arrange
-            var dto = new ResetPasswordDTO { Email = "user@example.com", Otp = "123456", NewPassword = "NewPassword123!" };
-            var user = new AppUser { Email = dto.Email };
-
+            var dto = new ResetPasswordDTO { Email = "test@example.com", Otp = "123456", NewPassword = "NewPassword123!" };
+            var user = new AppUser { Id = "test-id", Email = "test@example.com" };
             _mockUserManager.Setup(m => m.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
             _mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(user, "Email", dto.Otp)).ReturnsAsync(true);
             _mockUserManager.Setup(m => m.GeneratePasswordResetTokenAsync(user)).ReturnsAsync("reset-token");
             _mockUserManager.Setup(m => m.ResetPasswordAsync(user, "reset-token", dto.NewPassword)).ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Customer" });
+            _cache.Set($"OTP_{dto.Email}", "123456");
 
             // Act
             var result = await _authService.ResetPasswordAsync(dto);
 
             // Assert
-            Assert.True(result);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Token);
             _mockUserManager.Verify(m => m.ResetPasswordAsync(user, "reset-token", dto.NewPassword), Times.Once);
         }
     }

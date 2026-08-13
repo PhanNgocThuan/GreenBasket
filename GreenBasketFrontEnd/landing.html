@@ -345,6 +345,9 @@
                                     style="background-color: #91EFD2; color: #2B2118; border: 2.5px solid #2B2118; box-shadow: 3px 3px 0px #2B2118;">
                                     Save New Password <i class="fas fa-save ms-2"></i>
                                 </button>
+                                <button type="button" class="btn btn-outline-primary w-100 p-3 rounded-pill fw-bold" id="btn-forgot-resend-otp">
+                                    <i class="fas fa-paper-plane me-2"></i>Resend OTP
+                                </button>
                             </form>
                         </div>
 
@@ -484,6 +487,7 @@
                         $('#authTabs').addClass('d-none');
                         $('.tab-pane').removeClass('show active');
                         $('#pane-verify-email').addClass('show active');
+                        startOtpCountdown($('#btn-resend-otp'), '<i class="fas fa-paper-plane me-2"></i>Resend OTP');
                         return;
                     }
 
@@ -511,6 +515,7 @@
                             $('#authTabs').addClass('d-none');
                             $('.tab-pane').removeClass('show active');
                             $('#pane-verify-email').addClass('show active');
+                            startOtpCountdown($('#btn-resend-otp'), '<i class="fas fa-paper-plane me-2"></i>Resend OTP');
                         } catch (resendErr) {
                             $btn.html(origBtnText);
                             $('#login-error-alert').removeClass('d-none').find('.err-txt').text('Email not verified. Failed to resend OTP.');
@@ -549,6 +554,7 @@
                         $('#authTabs').addClass('d-none');
                         $('.tab-pane').removeClass('show active');
                         $('#pane-verify-email').addClass('show active');
+                        startOtpCountdown($('#btn-resend-otp'), '<i class="fas fa-paper-plane me-2"></i>Resend OTP');
                         return;
                     }
 
@@ -579,15 +585,12 @@
                     $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Verifying...');
                     await window.AppState.verifyEmailAsync(currentAuthEmail, otp);
 
-                    // Successfully verified! Now we can actually log them in to get the JWT token.
-                    $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Signing in...');
-                    const user = await window.AppState.loginUserAsync(currentAuthEmail, tempPassword);
-
-                    if (window.GB && window.GB.showToast) {
+                    const user = window.AppState.getAuthUser();
+                    if (window.GB && window.GB.showToast && user) {
                         window.GB.showToast(`Email verified! Welcome, <strong>${user.name}</strong>!`, 'success');
                     }
                     setTimeout(() => {
-                        window.location.href = (user.role === 'Staff / Admin') ? 'admin.html' : 'index.html';
+                        window.location.href = (user?.role === 'Admin' || user?.role === 'Staff') ? 'admin.html' : 'index.html';
                     }, 500);
                 } catch (err) {
                     $btn.prop('disabled', false).html(origBtnText);
@@ -596,16 +599,30 @@
                 }
             });
 
+            function startOtpCountdown($btn, origText) {
+                let timeLeft = 30;
+                $btn.prop('disabled', true);
+                
+                const timer = setInterval(() => {
+                    $btn.html(`<i class="fas fa-clock me-2"></i>Resend in ${timeLeft}s`);
+                    timeLeft--;
+                    
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        $btn.prop('disabled', false).html(origText);
+                    }
+                }, 1000);
+            }
+
             // Resend OTP
             $('#btn-resend-otp').on('click', async function (e) {
                 e.preventDefault();
                 const $btn = $(this);
-                const origText = $btn.html();
+                const origText = '<i class="fas fa-paper-plane me-2"></i>Resend OTP';
                 try {
-                    $btn.prop('disabled', true).text('Sending...');
+                    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Sending...');
                     await window.AppState.resendOtpAsync(currentAuthEmail);
-                    $btn.text('Code Sent!');
-                    setTimeout(() => { $btn.prop('disabled', false).html(origText); }, 3000);
+                    startOtpCountdown($btn, origText);
                 } catch (err) {
                     $btn.prop('disabled', false).html(origText);
                     $('#verify-error-alert').removeClass('d-none').find('.err-txt').text(err.message || 'Failed to resend');
@@ -648,6 +665,12 @@
                     $btn.prop('disabled', false).html(origBtnText);
                     $('.tab-pane').removeClass('show active');
                     $('#pane-reset-password').addClass('show active');
+                    
+                    // Trigger countdown when entering Reset Password pane
+                    const $btnReset = $('#btn-forgot-resend-otp');
+                    if ($btnReset.length) {
+                        startOtpCountdown($btnReset, '<i class="fas fa-paper-plane me-2"></i>Resend OTP');
+                    }
                 } catch (err) {
                     $btn.prop('disabled', false).html(origBtnText);
                     const errMsg = err.message || 'Failed to request password reset.';
@@ -670,24 +693,33 @@
                     $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Saving...');
                     await window.AppState.resetPasswordAsync(currentAuthEmail, otp, newPassword);
 
-                    if (window.GB && window.GB.showToast) {
-                        window.GB.showToast(`Password reset successfully! Please sign in.`, 'success');
+                    const user = window.AppState.getAuthUser();
+                    if (window.GB && window.GB.showToast && user) {
+                        window.GB.showToast(`Password reset successfully! Welcome back, <strong>${user.name}</strong>!`, 'success');
                     }
 
-                    $btn.prop('disabled', false).html(origBtnText);
-
-                    // Go back to login tab
-                    $('#form-login')[0].reset();
-                    $('#login-email').val(currentAuthEmail);
-                    $('#authTabs').removeClass('d-none');
-                    $('.tab-pane').removeClass('show active');
-                    $('#authTabs .nav-link').removeClass('active');
-                    $('#tab-login').addClass('active');
-                    $('#pane-login').addClass('show active');
+                    setTimeout(() => {
+                        window.location.href = (user?.role === 'Admin' || user?.role === 'Staff') ? 'admin.html' : 'index.html';
+                    }, 500);
                 } catch (err) {
                     $btn.prop('disabled', false).html(origBtnText);
                     const errMsg = err.message || 'Failed to reset password.';
                     $('#reset-error-alert').removeClass('d-none').find('.err-txt').text(errMsg);
+                }
+            });
+
+            // Resend OTP (Forgot Password)
+            $(document).on('click', '#btn-forgot-resend-otp', async function (e) {
+                e.preventDefault();
+                const $btn = $(this);
+                const origText = '<i class="fas fa-paper-plane me-2"></i>Resend OTP';
+                try {
+                    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Sending...');
+                    await window.AppState.forgotPasswordAsync(currentAuthEmail);
+                    startOtpCountdown($btn, origText);
+                } catch (err) {
+                    $btn.prop('disabled', false).html(origText);
+                    $('#reset-error-alert').removeClass('d-none').find('.err-txt').text(err.message || 'Failed to resend');
                 }
             });
         });

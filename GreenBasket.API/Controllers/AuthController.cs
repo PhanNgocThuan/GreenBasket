@@ -59,7 +59,7 @@ namespace GreenBasket.API.Controllers
             try
             {
                 var result = await _authService.VerifyEmailAsync(model.Email, model.Otp);
-                return Ok(new { IsSuccess = true, Message = "Email verified successfully!" });
+                return Ok(new { IsSuccess = true, Message = "Email verified successfully!", Data = result });
             }
             catch (Exception ex)
             {
@@ -103,8 +103,8 @@ namespace GreenBasket.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                await _authService.ResetPasswordAsync(model);
-                return Ok(new { IsSuccess = true, Message = "Password has been reset successfully." });
+                var result = await _authService.ResetPasswordAsync(model);
+                return Ok(new { IsSuccess = true, Message = "Password has been reset successfully.", Data = result });
             }
             catch (Exception ex)
             {

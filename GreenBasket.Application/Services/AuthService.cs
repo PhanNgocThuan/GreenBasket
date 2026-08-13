@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,12 +19,14 @@ namespace GreenBasket.Application.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IMemoryCache _cache;
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IEmailService emailService)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IEmailService emailService, IMemoryCache cache)
         {
             _userManager = userManager;
             _configuration = configuration;
             _emailService = emailService;
+            _cache = cache;
         }
 
         public async Task<AuthResponseDTO> RegisterAsync(RegisterDTO model)
@@ -48,6 +51,7 @@ namespace GreenBasket.Application.Services
 
             // Generate OTP (6-digit by default using our EmailTokenProvider)
             var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            _cache.Set($"OTP_{user.Email}", otp, TimeSpan.FromSeconds(30));
             
             // Send Email
             string emailBody = $@"
@@ -117,19 +121,32 @@ namespace GreenBasket.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task<bool> VerifyEmailAsync(string email, string otp)
+        public async Task<AuthResponseDTO> VerifyEmailAsync(string email, string otp)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null) throw new Exception("User not found.");
+
+            if (!_cache.TryGetValue($"OTP_{email}", out string? cachedOtp) || cachedOtp != otp)
+            {
+                throw new Exception("OTP has expired or is invalid.");
+            }
 
             var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", otp);
             if (isValid)
             {
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
-                return true;
+                
+                var token = await GenerateJwtToken(user);
+                return new AuthResponseDTO
+                {
+                    Token = token,
+                    UserId = user.Id,
+                    Email = user.Email!,
+                    FullName = user.FullName
+                };
             }
-            return false;
+            throw new Exception("Invalid or expired OTP.");
         }
 
         public async Task<bool> ResendOtpAsync(string email)
@@ -139,6 +156,7 @@ namespace GreenBasket.Application.Services
             if (user.EmailConfirmed) throw new Exception("Email is already verified.");
 
             var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            _cache.Set($"OTP_{user.Email}", otp, TimeSpan.FromSeconds(30));
             
             string emailBody = $@"
                 <h2>Green Basket</h2>
@@ -155,6 +173,7 @@ namespace GreenBasket.Application.Services
             if (user == null) return true; // Don't reveal user existence
 
             var otp = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+            _cache.Set($"OTP_{user.Email}", otp, TimeSpan.FromSeconds(30));
             
             string emailBody = $@"
                 <h2>Green Basket - Password Reset</h2>
@@ -166,10 +185,15 @@ namespace GreenBasket.Application.Services
             return true;
         }
 
-        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO model)
+        public async Task<AuthResponseDTO> ResetPasswordAsync(ResetPasswordDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null) throw new Exception("Invalid request.");
+
+            if (!_cache.TryGetValue($"OTP_{model.Email}", out string? cachedOtp) || cachedOtp != model.Otp)
+            {
+                throw new Exception("OTP has expired or is invalid.");
+            }
 
             var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", model.Otp);
             if (!isValid) throw new Exception("Invalid or expired OTP.");
@@ -183,7 +207,14 @@ namespace GreenBasket.Application.Services
                 throw new Exception($"Password reset failed: {errors}");
             }
             
-            return true;
+            var token = await GenerateJwtToken(user);
+            return new AuthResponseDTO
+            {
+                Token = token,
+                UserId = user.Id,
+                Email = user.Email!,
+                FullName = user.FullName
+            };
         }
     }
 }

@@ -23,9 +23,9 @@
     // Correct Backend API URL (port 5062 matching launchSettings.json)
     const API_BASE_URL = (window.ENV && window.ENV.API_URL) ? window.ENV.API_URL : (localStorage.getItem('gb_api_url') || 'http://localhost:5062/api');
 
-    // 🔴 DEFAULT_USERS_DB has been completely removed to ensure all auth is via API.
+    // ðŸ”´ DEFAULT_USERS_DB has been completely removed to ensure all auth is via API.
 
-    // 🔴 DEFAULT_PRODUCTS has been completely removed to ensure data is strictly fetched from the DB.
+    // ðŸ”´ DEFAULT_PRODUCTS has been completely removed to ensure data is strictly fetched from the DB.
 
     // Seed Orders (FR-5.1, FR-5.3)
     const DEFAULT_ORDERS = [];
@@ -139,7 +139,7 @@
                         '0': 'leafy-greens', '1': 'root-veggies', '2': 'tropical-fruit', '3': 'seasonal-fruit'
                     };
                     
-                    // 🔴 LẤY DỮ LIỆU LOCAL HIỆN TẠI ĐỂ ĐỐI CHIẾU
+                    // ðŸ”´ Láº¤Y Dá»® LIá»†U LOCAL HIá»†N Táº I Äá»‚ Äá»I CHIáº¾U
                     const localProducts = loadStorage(STORAGE_KEYS.PRODUCTS, []);
                     const localMap = {};
                     localProducts.forEach(p => localMap[String(p.id)] = p);
@@ -148,7 +148,7 @@
                         const pid = String(p.id !== undefined ? p.id : (p.Id !== undefined ? p.Id : (idx + 1)));
                         const pName = p.name || p.Name || 'Produce';
                         
-                        // Đối chiếu với data Local xem Admin có đang đè trạng thái Stock không
+                        // Äá»‘i chiáº¿u vá»›i data Local xem Admin cÃ³ Ä‘ang Ä‘Ã¨ tráº¡ng thÃ¡i Stock khÃ´ng
                         const localItem = localMap[pid] || {};
 
                         let rawPrice = p.price !== undefined && p.price !== null ? p.price : p.Price;
@@ -172,7 +172,7 @@
                             farmOrigin: p.farmOrigin || p.FarmOrigin || localItem.farmOrigin || 'Green Valley Farm, Dalat',
                             harvestDate: p.harvestDate ? String(p.harvestDate).substring(0, 10) : '2026-08-05',
                             
-                            // 🔴 ĐÂY LÀ CHÌA KHÓA: Ưu tiên lấy trạng thái Stock của LocalStorage nếu đã bị sửa
+                            // ðŸ”´ ÄÃ‚Y LÃ€ CHÃŒA KHÃ“A: Æ¯u tiÃªn láº¥y tráº¡ng thÃ¡i Stock cá»§a LocalStorage náº¿u Ä‘Ã£ bá»‹ sá»­a
                             stockStatus: localItem.stockStatus || ((stockVal > 0) ? 'In Stock' : 'Out of Stock'),
                             stockQuantity: localItem.stockQuantity !== undefined ? localItem.stockQuantity : stockVal,
                             
@@ -206,7 +206,7 @@
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
-                        // KHÔNG set 'Content-Type' — để browser tự sinh multipart boundary
+                        // KHÃ”NG set 'Content-Type' â€” Ä‘á»ƒ browser tá»± sinh multipart boundary
                     },
                     body: formData,
                     signal: controller.signal
@@ -432,7 +432,7 @@
             const timeoutId = setTimeout(() => controller.abort(), 2000);
 
             try {
-                // Bước 1: tạo Product (chỉ chứa thông tin catalog, không có farm/stock)
+                // BÆ°á»›c 1: táº¡o Product (chá»‰ chá»©a thÃ´ng tin catalog, khÃ´ng cÃ³ farm/stock)
                 const response = await fetch(`${API_BASE_URL}/admin/products`, {
                     method: 'POST',
                     headers: {
@@ -455,18 +455,18 @@
                 if (!response.ok) return this.saveProduct(productData);
                 const newProduct = await response.json();
 
-                // Bước 2: nhập lô hàng đầu tiên (farm + harvest date + số lượng)
-                // nếu admin có chọn farm và nhập số lượng trên form
+                // BÆ°á»›c 2: nháº­p lÃ´ hÃ ng Ä‘áº§u tiÃªn (farm + harvest date + sá»‘ lÆ°á»£ng)
+                // náº¿u admin cÃ³ chá»n farm vÃ  nháº­p sá»‘ lÆ°á»£ng trÃªn form
               
-                // SỬA LỖI Ở ĐÂY: Lấy ID chuẩn xác dù Backend trả về chữ thường (id) hay chữ hoa (Id)
+                // Sá»¬A Lá»–I á»ž ÄÃ‚Y: Láº¥y ID chuáº©n xÃ¡c dÃ¹ Backend tráº£ vá» chá»¯ thÆ°á»ng (id) hay chá»¯ hoa (Id)
                 const productId = newProduct.id !== undefined ? newProduct.id : newProduct.Id;
 
-                // Bước 2: nhập lô hàng đầu tiên (farm + harvest date + số lượng)
+                // BÆ°á»›c 2: nháº­p lÃ´ hÃ ng Ä‘áº§u tiÃªn (farm + harvest date + sá»‘ lÆ°á»£ng)
                 if (productData.farmId && productData.stockQuantity && productId) {
                     const batchController = new AbortController();
                     const batchTimeoutId = setTimeout(() => batchController.abort(), 2000);
                     try {
-                        // Gọi đúng ID của sản phẩm để thêm lô hàng
+                        // Gá»i Ä‘Ãºng ID cá»§a sáº£n pháº©m Ä‘á»ƒ thÃªm lÃ´ hÃ ng
                         await fetch(`${API_BASE_URL}/admin/products/${productId}/batches`, {
                             method: 'POST',
                             headers: {
@@ -536,7 +536,7 @@
                 if (response.status === 401) {
                     this.logoutUser();
                     if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                        window.GB.showToast('PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.', 'warning');
                     }
                     throw new Error('Unauthorized');
                 }
@@ -589,7 +589,7 @@
                 if (response.status === 401) {
                     this.logoutUser();
                     if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                        window.GB.showToast('PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.', 'warning');
                     }
                     throw new Error('Unauthorized');
                 }
@@ -624,7 +624,7 @@
                 if (response.status === 401) {
                     this.logoutUser();
                     if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                        window.GB.showToast('PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.', 'warning');
                     }
                     throw new Error('Unauthorized');
                 }
@@ -654,7 +654,7 @@
                 if (response.status === 401) {
                     this.logout();
                     if (window.GB && window.GB.showToast) {
-                        window.GB.showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+                        window.GB.showToast('PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.', 'warning');
                     }
                     throw new Error('Unauthorized');
                 }
@@ -1219,13 +1219,31 @@
             });
             const resData = await response.json().catch(() => null);
             if (!response.ok) throw new Error(resData?.message || 'Failed to reset password.');
+            
+            if (resData && resData.data && (resData.data.token || resData.data.Token)) {
+                const data = resData.data;
+                const token = data.token || data.Token;
+                const role = this.extractRoleFromToken(token);
+                const user = {
+                    id: data.userId || data.UserId || email,
+                    name: data.fullName || data.FullName || email.split('@')[0],
+                    email: data.email || data.Email || email,
+                    role: role,
+                    loginTime: new Date().toISOString()
+                };
+                saveStorage(STORAGE_KEYS.JWT_TOKEN, token);
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                if (this.syncCartFromBackendAsync) await this.syncCartFromBackendAsync();
+            }
+            
             return resData;
         },
 
         async updateProductAsync(productData) {
             const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
             
-            // Lưu tạm giao diện ngay lập tức
+            // LÆ°u táº¡m giao diá»‡n ngay láº­p tá»©c
             this.saveProduct(productData);
 
             if (!token || isNaN(parseInt(productData.id, 10))) return productData;
@@ -1235,7 +1253,7 @@
             };
 
             try {
-                // 1. Chỉ gửi ĐÚNG các trường cơ bản giống lúc Create (Tránh lỗi 400 từ C#)
+                // 1. Chá»‰ gá»­i ÄÃšNG cÃ¡c trÆ°á»ng cÆ¡ báº£n giá»‘ng lÃºc Create (TrÃ¡nh lá»—i 400 tá»« C#)
                 await fetch(`${API_BASE_URL}/admin/products/${productData.id}`, {
                     method: 'PUT',
                     headers: {
@@ -1253,7 +1271,7 @@
                     })
                 });
 
-                // 2. Cập nhật lô hàng nếu có nhập số lượng
+                // 2. Cáº­p nháº­t lÃ´ hÃ ng náº¿u cÃ³ nháº­p sá»‘ lÆ°á»£ng
                 if (productData.farmId && productData.stockQuantity > 0) {
                     try {
                         await fetch(`${API_BASE_URL}/admin/products/${productData.id}/batches`, {
@@ -1269,7 +1287,7 @@
                     } catch (e) {}
                 }
 
-                // 🔴 Đã gỡ bỏ hàm this.fetchProductsFromBackend() ở đây để tránh bị đè data sau 0.5s
+                // ðŸ”´ ÄÃ£ gá»¡ bá» hÃ m this.fetchProductsFromBackend() á»Ÿ Ä‘Ã¢y Ä‘á»ƒ trÃ¡nh bá»‹ Ä‘Ã¨ data sau 0.5s
                 return productData;
             } catch (err) {
                 return productData;
@@ -1341,6 +1359,24 @@
             });
             const resData = await response.json().catch(() => null);
             if (!response.ok) throw new Error(resData?.message || 'Invalid OTP.');
+            
+            if (resData && resData.data && (resData.data.token || resData.data.Token)) {
+                const data = resData.data;
+                const token = data.token || data.Token;
+                const role = this.extractRoleFromToken(token);
+                const user = {
+                    id: data.userId || data.UserId || email,
+                    name: data.fullName || data.FullName || email.split('@')[0],
+                    email: data.email || data.Email || email,
+                    role: role,
+                    loginTime: new Date().toISOString()
+                };
+                saveStorage(STORAGE_KEYS.JWT_TOKEN, token);
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                if (this.syncCartFromBackendAsync) await this.syncCartFromBackendAsync();
+            }
+            
             return resData;
         },
 
@@ -1367,55 +1403,6 @@
         },
 
         // =========================================================
-        // Admin User Management API
-        // =========================================================
-        async getAllUsersAdminAsync() {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            if (!token) return [];
-            try {
-                const response = await fetch(`${API_BASE_URL}/Admin/users`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) return [];
-                const res = await response.json();
-                return res.data || [];
-            } catch (err) {
-                console.error(err); return [];
-            }
-        },
-        async createUserAdminAsync(payload) {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            const response = await fetch(`${API_BASE_URL}/Admin/users`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const res = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(res.message || 'Failed to create user');
-            return res;
-        },
-        async updateUserAdminAsync(email, payload) {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            const response = await fetch(`${API_BASE_URL}/Admin/users/${encodeURIComponent(email)}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const res = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(res.message || 'Failed to update user');
-            return res;
-        },
-        async deleteUserAdminAsync(email) {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            const response = await fetch(`${API_BASE_URL}/Admin/users/${encodeURIComponent(email)}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const res = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(res.message || 'Failed to delete user');
-            return res;
-        },
-
         async resetPasswordAsync(email, otp, newPassword) {
             const response = await fetch(`${API_BASE_URL}/Auth/reset-password`, {
                 method: 'POST',
@@ -1430,6 +1417,13 @@
                     if (errList) errMsg = errList;
                 }
                 throw new Error(errMsg);
+            }
+            if (resData && resData.token) {
+                saveStorage(STORAGE_KEYS.JWT_TOKEN, resData.token);
+                const user = { email: resData.email, name: resData.fullName, id: resData.userId, role: this.extractRoleFromToken(resData.token) };
+                this.setUserRole(user.role);
+                saveStorage(STORAGE_KEYS.AUTH_USER, user);
+                if (this.syncCartFromBackendAsync) await this.syncCartFromBackendAsync();
             }
             return resData;
         },
@@ -1735,54 +1729,6 @@
             } catch (err) {
                 clearTimeout(timeoutId);
                 console.warn('API assignRole notice:', err.message);
-                throw err;
-            }
-        },
-
-        async loadUsersWithRolesAsync() {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            if (!token) throw new Error("Authentication required.");
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/Admin/users`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                const result = await response.json().catch(() => null);
-                if (!response.ok || !result || !result.isSuccess) {
-                    throw new Error((result && result.message) ? result.message : 'Failed to load users.');
-                }
-                
-                return result.data || [];
-            } catch (err) {
-                console.warn('API loadUsersWithRoles error:', err.message);
-                throw err;
-            }
-        },
-
-        async removeRoleAsync(email, roleName) {
-            const token = loadStorage(STORAGE_KEYS.JWT_TOKEN, null);
-            if (!token) throw new Error("Authentication required.");
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/Admin/remove-role`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: email, roleName: roleName })
-                });
-
-                const data = await response.json().catch(() => null);
-
-                if (!response.ok) {
-                    throw new Error((data && data.message) ? data.message : 'Failed to remove role.');
-                }
-
-                return data;
-            } catch (err) {
-                console.warn('API removeRole error:', err.message);
                 throw err;
             }
         },
