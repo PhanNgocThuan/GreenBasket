@@ -1,3 +1,3 @@
 window.ENV = {
-    API_URL: "http://localhost:5062/api"
+    API_URL: window.location.protocol + "//" + window.location.hostname + ":5062/api"
 };

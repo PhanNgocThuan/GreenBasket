@@ -1,4 +1,7 @@
-﻿namespace GreenBasket.Domain.Entities
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GreenBasket.Domain.Entities
 {
     public class Batch
     {
@@ -12,8 +15,13 @@
 
         public DateTime HarvestDate { get; set; }
         public DateTime ReceivedDate { get; set; } = DateTime.UtcNow;
-        public int QuantityReceived { get; set; }
-        public int QuantityRemaining { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal QuantityReceived { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal QuantityRemaining { get; set; }
+        
         public decimal CostPrice { get; set; }
     }
 }

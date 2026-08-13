@@ -1,10 +1,10 @@
-﻿namespace GreenBasket.Application.DTOs.Products
+namespace GreenBasket.Application.DTOs.Products
 {
     public class LowStockReportItem
     {
         public int ProductId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int StockQty { get; set; }
+        public decimal StockQty { get; set; }
         public string StockStatus { get; set; } = string.Empty;
     }
 
@@ -20,7 +20,7 @@
         public int ProductId { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal UnitsSold { get; set; }
-        public int CurrentStock { get; set; }
+        public decimal CurrentStock { get; set; }
         public double TurnoverRatio { get; set; }
     }
 

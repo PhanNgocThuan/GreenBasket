@@ -44,7 +44,8 @@ namespace GreenBasket.Domain.Entities
         public bool IsActive { get; set; } = true;
 
         // Cache field, tính lại mỗi khi Batch thay đổi (không phải nguồn sự thật)
-        public int StockQty { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal StockQty { get; set; }
         public StockStatus StockStatus { get; set; } = StockStatus.OutOfStock;
 
         public ICollection<Batch> Batches { get; set; } = new List<Batch>();

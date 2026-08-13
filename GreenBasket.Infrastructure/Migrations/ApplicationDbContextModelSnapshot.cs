@@ -163,11 +163,11 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuantityReceived")
-                        .HasColumnType("int");
+                    b.Property<decimal>("QuantityReceived")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("QuantityRemaining")
-                        .HasColumnType("int");
+                    b.Property<decimal>("QuantityRemaining")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("datetime2");
@@ -426,8 +426,8 @@ namespace GreenBasket.Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("StockQty")
-                        .HasColumnType("int");
+                    b.Property<decimal>("StockQty")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockStatus")
                         .HasColumnType("int");

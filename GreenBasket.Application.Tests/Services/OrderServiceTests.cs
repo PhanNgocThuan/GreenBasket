@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GreenBasket.Application.DTOs;
@@ -120,6 +120,17 @@ namespace GreenBasket.Application.Tests
         {
             // Arrange
             using var context = GetInMemoryDbContext();
+            var product = new Product
+            {
+                Id = 10,
+                Name = "Mock Product",
+                Price = 50000m,
+                StockQty = 5m,
+                Batches = new List<Batch>
+                {
+                    new Batch { Id = 101, QuantityReceived = 10m, QuantityRemaining = 10m, CostPrice = 30000m, ReceivedDate = DateTime.UtcNow, Farm = new Farm { Id = 201, Name = "Test Farm" } }
+                }
+            };
             var cart = new Cart
             {
                 AppUserId = "user1",
@@ -129,6 +140,7 @@ namespace GreenBasket.Application.Tests
                 }
             };
             var slot = new DeliverySlot { Id = 1, TimeRange = "08:00 - 10:00", CurrentOrders = 0 };
+            context.Products.Add(product);
             context.Carts.Add(cart);
             context.DeliverySlots.Add(slot);
             await context.SaveChangesAsync();

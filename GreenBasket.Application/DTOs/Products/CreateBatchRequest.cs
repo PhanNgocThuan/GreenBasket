@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using GreenBasket.Application.Validations;
 
 namespace GreenBasket.Application.DTOs.Products
@@ -12,7 +12,7 @@ namespace GreenBasket.Application.DTOs.Products
         public DateTime HarvestDate { get; set; }
 
         [Range(1, 100000, ErrorMessage = "Quantity must be greater than 0.")]
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         [Range(0, 100000, ErrorMessage = "Cost price cannot be negative.")]
         public decimal CostPrice { get; set; }

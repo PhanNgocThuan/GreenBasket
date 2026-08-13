@@ -90,6 +90,45 @@ namespace GreenBasket.Application.Services
 
             foreach (var item in cart.CartItems)
             {
+                var product = await _context.Products
+                    .Include(p => p.Batches)
+                    .FirstOrDefaultAsync(p => p.Id == item.ProductId);
+
+                if (product == null)
+                    throw new Exception($"Product {item.ProductId} not found");
+
+                if (product.StockQty < item.Quantity)
+                    throw new Exception($"Sản phẩm {product.Name} không đủ số lượng tồn kho");
+
+                decimal remainingToDeduct = item.Quantity;
+
+                var availableBatches = product.Batches
+                    .Where(b => b.QuantityRemaining > 0)
+                    .OrderBy(b => b.ReceivedDate)
+                    .ToList();
+
+                foreach (var batch in availableBatches)
+                {
+                    if (remainingToDeduct <= 0) break;
+
+                    if (batch.QuantityRemaining >= remainingToDeduct)
+                    {
+                        batch.QuantityRemaining -= remainingToDeduct;
+                        remainingToDeduct = 0;
+                    }
+                    else
+                    {
+                        remainingToDeduct -= batch.QuantityRemaining;
+                        batch.QuantityRemaining = 0;
+                    }
+                }
+
+                if (remainingToDeduct > 0)
+                    throw new Exception($"Sản phẩm {product.Name} không đủ số lượng tồn kho trong các lô hàng");
+
+                product.StockQty -= item.Quantity;
+                product.StockStatus = product.StockQty <= 0 ? StockStatus.OutOfStock : (product.StockQty < 10m ? StockStatus.LowStock : StockStatus.InStock);
+
                 order.OrderItems.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
@@ -194,23 +233,91 @@ namespace GreenBasket.Application.Services
 
         public async Task<bool> CancelOrderAsync(int orderId, string userId)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId && o.AppUserId == userId);
-            if (order == null || order.Status == "Shipped" || order.Status == "Delivered")
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.AppUserId == userId);
+                
+            if (order == null || order.Status == "Shipped" || order.Status == "Delivered" || order.Status == "Cancelled" || order.Status == "Refunded")
                 return false;
 
             order.Status = "Cancelled"; // Handles refund flow if needed later
+
+            await RestoreOrderStockAsync(order);
+
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
         {
-            var order = await _context.Orders.FindAsync(orderId);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
             if (order == null) return false;
+
+            // If transitioning to Cancelled or Refunded from a different state, restore stock
+            if ((status == "Cancelled" || status == "Refunded") && 
+                (order.Status != "Cancelled" && order.Status != "Refunded"))
+            {
+                await RestoreOrderStockAsync(order);
+            }
 
             order.Status = status; // e.g., "Processing", "Shipped", "Delivered"
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task RestoreOrderStockAsync(Order order)
+        {
+            foreach (var item in order.OrderItems)
+            {
+                var product = await _context.Products
+                    .Include(p => p.Batches)
+                    .FirstOrDefaultAsync(p => p.Id == item.ProductId);
+
+                if (product != null)
+                {
+                    decimal remainingToAdd = item.Quantity;
+
+                    var recentBatches = product.Batches
+                        .OrderByDescending(b => b.ReceivedDate)
+                        .ToList();
+
+                    foreach (var batch in recentBatches)
+                    {
+                        if (remainingToAdd <= 0) break;
+
+                        decimal spaceInBatch = batch.QuantityReceived - batch.QuantityRemaining;
+                        if (spaceInBatch > 0)
+                        {
+                            if (spaceInBatch >= remainingToAdd)
+                            {
+                                batch.QuantityRemaining += remainingToAdd;
+                                remainingToAdd = 0;
+                            }
+                            else
+                            {
+                                batch.QuantityRemaining += spaceInBatch;
+                                remainingToAdd -= spaceInBatch;
+                            }
+                        }
+                    }
+
+                    if (remainingToAdd > 0)
+                    {
+                        var latestBatch = recentBatches.FirstOrDefault();
+                        if (latestBatch != null)
+                        {
+                            latestBatch.QuantityRemaining += remainingToAdd;
+                            latestBatch.QuantityReceived += remainingToAdd; // update received to prevent inconsistency
+                        }
+                    }
+
+                    product.StockQty += item.Quantity;
+                    product.StockStatus = product.StockQty <= 0 ? StockStatus.OutOfStock : (product.StockQty < 10m ? StockStatus.LowStock : StockStatus.InStock);
+                }
+            }
         }
 
         public async Task<bool> ReportDamagedGoodsAsync(int orderId, string reportDetails)

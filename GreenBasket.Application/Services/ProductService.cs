@@ -9,7 +9,7 @@ namespace GreenBasket.Application.Services
     public class ProductService : IProductService
     {
         private readonly ApplicationDbContext _context;
-        private const int LowStockThreshold = 10;
+        private const decimal LowStockThreshold = 10m;
 
         public ProductService(ApplicationDbContext context)
         {
@@ -207,7 +207,7 @@ namespace GreenBasket.Application.Services
                 .ToListAsync();
         }
 
-        private static StockStatus ComputeStockStatus(int qty) =>
+        private static StockStatus ComputeStockStatus(decimal qty) =>
             qty <= 0 ? StockStatus.OutOfStock :
             qty < LowStockThreshold ? StockStatus.LowStock :
             StockStatus.InStock;
